@@ -1,0 +1,119 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Test / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Type checkers / linters
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+
+# Secrets and tokens (NEVER COMMIT)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+tokens.json
+token_cache.json
+msal_cache.bin
+auth_cache/
+secrets/
+
+# Tenant data and replay artifacts (NEVER COMMIT)
+replay-logs/
+*.replay.json
+*.replay.jsonl
+tenant-exports/
+findings-local/
+working/
+scratch/
+*.tenant.json
+
+# Allow committed canonical sample artifacts under samples/
+# (samples/canonical-run.json and samples/report.html are intentional)
+!samples/
+!samples/**
+
+# Local config overrides
+rejewski.config.local.json
+*.local.json
+config.local.*
+
+# Logs
+*.log
+logs/
+
+# IDE / editors
+.vscode/*
+!.vscode/settings.json.template
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS noise
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Node (if any tooling lands later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+*.bak
+*.tmp
+.cache/

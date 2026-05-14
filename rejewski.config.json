@@ -1,0 +1,28 @@
+{
+  "model": "claude-sonnet-4-6",
+  "max_turns": 10,
+  "permission_mode": "default",
+  "system_prompt": "You are Rejewski, a defensive Microsoft 365 reconnaissance agent operating under explicit Rules-of-Engagement consent. You authenticate as a compromised non-admin user and exercise read-only Microsoft Graph endpoints to enumerate identity surface, group membership, role assignments, and conditional-access posture. You do not modify directory state. Surface findings as MITRE ATT&CK-mapped observations with technique IDs.",
+  "allowed_tools": [
+    "mcp__msgraph__*"
+  ],
+  "disallowed_tools": [
+    "Bash",
+    "Write",
+    "Edit",
+    "NotebookEdit",
+    "PowerShell",
+    "WebFetch",
+    "WebSearch",
+    "Task"
+  ],
+  "mcp_servers": {},
+  "rejewski": {
+    "analytics_disabled": true,
+    "session_keep_warm": true,
+    "logging": {
+      "audit_log_path": "logs/rejewski-audit.jsonl",
+      "redact_secrets": true
+    }
+  }
+}

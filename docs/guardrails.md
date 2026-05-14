@@ -1,58 +1,149 @@
 # Rejewski Guardrails
 
-- **Status:** v0.1 outline
-- **Date:** 2026-05-14
-- **Author:** Derek Morgan
-- **Binds to:** ADR 0001 (Rules of Engagement), docs/threat-model.md v0.1
+Operational rules that bound every Sprint 1 technique. Each guardrail has an ID, statement, rationale, enforcement, scope, and exceptions. Technique modules in docs/techniques/ cite these IDs by number. ADR 0001 (Sprint 1 Rules of Engagement) authorizes the set.
 
-## Purpose
+---
 
-Eight guardrails bind Rejewski's runtime behavior to the Rules of Engagement. Each guardrail is enforceable in code, not aspirational. ADR 0001 sets the contract; this document defines the runtime checks that enforce it.
+## G-1 — Sandbox tenant only
 
-Sprint 1 ships these guardrails as outline stubs. Full prose buildout and code binding land on the Sprint 1 Sat May 16 paired card.
+**Statement.** All Rejewski activity targets the cloudharbordemo sandbox tenant (76b87c33-6178-4ff9-94a7-164792c8e4c6). No other tenant is a valid target.
 
-## G-1 — Tenant Scope Lock
+**Rationale.** Rejewski emulates adversary tradecraft. Any spillover into a real production tenant — including CHC's own cloudharborconsulting tenant — would carry real blast radius. The sandbox tenant is isolated by design, contains only seeded test data, and exists for this purpose.
 
-**Binds:** ADR 0001 §1.
-**Stub:** At process start, Rejewski reads the operator-provided tenant allowlist file. Any tenant ID present in the hash-match denylist refuses startup. The MCS-MOS3 sandbox tenant ID (cf3f9a61-644f-4d47-a11c-a6600a9bc717) is the Sprint 1 single permitted target.
+**Enforcement.** The tenant ID is pinned in rejewski.config.json and surfaced as front-matter in every technique module. Operators check the tenant ID printed in the device-code prompt before completing sign-in. The SDK refuses to proceed if the post-auth /me response returns a tenant ID other than 76b87c33.
 
-## G-2 — Consent Floor
+**Scope.** All Graph calls, all PowerShell sessions, all evidence capture. Includes test runs, smoke tests, dry runs, and replay logs.
 
-**Binds:** ADR 0001 §2.
-**Stub:** Per-run interactive consent prompt confirms target tenant ID, technique list, estimated duration, and run ID. The operator types the run ID back to confirm. Consent confirmation is logged to the replay record before any Graph call is issued.
+**Exceptions.** None in Sprint 1. A future sprint requiring a second tenant (e.g., for cross-tenant emulation) must introduce that tenant via a superseding ADR that updates G-1, not by silent expansion.
 
-## G-3 — Technique Allowlist
+---
 
-**Binds:** ADR 0001 §3, threat-model section 5.
-**Stub:** Technique modules register against a runtime registry. At config load, any technique not present in the threat-model's in-scope list refuses to register. Sprint 1: T1078.004, T1087.004, T1069.003 only.
+## G-2 — No tenant app registration
 
-## G-4 — Read-Default Posture
+**Statement.** Rejewski never creates, modifies, or deletes an application registration in the target tenant. Only Microsoft-owned first-party OAuth clients may be used.
 
-**Binds:** ADR 0001 §4.
-**Stub:** Graph client wrapper rejects non-GET verbs unless the calling technique has declared a per-call write intent in its module manifest. Sprint 1 declares zero write intents.
+**Rationale.** A custom app registration is itself an adversary technique (T1136.003 Create Account: Cloud Account variants, T1098.001 Account Manipulation: Additional Cloud Credentials). Gaining one is what later sprints emulate. Starting from a position of "already has a tenant app reg" would short-circuit the kill chain Rejewski is trying to model and would also leave a permanent artifact in the sandbox tenant.
 
-## G-5 — Replay-Log Immutability
+**Enforcement.** ADR 0001 §3 lists the allowed FOCI clients. The SDK refuses any client ID not in that list. Code review for every technique module checks that the front-matter first_party_client_id is on the allowlist.
 
-**Binds:** ADR 0001 §5.
-**Stub:** Replay log is opened in append-only mode at run start. On run end, the file is closed, hashed (SHA-256), and the hash is written to a sibling .sha256 file. Any subsequent modification invalidates the hash check on the next read.
+**Scope.** Initial-access techniques, persistence techniques, and any module that touches OAuth client identity. Reaffirmed in every technique module's Borrowed Client section.
 
-## G-6 — Rate-Limit Ceiling
+**Exceptions.** None in Sprint 1. Gaining a tenant app registration is a Sprint 2+ technique and must be authorized by a future ADR.
 
-**Binds:** —
-**Stub:** Graph client wrapper enforces a per-second request ceiling well below Microsoft's documented throttle thresholds. On a 429 response, the technique aborts and the run logs the throttle event. Sprint 1 ceiling: 5 requests per second per technique.
+---
 
-## G-7 — Kill Switch
+## G-3 — Consent floor (read-only Sprint 1)
 
-**Binds:** ADR 0001 §6.
-**Stub:** A single config key (rejewski.enabled) is read at process start. If the value is anything other than the literal string "true", every technique module's entrypoint short-circuits before any Graph call. Default state on first deployment: disabled.
+**Statement.** Sprint 1 token requests carry only read-only Microsoft Graph delegated scopes. Specifically: User.Read, User.ReadBasic.All, Group.Read.All. Write scopes (Mail.Send, Directory.ReadWrite.All, Group.ReadWrite.All) and admin-consent scopes are not requested.
 
-## G-8 — Audit Trail
+**Rationale.** Consent floors bound the worst-case impact of an emulation gone wrong. A read-only token cannot send mail as the user, cannot modify directory objects, and cannot create persistence artifacts. Sprint 1 deliberately stays on the discovery side of the kill chain so the safety envelope is shallow.
 
-**Binds:** ADR 0001 §5 and §8.
-**Stub:** Every Graph call emits an audit record containing: run ID, operator object ID, technique ID, endpoint, verb, response status code, timestamp. Audit records are written to the same replay log as the consent confirmation, in the same append-only stream.
+**Enforcement.** Scope list is pinned in rejewski.config.json under SDK_FIELDS. The SDK refuses to request a scope outside the allowlist. Evidence capture records the granted scopes from each token response; PR review flags any scope drift.
 
-## Change Log
+**Scope.** All Sprint 1 technique modules. ADR 0002 (consent floor evidence) defines the recording format.
 
-| Version | Date | Author | Notes |
-|---------|------|--------|-------|
-| v0.1 | 2026-05-14 | Derek Morgan | Outline. G-1 through G-8 stubs committed. Full prose and code binding deferred to Sat May 16. |
+**Exceptions.** None in Sprint 1. Write-side techniques are deferred to Sprint 2+ with a superseding ADR that uplifts the floor explicitly.
+
+---
+
+## G-4 — FOCI client allowlist
+
+**Statement.** Sprint 1 uses Microsoft Graph PowerShell (14d82eec-204b-4c2f-b7e8-296a70dab67e) as the sole borrowed first-party FOCI client.
+
+**Rationale.** Constraining the borrowed-client surface to one well-understood, broadly-trusted Microsoft client keeps the sign-in fingerprint stable and predictable. It also gives blue-team detection a single app ID to baseline against during Sprint 1 evidence capture.
+
+**Enforcement.** rejewski.config.json pins the client ID. SDK refuses any other client. Each technique module's front matter restates the client ID and is checked in PR review.
+
+**Scope.** All token acquisition flows — device-code, refresh, on-behalf-of. Applies to operator-driven runs and SDK-driven smoke tests alike.
+
+**Exceptions.** None in Sprint 1. Sprint 2+ may introduce additional FOCI clients (Azure CLI, Visual Studio) via superseding ADR. Each addition requires its own G-4 amendment naming the client.
+
+---
+
+## G-5 — Evidence capture mandatory
+
+**Statement.** Every technique invocation records: technique ID, run number, run date, operator identity, tenant ID, FOCI client ID, sign-in correlation ID, scopes granted, Graph endpoints called, response correlation IDs per call, aggregate row counts, and outcome (success / partial / failed). Evidence is stored in the SharePoint Project Harbor Sonar / Evidence folder under the B-task ID that authorized the run.
+
+**Rationale.** The point of Rejewski is repeatable, auditable adversary emulation. A run without evidence is not a run — it cannot be replayed, cannot be reviewed, and cannot ground KPI claims. Mandatory capture also creates the dataset Sprint 2+ detection coverage will be validated against.
+
+**Enforcement.** SDK writes a structured ledger entry per run to logs/rejewski-audit.jsonl (path pinned in rejewski.config.json). Operators copy the ledger entry into the SharePoint Evidence file before closing the run. PR review for technique modules checks that the Evidence section cites at least one B-task evidence file.
+
+**Scope.** All technique invocations including smoke tests and replay reruns. Failed runs are captured with the failure mode noted.
+
+**Exceptions.** None.
+
+---
+
+## G-6 — Audit log redaction
+
+**Statement.** Evidence files published to the Rejewski repo (public on GitHub) redact tenant-identifying content beyond the cloudharbordemo tenant ID itself: account UPNs, account display names, group display names, group object IDs, and any other directory object name are hashed in published evidence. The unredacted index lives in the SharePoint Evidence folder with restricted access.
+
+**Rationale.** The Rejewski repo is intended to be public so the techniques and guardrails can be cited externally. Publishing the seeded sandbox directory structure verbatim would leak the test fixture, which weakens its value as a fixture if it ever becomes a moving target. Redaction lets the public-repo evidence remain useful for replay while keeping the directory fixture stable.
+
+**Enforcement.** The audit-log redact_secrets flag in rejewski.config.json is true; the SDK hashes named fields before writing logs/rejewski-audit.jsonl. Operators check the hash output before committing to the repo. PR review flags any unredacted UPN, display name, or object ID outside the sandbox tenant ID itself.
+
+**Scope.** All evidence content destined for the public Rejewski repo. SharePoint-side evidence is unredacted for operator use.
+
+**Exceptions.** The cloudharbordemo tenant ID (76b87c33-6178-4ff9-94a7-164792c8e4c6) and the Graph PowerShell client ID (14d82eec) are not redacted — both are public Microsoft-published values.
+
+---
+
+## G-7 — No real user data
+
+**Statement.** The sandbox tenant is populated only with seeded test accounts. No real CHC employee account, real customer account, or real production data is staged into the sandbox at any phase.
+
+**Rationale.** Real data in a sandbox is a leak waiting to happen. Even with G-6 redaction, real UPNs in evidence files would be one config error away from public exposure. The cost of seeding fake test users is trivial relative to the downside of leaking a real one.
+
+**Enforcement.** B001 step 4 documents the seeded-user roster. Quarterly audit confirms the roster matches the live sandbox. New users added to the sandbox follow the seeded-user naming pattern (<rejewski-test-NN@cloudharbordemo.onmicrosoft.com>).
+
+**Scope.** All users, all groups, all calendar events, all SharePoint content, all Teams chats inside the sandbox tenant.
+
+**Exceptions.** None.
+
+---
+
+## G-8 — Time-boxed sessions
+
+**Statement.** Refresh tokens issued in Sprint 1 are not held beyond the session-keep-warm window declared in rejewski.config.json. Sessions are explicitly torn down at the end of each operator run.
+
+**Rationale.** Long-lived token persistence is itself a Sprint 2+ technique (T1078.004 sub-scenarios, T1098.001). Holding tokens across runs would conflate the discovery emulations being shipped in Sprint 1 with persistence behaviors that have not been authorized yet. Time-boxing also bounds the blast radius if a refresh token cache ever leaks from the operator workstation.
+
+**Enforcement.** rejewski.config.json sets session_keep_warm and the SDK enforces the expiry. Operators run an explicit sign-out at run end; failure to sign out is flagged in the audit ledger.
+
+**Scope.** All operator runs and all SDK smoke tests in Sprint 1.
+
+**Exceptions.** None in Sprint 1. Persistence-emulation techniques in Sprint 2+ will introduce token-survival scenarios via superseding ADR.
+
+---
+
+## G-9 — Enumeration row cap
+
+**Statement.** Sprint 1 discovery techniques cap returned rows at the configured limit per call (default 50 for /users, default 50 for /groups, default 25 for /me/memberOf). Operators may raise the cap per run with explicit justification recorded in the evidence ledger; the SDK refuses uncapped enumeration.
+
+**Rationale.** Bounding enumeration volume keeps evidence files manageable, keeps the sign-in trace visible without paginating across hundreds of audit entries, and bounds the noise floor that downstream detection work has to baseline against in Sprint 2. Uncapped enumeration is itself a louder adversary behavior (anomalous-volume signal); Sprint 1 prefers the quieter end of the spectrum.
+
+**Enforcement.** Row caps live in rejewski.config.json. The SDK applies the cap as the $top parameter on Graph requests and stops paging when the cap is hit. The evidence ledger records cap, rows returned, and whether the cap was hit.
+
+**Scope.** All discovery techniques in Sprint 1 — T1087.004 and T1069.003 today. Initial-access (T1078.004) is unaffected because it does not enumerate.
+
+**Exceptions.** Per-run cap raises must be recorded in the evidence ledger with operator initials and rationale. No exceptions to the SDK refusing uncapped enumeration.
+
+**Decision.** G-9 entered as a candidate during the Sprint 1 technique-module drafting; promoted to accepted in this PR on the basis that T1087.004 and T1069.003 already cite a row cap in their Procedure sections without a governing guardrail. Promoting G-9 closes that governance gap before PR 4 (threat-model.md v0.2) ships.
+
+---
+
+## Appendix — Guardrail-to-technique map
+
+| Guardrail | T1078.004 | T1087.004 | T1069.003 |
+|-----------|-----------|-----------|-----------|
+| G-1 sandbox tenant | yes | yes | yes |
+| G-2 no app reg | yes | inherited | inherited |
+| G-3 consent floor | yes | yes | yes |
+| G-4 FOCI allowlist | yes | inherited | inherited |
+| G-5 evidence | yes | yes | yes |
+| G-6 redaction | — | yes | yes |
+| G-7 no real users | yes | yes | yes |
+| G-8 time-boxed | yes | inherited | inherited |
+| G-9 row cap | — | yes | yes |
+
+"Inherited" means the guardrail applies because the technique runs inside a session governed by T1078.004; no separate enforcement step at the downstream technique.

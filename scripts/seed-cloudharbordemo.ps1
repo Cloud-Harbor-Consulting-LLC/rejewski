@@ -17,7 +17,7 @@ param(
     [string]$SeedPassword,
 
     [string]$NonAdminSuffix = "cloudharbor-demo.com",
-    [string]$AdminSuffix    = "cloudharborconsulting.onmicrosoft.com"
+    [string]$AdminSuffix    = "cloudharbordemo.onmicrosoft.com"
 )
 
 Connect-MgGraph -Scopes "User.ReadWrite.All", "Directory.ReadWrite.All", "RoleManagement.ReadWrite.Directory"

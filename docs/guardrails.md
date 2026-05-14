@@ -4,17 +4,17 @@ Operational rules that bound every Sprint 1 technique. Each guardrail has an ID,
 
 ---
 
-## G-1 — Sandbox tenant only
+## G-1 — Sandbox Tenant Lock
 
-**Statement.** All Rejewski activity targets the cloudharbordemo sandbox tenant (76b87c33-6178-4ff9-94a7-164792c8e4c6). No other tenant is a valid target.
+**Statement.** All technique runs target the cloudharbordemo Azure sandbox tenant (tenant ID 76b87c33-6178-4ff9-94a7-164792c8e4c6) exclusively. No technique module, smoke test, or replay session may issue a Graph call against any other tenant.
 
-**Rationale.** Rejewski emulates adversary tradecraft. Any spillover into a real production tenant — including CHC's own cloudharborconsulting tenant — would carry real blast radius. The sandbox tenant is isolated by design, contains only seeded test data, and exists for this purpose.
+**Rationale.** Rejewski is a defensive-research agent. Operating outside the sandbox tenant carries blast-radius risk against real users, real data, and real tenant configuration. The sandbox tenant is purpose-built with synthetic users and isolated data; the Planner host tenant (where Project Harbor Sonar tracking lives) is a program-management surface and is not a valid target. Conflation between the two tenants is a documented historical hazard (ADR 0001 v0.1 carried the Planner host tenant ID in error; corrected to cloudharbordemo in v0.2).
 
-**Enforcement.** The tenant ID is pinned in rejewski.config.json and surfaced as front-matter in every technique module. Operators check the tenant ID printed in the device-code prompt before completing sign-in. The SDK refuses to proceed if the post-auth /me response returns a tenant ID other than 76b87c33.
+**Enforcement.** The runtime loader in scripts/rejewski_runtime.py reads the tenant ID from rejewski.config.json and compares against the constant 76b87c33-6178-4ff9-94a7-164792c8e4c6 before any technique module fires. A mismatch raises a TenantScopeViolation exception and aborts the run before any Graph call is issued. The loader smoke test (Wed May 13 evening) confirms the pre-flight comparison fires correctly.
 
-**Scope.** All Graph calls, all PowerShell sessions, all evidence capture. Includes test runs, smoke tests, dry runs, and replay logs.
+**Scope.** Binds every technique module under docs/techniques/, every smoke-test script under scripts/, and every replay scenario under tests/replay/ (when that directory lands in Sprint 2). Binds the Claude Agent SDK runtime when invoked by an operator and the headless runtime when invoked by CI.
 
-**Exceptions.** None in Sprint 1. A future sprint requiring a second tenant (e.g., for cross-tenant emulation) must introduce that tenant via a superseding ADR that updates G-1, not by silent expansion.
+**Exceptions.** None at Sprint 1. Future cross-tenant techniques (e.g., guest-account enumeration patterns) will require their own guardrail and an ADR amendment before any cross-tenant target ID is added to the allowlist.
 
 ---
 

@@ -1,42 +1,29 @@
-"""
-scripts/test-prompt.py
-Smoke-test a prompt against the Rejewski agent via Claude Agent SDK.
+"""Smoke test: send a one-shot prompt to the Rejewski agent via the Claude Agent SDK.
 
-Usage:
-    python scripts/test-prompt.py "Your prompt here"
+Usage from the repo root:
+    python scripts/test-prompt.py "List three ATT&CK techniques relevant to cloud account discovery."
+
+Loads the same runtime config as the rest of Rejewski (rejewski.config.json + scripts/rejewski_runtime.py),
+so model, permission_mode, allowed_tools, disallowed_tools, mcp_servers, env, and analytics_disabled all match
+the production agent surface.
 """
+import asyncio
 import sys
-import time
+
 from claude_agent_sdk import query
-from rejewski_runtime import load_runtime
+
+from rejewski_runtime import load_config
 
 
-def main() -> None:
-    if len(sys.argv) < 2:
-        prompt = "Say 'Rejewski test-prompt online.' and nothing else."
-    else:
-        prompt = sys.argv[1]
+DEFAULT_PROMPT = "Say 'Rejewski test-prompt online.' and nothing else."
 
-    runtime = load_runtime()
-    print(f"[runtime] model={runtime.options.model} max_turns={runtime.options.max_turns}")
-    print(f"[prompt]  {prompt}")
-    print()
 
-    started = time.perf_counter()
-    response_chunks: list[str] = []
-    for message in query(prompt=prompt, options=runtime.options):
-        if hasattr(message, "content"):
-            for block in message.content:
-                if getattr(block, "type", None) == "text":
-                    response_chunks.append(block.text)
-        elif isinstance(message, str):
-            response_chunks.append(message)
-
-    elapsed_ms = int((time.perf_counter() - started) * 1000)
-    print("".join(response_chunks))
-    print()
-    print(f"[done] elapsed={elapsed_ms}ms")
+async def main(prompt: str) -> None:
+    cfg = load_config()
+    async for message in query(prompt=prompt, options=cfg.options):
+        print(message)
 
 
 if __name__ == "__main__":
-    main()
+    prompt = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_PROMPT
+    asyncio.run(main(prompt))

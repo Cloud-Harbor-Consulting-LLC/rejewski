@@ -8,6 +8,7 @@ so model, permission_mode, allowed_tools, disallowed_tools, mcp_servers, env, an
 the production agent surface.
 """
 import asyncio
+import os
 import sys
 
 from claude_agent_sdk import query
@@ -17,6 +18,9 @@ from rejewski_runtime import load_config
 
 DEFAULT_PROMPT = "Say 'Rejewski test-prompt online.' and nothing else."
 
+if not os.environ.get("ANTHROPIC_API_KEY"):
+    print("ANTHROPIC_API_KEY missing from environment. Check .env.")
+    sys.exit(1)
 
 async def main(prompt: str) -> None:
     cfg = load_config()

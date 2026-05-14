@@ -14,9 +14,19 @@ Rejewski simulates adversary tradecraft against a Microsoft 365 tenant under con
 
 Every Rejewski run is bound by the following rules. The tool refuses to execute if any rule cannot be satisfied at run start.
 
-### 1. Tenant scope
+### 1. Tenant Scope
 
-Rejewski may only target a tenant whose ID is listed in the operator-provided allowlist file. Sprint 1 floor: exactly one tenant ID, the MCS-MOS3 sandbox (cf3f9a61-644f-4d47-a11c-a6600a9bc717). Production tenant IDs are explicitly excluded by hash-match denylist.
+All Sprint 1 technique runs target the **cloudharbordemo** Azure sandbox tenant exclusively.
+
+- Tenant name: cloudharbordemo
+- Tenant ID: 76b87c33-6178-4ff9-94a7-164792c8e4c6
+- Tenant domain: cloudharbordemo.onmicrosoft.com
+
+No production tenant, no customer tenant, no Cloud Harbor Consulting corporate tenant, and no Planner host tenant is a valid target for any Rejewski technique module. The Planner host tenant (used for Project Harbor Sonar program tracking, separate ID) is a project-management surface only and is explicitly out of scope.
+
+Tenant scope is enforced by G-1 (Sandbox Tenant Lock) in docs/guardrails.md. Any technique module that resolves to a tenant ID other than 76b87c33-6178-4ff9-94a7-164792c8e4c6 must abort before any Graph call is issued. The runtime config at rejewski.config.json carries the sandbox tenant ID; the loader in scripts/rejewski_runtime.py is responsible for the pre-flight comparison.
+
+Compromised-user model: token acquisition borrows first-party Microsoft client IDs (Sprint 1 default: Microsoft Graph PowerShell, client ID 14d82eec-204b-4c2f-b7e8-296a70dab67e) against seed credentials in the sandbox tenant. Rejewski never creates a tenant-side app registration in the target tenant. Gaining an app registration is itself a future ATT&CK technique to simulate (T1098.005 Device Registration, T1606 Forge Web Credentials, T1550.001 Application Access Token, OAuth illicit consent grant) and stays on the Sprint 2+ roadmap.
 
 ### 2. Consent floor
 

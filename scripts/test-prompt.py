@@ -11,10 +11,12 @@ import asyncio
 import os
 import sys
 
+from dotenv import load_dotenv
 from claude_agent_sdk import query
 
 from rejewski_runtime import load_config
 
+load_dotenv()
 
 DEFAULT_PROMPT = "Say 'Rejewski test-prompt online.' and nothing else."
 

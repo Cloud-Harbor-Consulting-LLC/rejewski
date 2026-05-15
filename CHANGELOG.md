@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- pytest test surface for the replay-log writer middleware. Five test classes: schema fidelity (validates committed samples + asserts bad fixtures fail), round-trip (write → read → re-validate → JSON-equal), refusal (overwrite + missing borrowed_client_id + wrong tenant), scrubbing (Authorization header allow-list + access_token deny-list + nested credentials), determinism (fixed-input filename + temp-file cleanup on exception).
+- tests/fixtures/bad-entries/ with three negative-validation fixtures: missing-tenant-id.json, invalid-outcome.json, wrong-schema-version.json.
+- requirements-dev.txt pinning pytest>=8,<9.
 - Guardrail G-9 — Enumeration row cap. Bounds discovery technique row counts at the configured per-endpoint default; promotes the row-cap rule already referenced in T1087.004 and T1069.003 Procedure sections to governed status.
 - Sprint 1 technique modules — T1078.004 (Valid Accounts: Cloud Accounts), T1087.004 (Account Discovery: Cloud Account), and T1069.003 (Permission Groups Discovery: Cloud Groups) — under docs/techniques/. All three follow the ADR 0003 format and cite ADR 0001, threat-model.md, and the relevant guardrails.
 - ADR 0003: Technique Module Format defines required front matter, section order, and cross-referencing rules for docs/techniques/<TID>.md modules. Locks the borrowed-client field to keep the no-tenant-app-reg posture explicit in every module.

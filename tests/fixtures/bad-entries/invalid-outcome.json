@@ -1,0 +1,21 @@
+{
+  "schema_version": "0.1.0",
+  "entry_id": "00000000-0000-0000-0000-000000000002",
+  "tool": "tool_list_users",
+  "technique_id": "T1087.004",
+  "technique_name": "Account Discovery: Cloud Account",
+  "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+  "actor_upn": "meganb@cloudharbor-demo.com",
+  "started_at_utc": "2026-05-15T14:30:15.000000Z",
+  "completed_at_utc": "2026-05-15T14:30:16.000000Z",
+  "request": {
+    "method": "GET",
+    "url": "https://graph.microsoft.com/v1.0/users"
+  },
+  "response": {
+    "status": 200,
+    "body": {"value": []}
+  },
+  "outcome": "pending"
+}

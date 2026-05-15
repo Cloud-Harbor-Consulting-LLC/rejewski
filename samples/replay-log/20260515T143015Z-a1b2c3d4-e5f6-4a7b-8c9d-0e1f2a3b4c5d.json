@@ -1,59 +1,31 @@
 {
   "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
-  "actor_upn": "meganb@cloudharbor-demo.com",
-  "completed_at_utc": "2026-05-15T14:30:17.987654Z",
+  "completed_at_utc": "2026-05-15T14:30:17.412000Z",
   "entry_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
   "outcome": "success",
   "request": {
     "headers": {
-      "User-Agent": "rejewski-tool_list_users/0.1"
+      "Content-Type": "application/json",
+      "User-Agent": "rejewski-tool-list-users/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)"
     },
     "method": "GET",
-    "query": {
-      "$select": "displayName,mail,userPrincipalName,department",
-      "$top": "999"
-    },
-    "url": "https://graph.microsoft.com/v1.0/users"
+    "url": "https://graph.microsoft.com/v1.0/users?$select=id,displayName,userPrincipalName,mail,jobTitle,department,accountEnabled&$top=999"
   },
   "response": {
-    "body": {
-      "row_cap_hit": false,
-      "row_count": 3,
-      "users": [
-        {
-          "department": "Operations",
-          "displayName": "Adele Vance",
-          "mail": "AdeleV@cloudharbor-demo.com",
-          "userPrincipalName": "AdeleV@cloudharbor-demo.com"
-        },
-        {
-          "department": "Sales",
-          "displayName": "Alex Wilber",
-          "mail": "AlexW@cloudharbor-demo.com",
-          "userPrincipalName": "AlexW@cloudharbor-demo.com"
-        },
-        {
-          "department": "Marketing",
-          "displayName": "Megan Bowen",
-          "mail": "MeganB@cloudharbor-demo.com",
-          "userPrincipalName": "meganb@cloudharbor-demo.com"
-        }
-      ]
-    },
-    "status": 200
+    "page_count": 1,
+    "retry_count": 0,
+    "row_cap": 1000,
+    "row_cap_hit": false,
+    "row_count": 25,
+    "status_code": 200
   },
-  "schema_version": "0.1.0",
-  "started_at_utc": "2026-05-15T14:30:15.123456Z",
-  "technique_id": "T1087.004",
-  "technique_name": "Account Discovery: Cloud Account",
+  "schema_version": "0.1",
+  "started_at_utc": "2026-05-15T14:30:15.000000Z",
+  "technique": {
+    "id": "T1087.004",
+    "name": "Account Discovery: Cloud Account"
+  },
   "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
   "tool": "tool_list_users",
-  "tool_params": {
-    "argv": [
-      "python",
-      "scripts/tool_list_users.py",
-      "--top",
-      "999"
-    ]
-  }
+  "actor_upn": "meganb@cloudharbor-demo.com"
 }

@@ -15,6 +15,7 @@ from replay_log import (
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SAMPLES = REPO_ROOT / "samples" / "replay-log"
+GOOD_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "entries"
 BAD_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "bad-entries"
 
 
@@ -45,6 +46,13 @@ class TestSchemaFidelity:
             payload = json.loads(path.read_text())
             _VALIDATOR.validate(payload)
 
+    def test_good_fixtures_validate(self):
+        files = sorted(GOOD_FIXTURES.glob("*.json"))
+        assert files, "no good fixtures found under tests/fixtures/entries/"
+        for path in files:
+            payload = json.loads(path.read_text())
+            _VALIDATOR.validate(payload)
+
     def test_bad_fixtures_fail_validation(self):
         files = sorted(BAD_FIXTURES.glob("*.json"))
         assert files, "no bad fixtures found under tests/fixtures/bad-entries/"
@@ -52,8 +60,7 @@ class TestSchemaFidelity:
             payload = json.loads(path.read_text())
             with pytest.raises(Exception):
                 _VALIDATOR.validate(payload)
-
-
+                
 class TestRoundTrip:
     def test_write_then_read_equals_source(self, tmp_path):
         entry = _valid_entry()

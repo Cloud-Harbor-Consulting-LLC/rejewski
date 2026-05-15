@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Three good-entries fixtures under tests/fixtures/entries/ (minimal-success, success-with-response, error-outcome) covering the positive validation surface for the replay-log schema.
+- TestSchemaFidelity.test_good_fixtures_validate to exercise the new fixtures against the v0.1 schema.
 - Tenant-GUID redaction in RFC 9457 error block string fields (type, detail, instance) in `scripts/replay_log.py`. Closes pre-mortem failure mode #1 from the replay-log writer design report.
 - `tests/fixtures/entries/` with 3 valid sample entries (minimal-success, success-with-response, error-outcome) for positive schema validation.
 - `tests/test_replay_log.py::TestScrubbing::test_tenant_guid_redacted_in_error_detail`.

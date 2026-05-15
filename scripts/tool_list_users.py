@@ -9,10 +9,10 @@ Command Line Tools first-party client (no tenant-side app registration is
 created in the target tenant — see ADR 0001 §1, guardrail G-3, and the
 phs_rejewski_no_tenant_app_reg auto-memory).
 
-Every invocation writes a replay-log entry (success or error) to the
-configured replay-log directory. Default is replay-logs/ (gitignored). For
-canonical evidence runs, pass --replay-log-dir samples/replay-log to land
-the entry under samples/.
+Every invocation writes a replay-log entry (success, error, throttled, or
+row_cap_hit) to the configured replay-log directory. Default is
+replay-logs/ (gitignored). For canonical evidence runs, pass
+--replay-log-dir samples/replay-log to land the entry under samples/.
 
 Reads creds from .env. Writes JSON evidence to stdout (default) or to a
 file under .replay/ when --output is supplied. Honors guardrail G-9
@@ -41,7 +41,7 @@ from dotenv import load_dotenv
 
 from replay_log import (
     ReplayLogEntry,
-    problem_details,
+    make_error,
     utc_now_iso,
     write_entry,
 )
@@ -59,6 +59,7 @@ DEFAULT_REPLAY_LOG_DIR = REPO_ROOT / "replay-logs"
 TECHNIQUE_ID = "T1087.004"
 TECHNIQUE_NAME = "Account Discovery: Cloud Account"
 TOOL_NAME = "tool_list_users"
+ERROR_TYPE_URN = "urn:rejewski:error:tool-invocation-failed"
 
 
 def acquire_token(
@@ -76,7 +77,7 @@ def acquire_token(
     if "access_token" not in result:
         err = result.get("error", "unknown_error")
         desc = result.get("error_description", "no description")
-        raise RuntimeError(f"token acquisition failed: {err} — {desc}")
+        raise RuntimeError(f"token acquisition failed: {err} - {desc}")
     return app, result
 
 
@@ -92,27 +93,33 @@ def refresh_token_silently(app: msal.PublicClientApplication) -> str:
 
 def graph_get(
     url: str, token: str, app: msal.PublicClientApplication
-) -> tuple[dict[str, Any], str]:
-    """GET with Retry-After on 429/5xx (max 3) and one 401 silent-refresh recovery."""
+) -> tuple[dict[str, Any], str, int, int]:
+    """GET with Retry-After on 429/5xx (max 3) and one 401 silent-refresh recovery.
+
+    Returns (json_body, current_token, final_http_status, retry_count_for_this_call).
+    """
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/json",
         "User-Agent": USER_AGENT,
     }
     attempted_refresh = False
+    retry_count = 0
     for attempt in range(1, MAX_RETRIES + 1):
         resp = requests.get(url, headers=headers, timeout=REQ_TIMEOUT)
         if resp.status_code == 200:
-            return resp.json(), token
+            return resp.json(), token, 200, retry_count
         if resp.status_code == 401 and not attempted_refresh:
             token = refresh_token_silently(app)
             headers["Authorization"] = f"Bearer {token}"
             attempted_refresh = True
+            retry_count += 1
             continue
         if resp.status_code == 429 or 500 <= resp.status_code < 600:
             retry_after = int(resp.headers.get("Retry-After", "2"))
             if attempt < MAX_RETRIES:
                 time.sleep(retry_after)
+                retry_count += 1
                 continue
         raise RuntimeError(
             f"{url} -> HTTP {resp.status_code}: {resp.text[:400]}"
@@ -126,21 +133,27 @@ def list_users(
     select: str,
     page_size: int,
     row_cap: int,
+    stats: dict[str, int],
 ) -> list[dict[str, Any]]:
     users: list[dict[str, Any]] = []
     url: str | None = f"{GRAPH_BASE}/users?$select={select}&$top={page_size}"
     while url and len(users) < row_cap:
-        body, token = graph_get(url, token, app)
+        body, token, status_code, retries = graph_get(url, token, app)
+        stats["page_count"] += 1
+        stats["retry_count"] += retries
+        stats["last_status"] = status_code
         page = body.get("value", [])
         remaining = row_cap - len(users)
         users.extend(page[:remaining])
+        if len(users) >= row_cap:
+            break
         url = body.get("@odata.nextLink")
     return users
 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Rejewski Tool 1 — T1087.004 Account Discovery (cloud)"
+        description="Rejewski Tool 1 - T1087.004 Account Discovery (cloud)"
     )
     p.add_argument("--select", default=DEFAULT_SELECT, help="OData $select fields")
     p.add_argument(
@@ -160,7 +173,7 @@ def parse_args() -> argparse.Namespace:
         default=str(DEFAULT_REPLAY_LOG_DIR),
         help=(
             "directory for the replay-log entry "
-            "(default: replay-logs/ — gitignored; "
+            "(default: replay-logs/ - gitignored; "
             "use samples/replay-log for canonical runs)"
         ),
     )
@@ -186,10 +199,10 @@ def main() -> int:
         },
     }
 
-    outcome = "success"
-    error_block: dict[str, Any] | None = None
+    stats: dict[str, int] = {"page_count": 0, "retry_count": 0, "last_status": 0}
     users: list[dict[str, Any]] = []
-    response_obj: dict[str, Any]
+    error_block: dict[str, Any] | None = None
+    outcome: str
 
     try:
         app, token_result = acquire_token(tenant_id, client_id, upn, password)
@@ -199,30 +212,28 @@ def main() -> int:
             select=args.select,
             page_size=args.page_size,
             row_cap=args.row_cap,
+            stats=stats,
         )
-        response_obj = {
-            "status": 200,
-            "body": {
-                "@odata.context": f"{GRAPH_BASE}/$metadata#users",
-                "value": users,
-            },
-        }
+        row_cap_hit = len(users) >= args.row_cap
+        outcome = "row_cap_hit" if row_cap_hit else "success"
     except (RuntimeError, requests.RequestException) as exc:
         outcome = "error"
-        error_block = problem_details(
-            title="tool_list_users invocation failed",
-            type_=(
-                "https://github.com/Cloud-Harbor-Consulting-LLC/"
-                "rejewski/errors/tool-invocation-failed"
-            ),
-            status=500,
-            detail=str(exc),
-            tool_name=TOOL_NAME,
-            technique_id=TECHNIQUE_ID,
+        error_block = make_error(
+            type_=ERROR_TYPE_URN,
+            message=str(exc),
+            status_code=stats["last_status"] or None,
         )
-        response_obj = {"status": 0, "body": {}}
 
     completed_at = utc_now_iso()
+
+    response_obj: dict[str, Any] = {
+        "status_code": stats["last_status"] if stats["last_status"] else (200 if outcome != "error" else 0),
+        "page_count": stats["page_count"],
+        "row_count": len(users),
+        "row_cap": args.row_cap,
+        "row_cap_hit": len(users) >= args.row_cap,
+        "retry_count": stats["retry_count"],
+    }
 
     replay_entry = ReplayLogEntry(
         tool=TOOL_NAME,
@@ -236,11 +247,6 @@ def main() -> int:
         request=request_obj,
         response=response_obj,
         outcome=outcome,
-        tool_params={
-            "select": args.select,
-            "page_size": args.page_size,
-            "row_cap": args.row_cap,
-        },
         error=error_block,
     )
 
@@ -260,6 +266,8 @@ def main() -> int:
         "row_cap": args.row_cap,
         "row_count": len(users),
         "row_cap_hit": len(users) >= args.row_cap,
+        "page_count": stats["page_count"],
+        "retry_count": stats["retry_count"],
         "outcome": outcome,
         "replay_log_entry": str(replay_path),
         "users": users,
@@ -276,7 +284,7 @@ def main() -> int:
         sys.stdout.write("\n")
         sys.stdout.flush()
 
-    return 0 if outcome == "success" else 1
+    return 0 if outcome in {"success", "row_cap_hit"} else 1
 
 
 if __name__ == "__main__":

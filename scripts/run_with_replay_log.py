@@ -11,10 +11,12 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.replay_log import (
     ReplayLogEntry,
-    problem_details,
+    make_error,
     utc_now_iso,
     write_entry,
 )
+
+WRAPPER_ERROR_TYPE_URN = "urn:rejewski:error:wrapped-tool-failed"
 
 
 def _parse_args() -> argparse.Namespace:
@@ -48,6 +50,18 @@ def _parse_query(raw: str | None) -> dict | None:
     return json.loads(raw)
 
 
+def _row_count_from_stdout(stdout: str) -> int:
+    try:
+        body = json.loads(stdout)
+    except json.JSONDecodeError:
+        return 0
+    if isinstance(body, dict) and isinstance(body.get("value"), list):
+        return len(body["value"])
+    if isinstance(body, list):
+        return len(body)
+    return 0
+
+
 def main() -> int:
     args = _parse_args()
     cmd = args.tool_cmd
@@ -71,22 +85,25 @@ def main() -> int:
         request["query"] = query
 
     if proc.returncode == 0:
-        try:
-            body = json.loads(proc.stdout)
-        except json.JSONDecodeError:
-            body = {"raw_stdout": proc.stdout}
-        response = {"status": 200, "body": body}
         outcome = "success"
         error = None
+        response = {
+            "status_code": 200,
+            "page_count": 1,
+            "row_count": _row_count_from_stdout(proc.stdout),
+        }
     else:
-        response = {"status": 0, "body": {"stderr": proc.stderr}}
         outcome = "error"
-        error = problem_details(
-            title="Tool execution failed",
-            status=proc.returncode,
-            detail=(proc.stderr or "").strip()[:500] or None,
-            tool_name=args.tool_name,
+        message = (proc.stderr or "").strip()[:500] or "wrapped tool exited non-zero"
+        error = make_error(
+            type_=WRAPPER_ERROR_TYPE_URN,
+            message=message,
         )
+        response = {
+            "status_code": 0,
+            "page_count": 0,
+            "row_count": 0,
+        }
 
     entry = ReplayLogEntry(
         tool=args.tool_name,
@@ -101,7 +118,6 @@ def main() -> int:
         response=response,
         outcome=outcome,
         error=error,
-        tool_params={"argv": cmd},
     )
 
     path = write_entry(entry)

@@ -1,28 +1,30 @@
 {
-  "schema_version": "0.1.0",
-  "entry_id": "33333333-3333-4333-8333-333333333333",
-  "tool": "tool_list_users",
-  "technique_id": "T1087.004",
-  "technique_name": "Account Discovery: Cloud Account",
-  "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
-  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
   "actor_upn": "meganb@cloudharbor-demo.com",
-  "started_at_utc": "2026-05-15T14:40:00.000000Z",
-  "completed_at_utc": "2026-05-15T14:40:01.000000Z",
+  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+  "completed_at_utc": "2026-05-15T14:37:02.000000Z",
+  "entry_id": "33333333-3333-4333-8333-333333333333",
+  "error": {
+    "message": "https://graph.microsoft.com/v1.0/users -> HTTP 429: Too Many Requests.",
+    "status_code": 429,
+    "type": "urn:rejewski:error:tool-invocation-failed"
+  },
+  "outcome": "error",
   "request": {
     "method": "GET",
     "url": "https://graph.microsoft.com/v1.0/users"
   },
   "response": {
-    "status": 403,
-    "body": {}
+    "page_count": 0,
+    "retry_count": 3,
+    "row_count": 0,
+    "status_code": 429
   },
-  "outcome": "error",
-  "error": {
-    "type": "https://graph.microsoft.com/errors/Authorization_RequestDenied",
-    "title": "Insufficient privileges to complete the operation.",
-    "status": 403,
-    "detail": "The signed-in user does not have permission to list users at this scope.",
-    "instance": "/users"
-  }
+  "schema_version": "0.1",
+  "started_at_utc": "2026-05-15T14:37:00.000000Z",
+  "technique": {
+    "id": "T1087.004",
+    "name": "Account Discovery: Cloud Account"
+  },
+  "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+  "tool": "tool_list_users"
 }

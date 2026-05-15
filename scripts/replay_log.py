@@ -16,6 +16,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_PATH = REPO_ROOT / "schemas" / "replay-log" / "v0.1.json"
 DEFAULT_LOG_DIR = REPO_ROOT / "samples" / "replay-log"
 
+SCHEMA_VERSION = "0.1"
 SANDBOX_TENANT_ID = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
 
 ALLOWED_REQUEST_HEADERS = frozenset({
@@ -38,6 +39,11 @@ DENYLIST_KEYS = frozenset({
     "Set-Cookie",
     "Proxy-Authorization",
 })
+
+ALLOWED_OUTCOMES = frozenset({"success", "error", "throttled", "row_cap_hit"})
+
+RESPONSE_REQUIRED_KEYS = ("status_code", "page_count", "row_count")
+RESPONSE_OPTIONAL_KEYS = ("row_cap", "row_cap_hit", "retry_count")
 
 REDACTED = "<redacted>"
 TENANT_GUID_PATTERN = re.compile(
@@ -111,12 +117,26 @@ def _scrub_request(request: Mapping[str, Any]) -> dict[str, Any]:
     return scrubbed
 
 
-def _scrub_response(response: Mapping[str, Any]) -> dict[str, Any]:
-    scrubbed: dict[str, Any] = {"status": int(response["status"])}
-    if response.get("headers") is not None:
-        scrubbed["headers"] = _scrub_value(dict(response["headers"]))
-    if response.get("body") is not None:
-        scrubbed["body"] = _scrub_value(response["body"])
+def _shape_response(response: Mapping[str, Any]) -> dict[str, Any]:
+    shaped: dict[str, Any] = {}
+    for key in RESPONSE_REQUIRED_KEYS:
+        if key not in response:
+            raise ValueError(f"response envelope missing required key: {key}")
+        shaped[key] = int(response[key])
+    for key in RESPONSE_OPTIONAL_KEYS:
+        if key in response and response[key] is not None:
+            value = response[key]
+            shaped[key] = bool(value) if key == "row_cap_hit" else int(value)
+    return shaped
+
+
+def _scrub_error(error: Mapping[str, Any]) -> dict[str, Any]:
+    scrubbed: dict[str, Any] = {
+        "type": _redact_tenant_guids(str(error["type"])),
+        "message": _redact_tenant_guids(str(error["message"])),
+    }
+    if "status_code" in error and error["status_code"] is not None:
+        scrubbed["status_code"] = int(error["status_code"])
     return scrubbed
 
 
@@ -164,8 +184,7 @@ class ReplayLogEntry:
     response: Mapping[str, Any]
     outcome: str
     error: Mapping[str, Any] | None = None
-    tool_params: Mapping[str, Any] | None = None
-    schema_version: str = "0.1.0"
+    schema_version: str = SCHEMA_VERSION
     entry_id: str = field(default_factory=new_entry_id)
 
     def to_dict(self) -> dict[str, Any]:
@@ -173,8 +192,10 @@ class ReplayLogEntry:
             "schema_version": self.schema_version,
             "entry_id": self.entry_id,
             "tool": self.tool,
-            "technique_id": self.technique_id,
-            "technique_name": self.technique_name,
+            "technique": {
+                "id": self.technique_id,
+                "name": self.technique_name,
+            },
             "tenant_id": self.tenant_id,
             "borrowed_client_id": self.borrowed_client_id,
             "actor_upn": self.actor_upn,
@@ -184,31 +205,26 @@ class ReplayLogEntry:
             "response": dict(self.response),
             "outcome": self.outcome,
         }
-        if self.tool_params is not None:
-            data["tool_params"] = dict(self.tool_params)
         if self.error is not None:
             data["error"] = dict(self.error)
         return data
 
 
-def problem_details(
+def make_error(
     *,
-    title: str,
-    type_: str = "about:blank",
-    status: int | None = None,
-    detail: str | None = None,
-    instance: str | None = None,
-    **extensions: Any,
+    type_: str,
+    message: str,
+    status_code: int | None = None,
 ) -> dict[str, Any]:
-    payload: dict[str, Any] = {"type": type_, "title": title}
-    if status is not None:
-        payload["status"] = status
-    if detail is not None:
-        payload["detail"] = detail
-    if instance is not None:
-        payload["instance"] = instance
-    payload.update(extensions)
-    return payload
+    """Build a typed error block for the replay-log schema's error field.
+
+    Shape: {type, message, status_code?}. Tenant GUIDs in the string fields
+    are redacted at scrub time.
+    """
+    error: dict[str, Any] = {"type": type_, "message": message}
+    if status_code is not None:
+        error["status_code"] = int(status_code)
+    return error
 
 
 def write_entry(entry: ReplayLogEntry, log_dir: Path | None = None) -> Path:
@@ -220,12 +236,16 @@ def write_entry(entry: ReplayLogEntry, log_dir: Path | None = None) -> Path:
         raise ValueError(
             "no-tenant-app-reg posture: borrowed_client_id is required"
         )
+    if entry.outcome not in ALLOWED_OUTCOMES:
+        raise ValueError(
+            f"outcome must be one of {sorted(ALLOWED_OUTCOMES)}; got {entry.outcome!r}"
+        )
 
     payload = entry.to_dict()
     payload["request"] = _scrub_request(payload["request"])
-    payload["response"] = _scrub_response(payload["response"])
+    payload["response"] = _shape_response(payload["response"])
     if payload.get("error") is not None:
-        payload["error"] = _scrub_value(payload["error"])
+        payload["error"] = _scrub_error(payload["error"])
 
     _VALIDATOR.validate(payload)
 

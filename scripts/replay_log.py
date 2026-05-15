@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+
 import json
 import os
 import re
+import sys
 import tempfile
 import uuid
 from dataclasses import dataclass, field
@@ -10,14 +12,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
 
+
 from jsonschema import Draft202012Validator, FormatChecker
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_PATH = REPO_ROOT / "schemas" / "replay-log" / "v0.1.json"
 DEFAULT_LOG_DIR = REPO_ROOT / "samples" / "replay-log"
 
+
 SCHEMA_VERSION = "0.1"
 SANDBOX_TENANT_ID = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
+
 
 ALLOWED_REQUEST_HEADERS = frozenset({
     "User-Agent",
@@ -25,6 +31,7 @@ ALLOWED_REQUEST_HEADERS = frozenset({
     "client-request-id",
     "Retry-After",
 })
+
 
 DENYLIST_KEYS = frozenset({
     "access_token",
@@ -40,15 +47,19 @@ DENYLIST_KEYS = frozenset({
     "Proxy-Authorization",
 })
 
+
 ALLOWED_OUTCOMES = frozenset({"success", "error", "throttled", "row_cap_hit"})
+
 
 RESPONSE_REQUIRED_KEYS = ("status_code", "page_count", "row_count")
 RESPONSE_OPTIONAL_KEYS = ("row_cap", "row_cap_hit", "retry_count")
+
 
 REDACTED = "<redacted>"
 TENANT_GUID_PATTERN = re.compile(
     r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
 )
+
 
 
 def _load_validator() -> Draft202012Validator:
@@ -58,7 +69,9 @@ def _load_validator() -> Draft202012Validator:
     return Draft202012Validator(schema, format_checker=FormatChecker())
 
 
+
 _VALIDATOR = _load_validator()
+
 
 
 def utc_now_iso() -> str:
@@ -69,12 +82,15 @@ def utc_now_iso() -> str:
     )
 
 
+
 def new_entry_id() -> str:
     return str(uuid.uuid4())
 
 
+
 def _redact_tenant_guids(value: str) -> str:
     return TENANT_GUID_PATTERN.sub(REDACTED, value)
+
 
 
 def _scrub_value(value: Any) -> Any:
@@ -93,6 +109,7 @@ def _scrub_value(value: Any) -> Any:
     return value
 
 
+
 def _filter_request_headers(headers: Mapping[str, str] | None) -> dict[str, str]:
     if not headers:
         return {}
@@ -101,6 +118,7 @@ def _filter_request_headers(headers: Mapping[str, str] | None) -> dict[str, str]
         for name, value in headers.items()
         if name in ALLOWED_REQUEST_HEADERS
     }
+
 
 
 def _scrub_request(request: Mapping[str, Any]) -> dict[str, Any]:
@@ -117,6 +135,7 @@ def _scrub_request(request: Mapping[str, Any]) -> dict[str, Any]:
     return scrubbed
 
 
+
 def _shape_response(response: Mapping[str, Any]) -> dict[str, Any]:
     shaped: dict[str, Any] = {}
     for key in RESPONSE_REQUIRED_KEYS:
@@ -130,6 +149,7 @@ def _shape_response(response: Mapping[str, Any]) -> dict[str, Any]:
     return shaped
 
 
+
 def _scrub_error(error: Mapping[str, Any]) -> dict[str, Any]:
     scrubbed: dict[str, Any] = {
         "type": _redact_tenant_guids(str(error["type"])),
@@ -140,10 +160,12 @@ def _scrub_error(error: Mapping[str, Any]) -> dict[str, Any]:
     return scrubbed
 
 
+
 def _filename_for(entry: Mapping[str, Any]) -> str:
     parsed = datetime.fromisoformat(entry["started_at_utc"].replace("Z", "+00:00"))
     stamp = parsed.strftime("%Y%m%dT%H%M%SZ")
     return f"{stamp}-{entry['entry_id']}.json"
+
 
 
 def _atomic_write_json(target: Path, payload: Mapping[str, Any]) -> None:
@@ -160,14 +182,16 @@ def _atomic_write_json(target: Path, payload: Mapping[str, Any]) -> None:
             os.fsync(handle.fileno())
         os.replace(tmp_path, target)
         tmp_path = None
-        dir_fd = os.open(str(target.parent), os.O_RDONLY)
-        try:
-            os.fsync(dir_fd)
-        finally:
-            os.close(dir_fd)
+        if sys.platform != "win32":
+            dir_fd = os.open(str(target.parent), os.O_RDONLY)
+            try:
+                os.fsync(dir_fd)
+            finally:
+                os.close(dir_fd)
     finally:
         if tmp_path is not None and os.path.exists(tmp_path):
             os.remove(tmp_path)
+
 
 
 @dataclass
@@ -186,6 +210,7 @@ class ReplayLogEntry:
     error: Mapping[str, Any] | None = None
     schema_version: str = SCHEMA_VERSION
     entry_id: str = field(default_factory=new_entry_id)
+
 
     def to_dict(self) -> dict[str, Any]:
         data: dict[str, Any] = {
@@ -210,6 +235,7 @@ class ReplayLogEntry:
         return data
 
 
+
 def make_error(
     *,
     type_: str,
@@ -218,6 +244,7 @@ def make_error(
 ) -> dict[str, Any]:
     """Build a typed error block for the replay-log schema's error field.
 
+
     Shape: {type, message, status_code?}. Tenant GUIDs in the string fields
     are redacted at scrub time.
     """
@@ -225,6 +252,7 @@ def make_error(
     if status_code is not None:
         error["status_code"] = int(status_code)
     return error
+
 
 
 def write_entry(entry: ReplayLogEntry, log_dir: Path | None = None) -> Path:
@@ -241,13 +269,16 @@ def write_entry(entry: ReplayLogEntry, log_dir: Path | None = None) -> Path:
             f"outcome must be one of {sorted(ALLOWED_OUTCOMES)}; got {entry.outcome!r}"
         )
 
+
     payload = entry.to_dict()
     payload["request"] = _scrub_request(payload["request"])
     payload["response"] = _shape_response(payload["response"])
     if payload.get("error") is not None:
         payload["error"] = _scrub_error(payload["error"])
 
+
     _VALIDATOR.validate(payload)
+
 
     target_dir = log_dir if log_dir is not None else DEFAULT_LOG_DIR
     target = target_dir / _filename_for(payload)

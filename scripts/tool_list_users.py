@@ -9,6 +9,11 @@ Command Line Tools first-party client (no tenant-side app registration is
 created in the target tenant — see ADR 0001 §1, guardrail G-3, and the
 phs_rejewski_no_tenant_app_reg auto-memory).
 
+Every invocation writes a replay-log entry (success or error) to the
+configured replay-log directory. Default is replay-logs/ (gitignored). For
+canonical evidence runs, pass --replay-log-dir samples/replay-log to land
+the entry under samples/.
+
 Reads creds from .env. Writes JSON evidence to stdout (default) or to a
 file under .replay/ when --output is supplied. Honors guardrail G-9
 enumeration row cap.
@@ -27,12 +32,19 @@ import json
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 import msal
 import requests
 from dotenv import load_dotenv
+
+from replay_log import (
+    ReplayLogEntry,
+    problem_details,
+    utc_now_iso,
+    write_entry,
+)
 
 GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 GRAPH_SCOPE = ["https://graph.microsoft.com/.default"]
@@ -42,6 +54,11 @@ DEFAULT_ROW_CAP = 1000       # G-9 default enumeration row cap
 MAX_RETRIES = 3
 USER_AGENT = "rejewski-tool-list-users/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)"
 REQ_TIMEOUT = (5, 30)        # (connect, read) seconds
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_REPLAY_LOG_DIR = REPO_ROOT / "replay-logs"
+TECHNIQUE_ID = "T1087.004"
+TECHNIQUE_NAME = "Account Discovery: Cloud Account"
+TOOL_NAME = "tool_list_users"
 
 
 def acquire_token(
@@ -59,17 +76,17 @@ def acquire_token(
     if "access_token" not in result:
         err = result.get("error", "unknown_error")
         desc = result.get("error_description", "no description")
-        raise SystemExit(f"[auth] token acquisition failed: {err} — {desc}")
+        raise RuntimeError(f"token acquisition failed: {err} — {desc}")
     return app, result
 
 
 def refresh_token_silently(app: msal.PublicClientApplication) -> str:
     accounts = app.get_accounts()
     if not accounts:
-        raise SystemExit("[auth] silent refresh failed: no cached account")
+        raise RuntimeError("silent refresh failed: no cached account")
     result = app.acquire_token_silent(scopes=GRAPH_SCOPE, account=accounts[0])
     if not result or "access_token" not in result:
-        raise SystemExit("[auth] silent refresh failed: no token returned")
+        raise RuntimeError("silent refresh failed: no token returned")
     return result["access_token"]
 
 
@@ -97,8 +114,10 @@ def graph_get(
             if attempt < MAX_RETRIES:
                 time.sleep(retry_after)
                 continue
-        raise SystemExit(f"[graph] {url} -> HTTP {resp.status_code}: {resp.text[:400]}")
-    raise SystemExit(f"[graph] {url} -> exhausted {MAX_RETRIES} retries")
+        raise RuntimeError(
+            f"{url} -> HTTP {resp.status_code}: {resp.text[:400]}"
+        )
+    raise RuntimeError(f"{url} -> exhausted {MAX_RETRIES} retries")
 
 
 def list_users(
@@ -134,7 +153,16 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--output",
-        help="optional path to write JSON evidence (default: stdout)",
+        help="optional path to write evidence JSON summary (default: stdout)",
+    )
+    p.add_argument(
+        "--replay-log-dir",
+        default=str(DEFAULT_REPLAY_LOG_DIR),
+        help=(
+            "directory for the replay-log entry "
+            "(default: replay-logs/ — gitignored; "
+            "use samples/replay-log for canonical runs)"
+        ),
     )
     return p.parse_args()
 
@@ -147,32 +175,97 @@ def main() -> int:
     password = os.environ["COMPROMISED_USER_PASSWORD"]
 
     args = parse_args()
-    started_at = datetime.now(timezone.utc).isoformat()
+    started_at = utc_now_iso()
+    initial_url = f"{GRAPH_BASE}/users?$select={args.select}&$top={args.page_size}"
+    request_obj: dict[str, Any] = {
+        "method": "GET",
+        "url": initial_url,
+        "headers": {
+            "User-Agent": USER_AGENT,
+            "Content-Type": "application/json",
+        },
+    }
 
-    app, token_result = acquire_token(tenant_id, client_id, upn, password)
-    users = list_users(
-        token=token_result["access_token"],
-        app=app,
-        select=args.select,
-        page_size=args.page_size,
-        row_cap=args.row_cap,
+    outcome = "success"
+    error_block: dict[str, Any] | None = None
+    users: list[dict[str, Any]] = []
+    response_obj: dict[str, Any]
+
+    try:
+        app, token_result = acquire_token(tenant_id, client_id, upn, password)
+        users = list_users(
+            token=token_result["access_token"],
+            app=app,
+            select=args.select,
+            page_size=args.page_size,
+            row_cap=args.row_cap,
+        )
+        response_obj = {
+            "status": 200,
+            "body": {
+                "@odata.context": f"{GRAPH_BASE}/$metadata#users",
+                "value": users,
+            },
+        }
+    except (RuntimeError, requests.RequestException) as exc:
+        outcome = "error"
+        error_block = problem_details(
+            title="tool_list_users invocation failed",
+            type_=(
+                "https://github.com/Cloud-Harbor-Consulting-LLC/"
+                "rejewski/errors/tool-invocation-failed"
+            ),
+            status=500,
+            detail=str(exc),
+            tool_name=TOOL_NAME,
+            technique_id=TECHNIQUE_ID,
+        )
+        response_obj = {"status": 0, "body": {}}
+
+    completed_at = utc_now_iso()
+
+    replay_entry = ReplayLogEntry(
+        tool=TOOL_NAME,
+        technique_id=TECHNIQUE_ID,
+        technique_name=TECHNIQUE_NAME,
+        tenant_id=tenant_id,
+        borrowed_client_id=client_id,
+        actor_upn=upn,
+        started_at_utc=started_at,
+        completed_at_utc=completed_at,
+        request=request_obj,
+        response=response_obj,
+        outcome=outcome,
+        tool_params={
+            "select": args.select,
+            "page_size": args.page_size,
+            "row_cap": args.row_cap,
+        },
+        error=error_block,
     )
 
+    replay_log_dir = Path(args.replay_log_dir)
+    replay_path = write_entry(replay_entry, log_dir=replay_log_dir)
+
     evidence = {
-        "tool": "tool_list_users",
-        "technique": "T1087.004",
+        "tool": TOOL_NAME,
+        "technique": TECHNIQUE_ID,
         "tenant_id": tenant_id,
         "borrowed_client_id": client_id,
         "actor_upn": upn,
         "started_at_utc": started_at,
-        "completed_at_utc": datetime.now(timezone.utc).isoformat(),
+        "completed_at_utc": completed_at,
         "select": args.select,
         "page_size": args.page_size,
         "row_cap": args.row_cap,
         "row_count": len(users),
         "row_cap_hit": len(users) >= args.row_cap,
+        "outcome": outcome,
+        "replay_log_entry": str(replay_path),
         "users": users,
     }
+    if error_block is not None:
+        evidence["error"] = error_block
 
     if args.output:
         os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
@@ -182,7 +275,8 @@ def main() -> int:
         json.dump(evidence, sys.stdout, indent=2)
         sys.stdout.write("\n")
         sys.stdout.flush()
-    return 0
+
+    return 0 if outcome == "success" else 1
 
 
 if __name__ == "__main__":

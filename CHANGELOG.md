@@ -9,25 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- scripts/replay_log.py `_atomic_write_json()` crashed on Windows with `PermissionError: [Errno 13]` at the post-replace directory fsync (`os.open(str(target.parent), os.O_RDONLY)`). The POSIX directory-fd fsync is now skipped on win32 platforms via a `sys.platform != "win32"` guard. NTFS's metadata journal handles directory-entry ordering without the explicit fsync, so durability semantics are preserved on Windows; POSIX hosts retain the belt-and-suspenders directory fsync. Affected callers: Tool 1 (scripts/tool_list_users.py) and any future tool writing replay-log entries from a Windows host.
-
-### Changed
-
-- scripts/tool_list_users.py wires the replay-log writer. Every invocation emits a single replay-log entry (success or error) via replay_log.write_entry. Defaults to replay-logs/ (gitignored). Pass--replay-log-dir samples/replay-log to produce a canonical entry. Error paths now capture an RFC 9457 problem-details block in the entry's error field. The legacy evidence JSON on stdout/--output adds an outcome field and a replay_log_entry path pointer.
-- docs(adr): correct ADR 0001 §1 sandbox tenant ID from cf3f9a61-644f-4d47-a11c-a6600a9bc717 (Planner host) to 76b87c33-6178-4ff9-94a7-164792c8e4c6 (cloudharbordemo)
-- docs(guardrails): correct G-1 Sandbox Tenant Lock statement, enforcement, and rationale to reference cloudharbordemo (76b87c33) instead of the Planner host tenant (cf3f9a61)
-- docs/threat-model.md: bump v0.1 → v0.2 with four bundled corrections — §1 tenant ID corrected to 76b87c33 (was cf3f9a61), §3 adversary-model section expanded with the no-tenant-app-reg posture and first-party client borrowing note, §5 extended with the T1069.003 deferred surface (/me/transitiveMemberOf and /directoryRoles as Sprint 2+ uplift), ADR 0003 added to the cross-references.
-- docs/guardrails.md: replaced G-1 to G-8 stubs with full prose (Statement / Rationale / Enforcement / Scope / Exceptions per guardrail). Added the guardrail-to-technique appendix mapping each rule to the Sprint 1 technique modules.
-
 ### Added
 
+- Canonical T1087.004 replay-log entry at samples/replay-log/20260515T221433Z-d2359cc0-f634-4be1-84af-1533d47216dc.json. Captures a clean Tool 1 success run against the cloudharbordemo sandbox tenant (76b87c33) on Fri May 15, 2026. Actor Megan Bowen (<meganb@cloudharbor-demo.com>), borrowed Microsoft Graph PowerShell client (14d82eec), 6 users enumerated in 1 page with 0 retries, row_cap 1000, row_cap_hit false. Demonstrates the v0.1 schema end-to-end: nested technique block, scrubbed request headers (Authorization stripped by allow-list, User-Agent + Content-Type retained), response audit metadata only (no row contents), outcome=success.
 - Three good-entries fixtures under tests/fixtures/entries/ (minimal-success, success-with-response, error-outcome) covering the positive validation surface for the replay-log schema.
 - TestSchemaFidelity.test_good_fixtures_validate to exercise the new fixtures against the v0.1 schema.
-- Tenant-GUID redaction in RFC 9457 error block string fields (type, detail, instance) in `scripts/replay_log.py`. Closes pre-mortem failure mode #1 from the replay-log writer design report.
-- `tests/fixtures/entries/` with 3 valid sample entries (minimal-success, success-with-response, error-outcome) for positive schema validation.
-- `tests/test_replay_log.py::TestScrubbing::test_tenant_guid_redacted_in_error_detail`.
+- Tenant-GUID redaction in RFC 9457 error block string fields (type, detail, instance) in scripts/replay_log.py. Closes pre-mortem failure mode #1 from the replay-log writer design report.
+- tests/fixtures/entries/ with 3 valid sample entries (minimal-success, success-with-response, error-outcome) for positive schema validation.
+- tests/test_replay_log.py::TestScrubbing::test_tenant_guid_redacted_in_error_detail.
 - pytest test surface for the replay-log writer middleware. Five test classes: schema fidelity (validates committed samples + asserts bad fixtures fail), round-trip (write → read → re-validate → JSON-equal), refusal (overwrite + missing borrowed_client_id + wrong tenant), scrubbing (Authorization header allow-list + access_token deny-list + nested credentials), determinism (fixed-input filename + temp-file cleanup on exception).
 - tests/fixtures/bad-entries/ with three negative-validation fixtures: missing-tenant-id.json, invalid-outcome.json, wrong-schema-version.json.
 - requirements-dev.txt pinning pytest>=8,<9.
@@ -39,6 +28,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replay log writer middleware at scripts/replay_log.py — Draft 2020-12 schema validation (cached validator, FormatChecker), two-layer secret scrubbing (allow-list request headers, deny-list response keys, tenant-GUID URL redaction), atomic file writes (tempfile → fsync → os.replace → directory fsync), refuse-overwrite append-only enforcement, RFC 9457 Problem Details helper, G-1 tenant scope lock, no-tenant-app-reg posture (borrowed_client_id required). Sourced patterns from python.org docs, RFC 9457/9562/3339, OWASP Logging Cheat Sheet, OWASP ASVS v5 §16.3, and NIST SP 800-92 Rev 1 IPD.
 - Thin wrapper at scripts/run_with_replay_log.py — runs a Rejewski tool as a subprocess, captures stdout/stderr and return code, writes a replay-log entry without modifying the wrapped tool.
 - First end-to-end replay-log samples at samples/replay-log/ — T1087.004 success-path entry and RFC 9457 error-path entry against the cloudharbordemo sandbox.
+
+### Changed
+
+- scripts/tool_list_users.py wires the replay-log writer. Every invocation emits a single replay-log entry (success or error) via replay_log.write_entry. Defaults to replay-logs/ (gitignored). Pass--replay-log-dir samples/replay-log to produce a canonical entry. Error paths now capture an RFC 9457 problem-details block in the entry's error field. The legacy evidence JSON on stdout/--output adds an outcome field and a replay_log_entry path pointer.
+- docs(adr): correct ADR 0001 §1 sandbox tenant ID from cf3f9a61-644f-4d47-a11c-a6600a9bc717 (Planner host) to 76b87c33-6178-4ff9-94a7-164792c8e4c6 (cloudharbordemo)
+- docs(guardrails): correct G-1 Sandbox Tenant Lock statement, enforcement, and rationale to reference cloudharbordemo (76b87c33) instead of the Planner host tenant (cf3f9a61)
+- docs/threat-model.md: bump v0.1 → v0.2 with four bundled corrections — §1 tenant ID corrected to 76b87c33 (was cf3f9a61), §3 adversary-model section expanded with the no-tenant-app-reg posture and first-party client borrowing note, §5 extended with the T1069.003 deferred surface (/me/transitiveMemberOf and /directoryRoles as Sprint 2+ uplift), ADR 0003 added to the cross-references.
+- docs/guardrails.md: replaced G-1 to G-8 stubs with full prose (Statement / Rationale / Enforcement / Scope / Exceptions per guardrail). Added the guardrail-to-technique appendix mapping each rule to the Sprint 1 technique modules.
+
+### Fixed
+
+- scripts/replay_log.py — guard the post-replace directory fsync behind sys.platform != "win32" so the writer runs cleanly on Windows. NTFS's metadata journal already orders the directory entry after the atomic os.replace; the explicit dir-fsync was POSIX-only durability belt-and-suspenders that raised PermissionError [Errno 13] on Windows because NTFS does not expose directories as file descriptors. Behavior on Linux/macOS is unchanged.
 
 ### Pinned
 

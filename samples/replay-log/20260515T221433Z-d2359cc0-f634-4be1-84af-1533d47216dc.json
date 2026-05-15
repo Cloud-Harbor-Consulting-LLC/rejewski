@@ -1,0 +1,31 @@
+{
+  "actor_upn": "meganb@cloudharbor-demo.com",
+  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+  "completed_at_utc": "2026-05-15T22:14:35.401085Z",
+  "entry_id": "d2359cc0-f634-4be1-84af-1533d47216dc",
+  "outcome": "success",
+  "request": {
+    "headers": {
+      "Content-Type": "application/json",
+      "User-Agent": "rejewski-tool-list-users/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)"
+    },
+    "method": "GET",
+    "url": "https://graph.microsoft.com/v1.0/users?$select=id,displayName,userPrincipalName,mail,jobTitle,department,accountEnabled&$top=999"
+  },
+  "response": {
+    "page_count": 1,
+    "retry_count": 0,
+    "row_cap": 1000,
+    "row_cap_hit": false,
+    "row_count": 6,
+    "status_code": 200
+  },
+  "schema_version": "0.1",
+  "started_at_utc": "2026-05-15T22:14:33.964299Z",
+  "technique": {
+    "id": "T1087.004",
+    "name": "Account Discovery: Cloud Account"
+  },
+  "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+  "tool": "tool_list_users"
+}

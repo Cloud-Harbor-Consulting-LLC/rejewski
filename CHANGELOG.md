@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Tenant-GUID redaction in RFC 9457 error block string fields (type, detail, instance) in `scripts/replay_log.py`. Closes pre-mortem failure mode #1 from the replay-log writer design report.
+- `tests/fixtures/entries/` with 3 valid sample entries (minimal-success, success-with-response, error-outcome) for positive schema validation.
+- `tests/test_replay_log.py::TestScrubbing::test_tenant_guid_redacted_in_error_detail`.
 - pytest test surface for the replay-log writer middleware. Five test classes: schema fidelity (validates committed samples + asserts bad fixtures fail), round-trip (write → read → re-validate → JSON-equal), refusal (overwrite + missing borrowed_client_id + wrong tenant), scrubbing (Authorization header allow-list + access_token deny-list + nested credentials), determinism (fixed-input filename + temp-file cleanup on exception).
 - tests/fixtures/bad-entries/ with three negative-validation fixtures: missing-tenant-id.json, invalid-outcome.json, wrong-schema-version.json.
 - requirements-dev.txt pinning pytest>=8,<9.

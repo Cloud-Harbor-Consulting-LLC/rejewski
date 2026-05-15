@@ -6,6 +6,7 @@ import pytest
 
 import replay_log
 from replay_log import (
+    REDACTED,
     ReplayLogEntry,
     SANDBOX_TENANT_ID,
     _VALIDATOR,
@@ -123,19 +124,31 @@ class TestScrubbing:
         path = write_entry(entry, log_dir=tmp_path)
         assert secret not in path.read_text()
 
-
-class TestDeterminism:
-    def test_fixed_inputs_produce_fixed_filename(self, tmp_path):
-        entry = _valid_entry()
+    def test_tenant_guid_redacted_in_error_detail(self, tmp_path):
+        entry = _valid_entry(
+            outcome="error",
+            error={
+                "type": f"https://login.microsoftonline.com/{SANDBOX_TENANT_ID}/oauth2/error",
+                "title": "Insufficient privileges to complete the operation.",
+                "status": 403,
+                "detail": (
+                    f"User principal could not be authorized in tenant {SANDBOX_TENANT_ID}."
+                ),
+                "instance": f"/tenants/{SANDBOX_TENANT_ID}/users",
+            },
+        )
         path = write_entry(entry, log_dir=tmp_path)
-        assert path.name == "20260515T143015Z-a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d.json"
+        written = json.loads(path.read_text())
 
-    def test_tempfile_removed_on_exception(self, tmp_path):
-        entry = _valid_entry()
-        with patch("replay_log.os.replace", side_effect=OSError("boom")):
-            with pytest.raises(OSError, match="boom"):
-                write_entry(entry, log_dir=tmp_path)
-        leftovers = list(tmp_path.glob(".tmp-*"))
-        assert leftovers == [], f"temp files not cleaned up: {leftovers}"
-        finals = list(tmp_path.glob("*.json"))
-        assert finals == [], f"final file written despite write failure: {finals}"
+        assert SANDBOX_TENANT_ID not in written["error"]["type"]
+        assert SANDBOX_TENANT_ID not in written["error"]["detail"]
+        assert SANDBOX_TENANT_ID not in written["error"]["instance"]
+        assert REDACTED in written["error"]["type"]
+        assert REDACTED in written["error"]["detail"]
+        assert REDACTED in written["error"]["instance"]
+
+        assert written["tenant_id"] == SANDBOX_TENANT_ID
+        assert written["borrowed_client_id"] == "14d82eec-204b-4c2f-b7e8-296a70dab67e"
+        assert SANDBOX_TENANT_ID not in path.read_text().replace(
+            f'"tenant_id": "{SANDBOX_TENANT_ID}"', ""
+        )

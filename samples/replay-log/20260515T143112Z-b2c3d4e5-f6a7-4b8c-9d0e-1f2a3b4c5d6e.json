@@ -1,0 +1,46 @@
+{
+  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+  "actor_upn": "meganb@cloudharbor-demo.com",
+  "completed_at_utc": "2026-05-15T14:31:13.876543Z",
+  "entry_id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+  "error": {
+    "detail": "Insufficient privileges to complete the operation. The caller's app or user lacks the User.Read.All scope.",
+    "graph_request_id": "8f3a2b1c-9d4e-5f6a-7b8c-9d0e1f2a3b4c",
+    "status": 403,
+    "title": "Tool execution failed",
+    "tool_name": "tool_list_users",
+    "type": "about:blank"
+  },
+  "outcome": "error",
+  "request": {
+    "headers": {
+      "User-Agent": "rejewski-tool_list_users/0.1"
+    },
+    "method": "GET",
+    "query": {
+      "$select": "displayName,mail,userPrincipalName,department",
+      "$top": "999"
+    },
+    "url": "https://graph.microsoft.com/v1.0/users"
+  },
+  "response": {
+    "body": {
+      "stderr": "graph_get failed: 403 Forbidden after 3 retries"
+    },
+    "status": 0
+  },
+  "schema_version": "0.1.0",
+  "started_at_utc": "2026-05-15T14:31:12.234567Z",
+  "technique_id": "T1087.004",
+  "technique_name": "Account Discovery: Cloud Account",
+  "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+  "tool": "tool_list_users",
+  "tool_params": {
+    "argv": [
+      "python",
+      "scripts/tool_list_users.py",
+      "--top",
+      "999"
+    ]
+  }
+}

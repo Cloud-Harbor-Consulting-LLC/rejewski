@@ -1,0 +1,33 @@
+{
+  "schema_version": "0.1.0",
+  "entry_id": "22222222-2222-4222-8222-222222222222",
+  "tool": "list_users",
+  "technique": "T1087.004",
+  "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+  "actor_upn": "meganb@cloudharbor-demo.com",
+  "started_at_utc": "2026-05-15T14:30:00.000000Z",
+  "completed_at_utc": "2026-05-15T14:30:01.234567Z",
+  "outcome": "success",
+  "request": {
+    "method": "GET",
+    "url": "https://graph.microsoft.com/v1.0/users?$select=displayName,mail,userPrincipalName,department&$top=999",
+    "headers": {
+      "User-Agent": "rejewski-tool-list-users/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+      "client-request-id": "abc12345-1111-4111-8111-111111111111"
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "value": [
+        {
+          "displayName": "Megan Bowen",
+          "mail": "meganb@cloudharbor-demo.com",
+          "userPrincipalName": "meganb@cloudharbor-demo.com",
+          "department": "Sales"
+        }
+      ]
+    }
+  }
+}

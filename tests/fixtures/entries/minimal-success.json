@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.1.0",
+  "entry_id": "11111111-1111-4111-8111-111111111111",
+  "tool": "list_users",
+  "technique": "T1087.004",
+  "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+  "actor_upn": "meganb@cloudharbor-demo.com",
+  "started_at_utc": "2026-05-15T14:30:00.000000Z",
+  "completed_at_utc": "2026-05-15T14:30:01.000000Z",
+  "outcome": "success"
+}

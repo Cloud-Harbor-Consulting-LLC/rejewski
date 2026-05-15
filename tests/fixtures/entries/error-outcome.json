@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1.0",
+  "entry_id": "33333333-3333-4333-8333-333333333333",
+  "tool": "list_users",
+  "technique": "T1087.004",
+  "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+  "actor_upn": "meganb@cloudharbor-demo.com",
+  "started_at_utc": "2026-05-15T14:30:00.000000Z",
+  "completed_at_utc": "2026-05-15T14:30:00.500000Z",
+  "outcome": "error",
+  "error": {
+    "type": "https://graph.microsoft.com/errors/Authorization_RequestDenied",
+    "title": "Insufficient privileges to complete the operation.",
+    "status": 403,
+    "detail": "The signed-in user does not have permission to read all users.",
+    "instance": "/users"
+  }
+}

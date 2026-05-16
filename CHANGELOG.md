@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Zero Trust baseline scenarios at docs/phs-zt-scenarios-v0.1.md — Pillar 1 anchor defining ZT-S01 Device Compliance, ZT-S02 Identity Verification, and ZT-S03 Network Segmentation; each scenario carries NIST 800-207 tenet mapping, Microsoft pillar mapping, ATT&CK technique, defensive control surface, expected alert pattern with cite-able signals, KQL hunt query, and pass/fail criteria for replay. (B002)
 - Canonical T1087.004 replay-log entry at samples/replay-log/20260515T221433Z-d2359cc0-f634-4be1-84af-1533d47216dc.json. Captures a clean Tool 1 success run against the cloudharbordemo sandbox tenant (76b87c33) on Fri May 15, 2026. Actor Megan Bowen (<meganb@cloudharbor-demo.com>), borrowed Microsoft Graph PowerShell client (14d82eec), 6 users enumerated in 1 page with 0 retries, row_cap 1000, row_cap_hit false. Demonstrates the v0.1 schema end-to-end: nested technique block, scrubbed request headers (Authorization stripped by allow-list, User-Agent + Content-Type retained), response audit metadata only (no row contents), outcome=success.
 - Three good-entries fixtures under tests/fixtures/entries/ (minimal-success, success-with-response, error-outcome) covering the positive validation surface for the replay-log schema.
 - TestSchemaFidelity.test_good_fixtures_validate to exercise the new fixtures against the v0.1 schema.

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/schemas/replay-log/v0.2.json",
+  "title": "Rejewski Replay Log Entry",
+  "description": "Execution metadata envelope written per tool invocation. v0.2 introduces the top-level kind discriminator (graph_call | token_event) to make the existing Graph-call shape explicit and reserve the token_event variant for the B021 refresh-token reuse helper.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "entry_id",
+    "tool",
+    "technique",
+    "tenant_id",
+    "borrowed_client_id",
+    "actor_upn",
+    "started_at_utc",
+    "completed_at_utc",
+    "request",
+    "response",
+    "outcome"
+  ],
+  "properties": {
+    "schema_version": { "const": "0.2" },
+    "kind": {
+      "type": "string",
+      "enum": ["graph_call", "token_event"],
+      "description": "Discriminator for entry shape. v0.2 emits only graph_call; token_event is reserved for the B021 refresh-token reuse helper (PR 2) and will be narrowed via oneOf in v0.3."
+    },
+    "entry_id": { "type": "string", "format": "uuid" },
+    "tool": { "type": "string", "minLength": 1 },
+    "technique": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"
+        },
+        "name": { "type": "string", "minLength": 1 }
+      }
+    },
+    "tenant_id": { "type": "string", "format": "uuid" },
+    "borrowed_client_id": { "type": "string", "format": "uuid" },
+    "actor_upn": { "type": "string", "format": "email" },
+    "started_at_utc": { "type": "string", "format": "date-time" },
+    "completed_at_utc": { "type": "string", "format": "date-time" },
+    "request": {
+      "type": "object",
+      "required": ["method", "url"],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"]
+        },
+        "url": { "type": "string", "format": "uri" },
+        "query": { "type": "object" },
+        "headers": { "type": "object" },
+        "body": {}
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status_code", "page_count", "row_count"],
+      "properties": {
+        "status_code": { "type": "integer", "minimum": 0 },
+        "page_count": { "type": "integer", "minimum": 0 },
+        "row_count": { "type": "integer", "minimum": 0 },
+        "row_cap": { "type": "integer", "minimum": 0 },
+        "row_cap_hit": { "type": "boolean" },
+        "retry_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["success", "error", "throttled", "row_cap_hit"]
+    },
+    "error": {
+      "type": "object",
+      "required": ["type", "message"],
+      "properties": {
+        "type": { "type": "string", "minLength": 1 },
+        "message": { "type": "string", "minLength": 1 },
+        "status_code": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

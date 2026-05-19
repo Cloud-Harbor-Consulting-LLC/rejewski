@@ -17,12 +17,16 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SCHEMA_PATH = REPO_ROOT / "schemas" / "replay-log" / "v0.1.json"
+SCHEMA_PATH = REPO_ROOT / "schemas" / "replay-log" / "v0.2.json"
 DEFAULT_LOG_DIR = REPO_ROOT / "samples" / "replay-log"
 
 
-SCHEMA_VERSION = "0.1"
+SCHEMA_VERSION = "0.2"
 SANDBOX_TENANT_ID = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
+
+
+ALLOWED_KINDS = frozenset({"graph_call", "token_event"})
+DEFAULT_KIND = "graph_call"
 
 
 ALLOWED_REQUEST_HEADERS = frozenset({
@@ -209,12 +213,14 @@ class ReplayLogEntry:
     outcome: str
     error: Mapping[str, Any] | None = None
     schema_version: str = SCHEMA_VERSION
+    kind: str = DEFAULT_KIND
     entry_id: str = field(default_factory=new_entry_id)
 
 
     def to_dict(self) -> dict[str, Any]:
         data: dict[str, Any] = {
             "schema_version": self.schema_version,
+            "kind": self.kind,
             "entry_id": self.entry_id,
             "tool": self.tool,
             "technique": {
@@ -256,6 +262,10 @@ def make_error(
 
 
 def write_entry(entry: ReplayLogEntry, log_dir: Path | None = None) -> Path:
+    if entry.kind not in ALLOWED_KINDS:
+        raise ValueError(
+            f"kind must be one of {sorted(ALLOWED_KINDS)}; got {entry.kind!r}"
+        )
     if entry.tenant_id != SANDBOX_TENANT_ID:
         raise ValueError(
             f"G-1 tenant scope lock: tenant_id must equal {SANDBOX_TENANT_ID}"

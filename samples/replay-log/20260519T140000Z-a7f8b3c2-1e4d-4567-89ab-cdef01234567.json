@@ -1,0 +1,41 @@
+{
+  "schema_version": "v0.1",
+  "entry_id": "a7f8b3c2-1e4d-4567-89ab-cdef01234567",
+  "tool": "step4_token_smoke",
+  "technique": {
+    "id": "T1078.004",
+    "name": "Valid Accounts: Cloud Accounts"
+  },
+  "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+  "actor_upn": "meganb@cloudharbor-demo.com",
+  "started_at_utc": "2026-05-19T14:00:00.000Z",
+  "completed_at_utc": "2026-05-19T14:00:01.842Z",
+  "request": {
+    "method": "GET",
+    "url": "https://graph.microsoft.com/v1.0/me",
+    "headers": {
+      "User-Agent": "rejewski-step4-token-smoke/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+      "Content-Type": "application/json"
+    },
+    "query": {}
+  },
+  "response": {
+    "status_code": 200,
+    "page_count": 1,
+    "row_count": 1,
+    "row_cap": null,
+    "row_cap_hit": false,
+    "retry_count": 0,
+    "body_audit": {
+      "id": "48d31887-5fad-4d73-a9f5-3c356e68a038",
+      "displayName": "Megan Bowen",
+      "userPrincipalName": "meganb@cloudharbor-demo.com",
+      "jobTitle": "Marketing Manager",
+      "department": "Marketing",
+      "mail": "meganb@cloudharbor-demo.com"
+    }
+  },
+  "outcome": "success",
+  "error": null
+}

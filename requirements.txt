@@ -1,1 +1,10 @@
-jsonschema>=4.26,<5
+# Rejewski runtime + test dependencies.
+# Pin policy: loose lower bound (compatibility), hard upper bound on major.
+
+msal>=1.28,<2
+msal-extensions>=1.1,<2
+requests>=2.31,<3
+python-dotenv>=1.0,<2
+jsonschema>=4.21,<5
+
+pytest>=8.0,<9

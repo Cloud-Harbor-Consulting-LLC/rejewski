@@ -1,0 +1,62 @@
+{
+  "schema_version": "v0.1",
+  "entry_id": "b8e9c4d3-2f5e-4678-90bc-def012345678",
+  "tool": "tool_list_groups",
+  "technique": {
+    "id": "T1069.003",
+    "name": "Permission Groups Discovery: Cloud Groups"
+  },
+  "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+  "actor_upn": "meganb@cloudharbor-demo.com",
+  "started_at_utc": "2026-05-19T14:00:30.000Z",
+  "completed_at_utc": "2026-05-19T14:00:31.215Z",
+  "request": {
+    "method": "GET",
+    "url": "https://graph.microsoft.com/v1.0/me/memberOf",
+    "headers": {
+      "User-Agent": "rejewski-tool-list-groups/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+      "Content-Type": "application/json",
+      "ConsistencyLevel": "eventual"
+    },
+    "query": {
+      "$select": "id,displayName,groupTypes,securityEnabled,mailEnabled",
+      "$top": "999"
+    }
+  },
+  "response": {
+    "status_code": 200,
+    "page_count": 1,
+    "row_count": 3,
+    "row_cap": 1000,
+    "row_cap_hit": false,
+    "retry_count": 0,
+    "body_audit": {
+      "value": [
+        {
+          "id": "02bd9fd6-8f93-4758-87c3-1fb73740a315",
+          "displayName": "All Company",
+          "groupTypes": ["Unified"],
+          "securityEnabled": false,
+          "mailEnabled": true
+        },
+        {
+          "id": "0a53828f-36c9-44c3-be3d-99a7fce977ac",
+          "displayName": "Marketing",
+          "groupTypes": ["Unified"],
+          "securityEnabled": false,
+          "mailEnabled": true
+        },
+        {
+          "id": "4d0caedf-e2b9-4ef7-9018-7c2c0a0a6dcd",
+          "displayName": "Retail",
+          "groupTypes": ["Unified"],
+          "securityEnabled": false,
+          "mailEnabled": true
+        }
+      ]
+    }
+  },
+  "outcome": "success",
+  "error": null
+}

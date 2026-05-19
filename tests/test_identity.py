@@ -1,0 +1,257 @@
+"""Tests for scripts/identity.py (B021 token persistence helper, ADR-0005)."""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+from pathlib import Path
+from types import SimpleNamespace
+from unittest import mock
+
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+
+import identity  # noqa: E402
+
+TENANT_ID = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
+ACTOR_UPN = "meganb@cloudharbor-demo.com"
+CLIENT_ID = identity.DEFAULT_CLIENT_ID
+
+
+@pytest.fixture
+def replay_dir(tmp_path: Path) -> Path:
+    d = tmp_path / "replay-logs"
+    d.mkdir()
+    return d
+
+
+@pytest.fixture
+def cache_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    p = tmp_path / "cache" / "rejewski.bin"
+    monkeypatch.setenv(identity.ENV_CACHE_PATH, str(p))
+    return p
+
+
+def _read_token_events(replay_dir: Path) -> list[dict]:
+    entries = []
+    for fp in sorted(replay_dir.glob("*.json")):
+        with open(fp, encoding="utf-8") as fh:
+            entries.append(json.load(fh))
+    return [e for e in entries if e.get("kind") == "token_event"]
+
+
+class TestCachePathResolution:
+    def test_linux_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv(identity.ENV_CACHE_PATH, raising=False)
+        monkeypatch.setattr(sys, "platform", "linux")
+        path = identity._default_cache_path(ACTOR_UPN)
+        assert ".cache/rejewski" in str(path)
+        assert path.name.endswith(".bin")
+        assert "meganb" in path.name.lower()
+
+    def test_darwin_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv(identity.ENV_CACHE_PATH, raising=False)
+        monkeypatch.setattr(sys, "platform", "darwin")
+        path = identity._default_cache_path(ACTOR_UPN)
+        assert "Library/Caches/rejewski" in str(path)
+
+    def test_windows_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv(identity.ENV_CACHE_PATH, raising=False)
+        monkeypatch.setattr(sys, "platform", "win32")
+        monkeypatch.setenv("LOCALAPPDATA", "C:\\Users\\test\\AppData\\Local")
+        path = identity._default_cache_path(ACTOR_UPN)
+        assert "rejewski" in str(path)
+        assert path.name.endswith(".bin")
+
+    def test_override_env(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        override = tmp_path / "custom.bin"
+        monkeypatch.setenv(identity.ENV_CACHE_PATH, str(override))
+        assert identity._resolve_cache_path(ACTOR_UPN) == override
+
+    def test_actor_slug_sanitises(self) -> None:
+        slug = identity._safe_actor_slug("Megan.B+test@cloudharbor-demo.com")
+        assert "+" not in slug
+        assert "@" not in slug
+        assert slug == slug.lower()
+
+
+class TestPlaintextRefusal:
+    def test_refuses_plaintext_without_optin(
+        self, cache_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.delenv(identity.ENV_ALLOW_PLAINTEXT, raising=False)
+
+        with mock.patch(
+            "msal_extensions.build_encrypted_persistence",
+            side_effect=RuntimeError("libsecret unavailable"),
+        ):
+            with pytest.raises(RuntimeError, match="refusing plaintext fallback"):
+                identity._build_cache(cache_path)
+
+    def test_allows_plaintext_with_optin(
+        self, cache_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv(identity.ENV_ALLOW_PLAINTEXT, "1")
+
+        with mock.patch(
+            "msal_extensions.build_encrypted_persistence",
+            side_effect=RuntimeError("libsecret unavailable"),
+        ), mock.patch("msal_extensions.FilePersistence") as fp_mock, mock.patch(
+            "msal_extensions.PersistedTokenCache"
+        ) as cache_mock:
+            _, kind = identity._build_cache(cache_path)
+            assert kind == identity.PERSISTENCE_PLAINTEXT
+            fp_mock.assert_called_once_with(str(cache_path))
+            cache_mock.assert_called_once()
+
+
+class TestAcquireToken:
+    def _patch_cache(self) -> mock._patch:
+        return mock.patch(
+            "identity._build_cache",
+            return_value=(mock.MagicMock(), identity.PERSISTENCE_ENCRYPTED),
+        )
+
+    def test_silent_reuse_hit(self, cache_path: Path, replay_dir: Path) -> None:
+        fake_app = mock.MagicMock()
+        fake_app.get_accounts.return_value = [{"username": ACTOR_UPN}]
+        fake_app.acquire_token_silent_with_error.return_value = {
+            "access_token": "AT_silent",
+            "token_type": "Bearer",
+            "expires_in": 3599,
+            "correlation_id": "cor-silent-1",
+        }
+
+        with self._patch_cache(), mock.patch(
+            "identity._build_app", return_value=fake_app
+        ):
+            result = identity.acquire_token(
+                actor_upn=ACTOR_UPN,
+                tenant_id=TENANT_ID,
+                client_id=CLIENT_ID,
+                replay_log_dir=replay_dir,
+            )
+
+        assert result["access_token"] == "AT_silent"
+        assert result["flow"] == identity.FLOW_SILENT
+        assert result["persistence_kind"] == identity.PERSISTENCE_ENCRYPTED
+        fake_app.acquire_token_by_username_password.assert_not_called()
+
+        events = _read_token_events(replay_dir)
+        assert len(events) == 1
+        assert events[0]["kind"] == "token_event"
+        assert events[0]["outcome"] == "success"
+        assert events[0]["technique_id"] == "T1550.001"
+        assert events[0]["request"]["flow"] == identity.FLOW_SILENT
+        assert "access_token" not in json.dumps(events[0])
+
+    def test_ropc_fallback_on_cache_miss(
+        self, cache_path: Path, replay_dir: Path
+    ) -> None:
+        fake_app = mock.MagicMock()
+        fake_app.get_accounts.return_value = []
+        fake_app.acquire_token_by_username_password.return_value = {
+            "access_token": "AT_ropc",
+            "token_type": "Bearer",
+            "expires_in": 3599,
+            "correlation_id": "cor-ropc-1",
+        }
+
+        with self._patch_cache(), mock.patch(
+            "identity._build_app", return_value=fake_app
+        ):
+            result = identity.acquire_token(
+                actor_upn=ACTOR_UPN,
+                tenant_id=TENANT_ID,
+                client_id=CLIENT_ID,
+                password="P@ssword!",
+                replay_log_dir=replay_dir,
+            )
+
+        assert result["access_token"] == "AT_ropc"
+        assert result["flow"] == identity.FLOW_ROPC
+        fake_app.acquire_token_by_username_password.assert_called_once()
+
+        events = _read_token_events(replay_dir)
+        assert len(events) == 1
+        assert events[0]["request"]["flow"] == identity.FLOW_ROPC
+        assert events[0]["outcome"] == "success"
+
+    def test_cache_miss_without_password_errors(
+        self, cache_path: Path, replay_dir: Path
+    ) -> None:
+        fake_app = mock.MagicMock()
+        fake_app.get_accounts.return_value = []
+
+        with self._patch_cache(), mock.patch(
+            "identity._build_app", return_value=fake_app
+        ):
+            with pytest.raises(RuntimeError, match="no password supplied"):
+                identity.acquire_token(
+                    actor_upn=ACTOR_UPN,
+                    tenant_id=TENANT_ID,
+                    client_id=CLIENT_ID,
+                    replay_log_dir=replay_dir,
+                )
+
+        events = _read_token_events(replay_dir)
+        assert len(events) == 1
+        assert events[0]["outcome"] == "error"
+        assert events[0]["error"]["type"] == identity.ERROR_TYPE_URN
+
+    def test_ropc_aadsts_error_recorded(
+        self, cache_path: Path, replay_dir: Path
+    ) -> None:
+        fake_app = mock.MagicMock()
+        fake_app.get_accounts.return_value = []
+        fake_app.acquire_token_by_username_password.return_value = {
+            "error": "invalid_grant",
+            "error_description": "AADSTS50076: MFA required",
+        }
+
+        with self._patch_cache(), mock.patch(
+            "identity._build_app", return_value=fake_app
+        ):
+            with pytest.raises(RuntimeError, match="ROPC token acquisition failed"):
+                identity.acquire_token(
+                    actor_upn=ACTOR_UPN,
+                    tenant_id=TENANT_ID,
+                    client_id=CLIENT_ID,
+                    password="wrong",
+                    replay_log_dir=replay_dir,
+                )
+
+        events = _read_token_events(replay_dir)
+        assert events[0]["outcome"] == "error"
+        assert events[0]["response"]["aadsts_code"] == "invalid_grant"
+
+
+class TestPersistenceKindPropagatesToReplayLog:
+    def test_plaintext_kind_visible_in_replay_log(
+        self, cache_path: Path, replay_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv(identity.ENV_ALLOW_PLAINTEXT, "1")
+
+        fake_app = mock.MagicMock()
+        fake_app.get_accounts.return_value = [{"username": ACTOR_UPN}]
+        fake_app.acquire_token_silent_with_error.return_value = {
+            "access_token": "AT_silent",
+            "correlation_id": "cor-pt-1",
+        }
+
+        with mock.patch(
+            "identity._build_cache",
+            return_value=(mock.MagicMock(), identity.PERSISTENCE_PLAINTEXT),
+        ), mock.patch("identity._build_app", return_value=fake_app):
+            identity.acquire_token(
+                actor_upn=ACTOR_UPN,
+                tenant_id=TENANT_ID,
+                client_id=CLIENT_ID,
+                replay_log_dir=replay_dir,
+            )
+
+        events = _read_token_events(replay_dir)
+        assert events[0]["response"]["persistence_kind"] == identity.PERSISTENCE_PLAINTEXT

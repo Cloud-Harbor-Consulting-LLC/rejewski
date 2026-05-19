@@ -3,25 +3,26 @@
 Rejewski Sprint 1 Tool 2 — list_groups
 ATT&CK T1069.003 Permission Groups Discovery: Cloud Groups
 
-Enumerates Entra ID groups (security, Microsoft 365) via Microsoft Graph GET /groups
-using a delegated token acquired by a non-admin compromised user. Borrows the
-Microsoft Graph Command Line Tools first-party client (no tenant-side app
-registration is created in the target tenant — see ADR 0001 §1, guardrail G-3).
+Enumerates Entra ID groups via Microsoft Graph GET /groups using a delegated
+token acquired through scripts/identity.acquire_token. Token acquisition,
+silent reuse, and CAE/CP1 handling are owned by ADR 0005's encrypted
+PersistedTokenCache helper — this tool only consumes the resulting token via
+a token_getter callable.
+
+No tenant-side app registration is created (ADR 0001 §1, guardrail G-3). The
+borrowed first-party client defaults to Microsoft Graph Command Line Tools
+(14d82eec) and falls back to Azure CLI (04b07795) via FOCI per ADR 0004 v0.2.
 
 Every invocation writes a replay-log entry (success, error, throttled, or
-row_cap_hit) to the configured replay-log directory. Default is
-replay-logs/ (gitignored). For canonical evidence runs, pass
---replay-log-dir samples/replay-log to land the entry under samples/.
-
-Reads creds from .env. Writes JSON evidence to stdout (default) or to a
-file under .replay/ when --output is supplied. Honors guardrail G-9
-enumeration row cap.
+row_cap_hit) to the configured replay-log directory under the v0.2 schema
+with kind="graph_call". 401 mid-pagination recovers via the encrypted cache,
+not in-memory MSAL state.
 
 Required environment variables:
     AZURE_TENANT_ID            Target tenant ID (cloudharbordemo: 76b87c33-...)
     FOCI_CLIENT_ID             Borrowed first-party client (default: 14d82eec-...)
     COMPROMISED_USER_UPN       Seed user UPN (e.g. meganb@cloudharbor-demo.com)
-    COMPROMISED_USER_PASSWORD  Seed user password
+    COMPROMISED_USER_PASSWORD  Seed user password (cache-miss fallback only)
 """
 
 from __future__ import annotations
@@ -32,12 +33,12 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
-import msal
 import requests
 from dotenv import load_dotenv
 
+import identity
 from replay_log import (
     ReplayLogEntry,
     make_error,
@@ -46,13 +47,12 @@ from replay_log import (
 )
 
 GRAPH_BASE = "https://graph.microsoft.com/v1.0"
-GRAPH_SCOPE = ["https://graph.microsoft.com/.default"]
-DEFAULT_SELECT = "id,displayName,mail,groupTypes,isAssignableToRole,membershipRuleProcessingState"
-DEFAULT_TOP = 999            # Graph maximum page size for /groups
-DEFAULT_ROW_CAP = 1000       # G-9 default enumeration row cap
+DEFAULT_SELECT = "id,displayName,mailNickname,groupTypes,securityEnabled,mailEnabled,visibility"
+DEFAULT_TOP = 999
+DEFAULT_ROW_CAP = 1000
 MAX_RETRIES = 3
-USER_AGENT = "rejewski-tool-list-groups/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)"
-REQ_TIMEOUT = (5, 30)        # (connect, read) seconds
+USER_AGENT = "rejewski-tool-list-groups/0.2 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)"
+REQ_TIMEOUT = (5, 30)
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_REPLAY_LOG_DIR = REPO_ROOT / "replay-logs"
 TECHNIQUE_ID = "T1069.003"
@@ -61,41 +61,17 @@ TOOL_NAME = "tool_list_groups"
 ERROR_TYPE_URN = "urn:rejewski:error:tool-invocation-failed"
 
 
-def acquire_token(
-    tenant_id: str, client_id: str, upn: str, password: str
-) -> tuple[msal.PublicClientApplication, dict[str, Any]]:
-    app = msal.PublicClientApplication(
-        client_id=client_id,
-        authority=f"https://login.microsoftonline.com/{tenant_id}",
-    )
-    result = app.acquire_token_by_username_password(
-        username=upn,
-        password=password,
-        scopes=GRAPH_SCOPE,
-    )
-    if "access_token" not in result:
-        err = result.get("error", "unknown_error")
-        desc = result.get("error_description", "no description")
-        raise RuntimeError(f"token acquisition failed: {err} - {desc}")
-    return app, result
-
-
-def refresh_token_silently(app: msal.PublicClientApplication) -> str:
-    accounts = app.get_accounts()
-    if not accounts:
-        raise RuntimeError("silent refresh failed: no cached account")
-    result = app.acquire_token_silent(scopes=GRAPH_SCOPE, account=accounts[0])
-    if not result or "access_token" not in result:
-        raise RuntimeError("silent refresh failed: no token returned")
-    return result["access_token"]
-
-
 def graph_get(
-    url: str, token: str, app: msal.PublicClientApplication
+    url: str,
+    token: str,
+    token_getter: Callable[[], str],
 ) -> tuple[dict[str, Any], str, int, int]:
-    """GET with Retry-After on 429/5xx (max 3) and one 401 silent-refresh recovery.
+    """GET with Retry-After on 429/5xx (max 3) and one 401 cache-backed recovery.
 
-    Returns (json_body, current_token, final_http_status, retry_count_for_this_call).
+    The 401 path delegates to token_getter, which routes through
+    identity.acquire_token (silent reuse from the encrypted cache, ROPC
+    fallback on miss). Returns (json_body, current_token, final_http_status,
+    retry_count_for_this_call).
     """
     headers = {
         "Authorization": f"Bearer {token}",
@@ -109,7 +85,7 @@ def graph_get(
         if resp.status_code == 200:
             return resp.json(), token, 200, retry_count
         if resp.status_code == 401 and not attempted_refresh:
-            token = refresh_token_silently(app)
+            token = token_getter()
             headers["Authorization"] = f"Bearer {token}"
             attempted_refresh = True
             retry_count += 1
@@ -128,7 +104,7 @@ def graph_get(
 
 def list_groups(
     token: str,
-    app: msal.PublicClientApplication,
+    token_getter: Callable[[], str],
     select: str,
     page_size: int,
     row_cap: int,
@@ -137,7 +113,7 @@ def list_groups(
     groups: list[dict[str, Any]] = []
     url: str | None = f"{GRAPH_BASE}/groups?$select={select}&$top={page_size}"
     while url and len(groups) < row_cap:
-        body, token, status_code, retries = graph_get(url, token, app)
+        body, token, status_code, retries = graph_get(url, token, token_getter)
         stats["page_count"] += 1
         stats["retry_count"] += retries
         stats["last_status"] = status_code
@@ -184,9 +160,21 @@ def main() -> int:
     tenant_id = os.environ["AZURE_TENANT_ID"]
     client_id = os.environ.get("FOCI_CLIENT_ID", "14d82eec-204b-4c2f-b7e8-296a70dab67e")
     upn = os.environ["COMPROMISED_USER_UPN"]
-    password = os.environ["COMPROMISED_USER_PASSWORD"]
+    password = os.environ.get("COMPROMISED_USER_PASSWORD")
 
     args = parse_args()
+    replay_log_dir = Path(args.replay_log_dir)
+
+    def token_getter() -> str:
+        result = identity.acquire_token(
+            actor_upn=upn,
+            tenant_id=tenant_id,
+            client_id=client_id,
+            password=password,
+            replay_log_dir=replay_log_dir,
+        )
+        return result["access_token"]
+
     started_at = utc_now_iso()
     initial_url = f"{GRAPH_BASE}/groups?$select={args.select}&$top={args.page_size}"
     request_obj: dict[str, Any] = {
@@ -204,10 +192,10 @@ def main() -> int:
     outcome: str
 
     try:
-        app, token_result = acquire_token(tenant_id, client_id, upn, password)
+        token = token_getter()
         groups = list_groups(
-            token=token_result["access_token"],
-            app=app,
+            token=token,
+            token_getter=token_getter,
             select=args.select,
             page_size=args.page_size,
             row_cap=args.row_cap,
@@ -235,6 +223,7 @@ def main() -> int:
     }
 
     replay_entry = ReplayLogEntry(
+        kind="graph_call",
         tool=TOOL_NAME,
         technique_id=TECHNIQUE_ID,
         technique_name=TECHNIQUE_NAME,
@@ -249,7 +238,6 @@ def main() -> int:
         error=error_block,
     )
 
-    replay_log_dir = Path(args.replay_log_dir)
     replay_path = write_entry(replay_entry, log_dir=replay_log_dir)
 
     evidence = {

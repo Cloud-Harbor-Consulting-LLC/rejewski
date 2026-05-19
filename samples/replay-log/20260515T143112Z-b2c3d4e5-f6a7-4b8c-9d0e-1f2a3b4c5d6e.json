@@ -8,6 +8,7 @@
     "status_code": 403,
     "type": "urn:rejewski:error:tool-invocation-failed"
   },
+  "kind": "graph_call",
   "outcome": "error",
   "request": {
     "headers": {
@@ -25,7 +26,7 @@
     "row_count": 0,
     "status_code": 403
   },
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "started_at_utc": "2026-05-15T14:31:12.000000Z",
   "technique": {
     "id": "T1087.004",

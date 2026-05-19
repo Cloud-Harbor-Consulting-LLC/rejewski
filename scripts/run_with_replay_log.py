@@ -10,6 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.replay_log import (
+    DEFAULT_KIND,
     ReplayLogEntry,
     make_error,
     utc_now_iso,
@@ -118,6 +119,7 @@ def main() -> int:
         response=response,
         outcome=outcome,
         error=error,
+        kind=DEFAULT_KIND,
     )
 
     path = write_entry(entry)

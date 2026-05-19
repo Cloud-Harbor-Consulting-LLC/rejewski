@@ -47,7 +47,7 @@ def _valid_entry(**overrides):
 
 class TestSchemaFidelity:
     def test_schema_version_constant(self):
-        assert SCHEMA_VERSION == "0.1"
+        assert SCHEMA_VERSION == "0.2"
 
     def test_committed_samples_validate(self):
         files = sorted(SAMPLES.glob("*.json"))
@@ -82,7 +82,8 @@ class TestRoundTrip:
             "id": "T1087.004",
             "name": "Account Discovery: Cloud Account",
         }
-        assert loaded["schema_version"] == "0.1"
+        assert loaded["schema_version"] == "0.2"
+        assert loaded["kind"] == "graph_call"
         assert loaded["response"] == {
             "status_code": 200,
             "page_count": 1,
@@ -113,6 +114,12 @@ class TestRefusal:
     def test_unknown_outcome_refused(self, tmp_path):
         entry = _valid_entry(outcome="pending")
         with pytest.raises(ValueError, match="outcome"):
+            write_entry(entry, log_dir=tmp_path)
+
+    def test_unknown_kind_refused(self, tmp_path):
+        entry = _valid_entry()
+        entry.kind = "graph_callz"
+        with pytest.raises(ValueError, match="kind"):
             write_entry(entry, log_dir=tmp_path)
 
 

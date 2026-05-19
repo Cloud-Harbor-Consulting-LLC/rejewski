@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Replay log schema v0.2 (schemas/replay-log/v0.2.json). Introduces the top-level kind discriminator with enum ["graph_call", "token_event"] as a required field. v0.2 emits only graph_call; token_event is reserved for the B021 refresh-token reuse helper (forthcoming) and will be narrowed via oneOf in a later schema rev. v0.1 to v0.2 is an additive bump; existing fields and their constraints are unchanged.
 - docs/dependency-license-audit.md (v0.1). SPDX identifier and MIT-inbound verdict for every direct and transitive dependency (jsonschema and pytest plus 7 transitive packages). Establishes the version-pin policy (loose lower + major cap, no lockfile at v0.1), attribution guardrail for any future redistribution scenario, 6-tier classifier-ambiguity fallback, and evidence-emission shape. Forward-compatible to CycloneDX 1.6+ and SPDX 2.3.
 - scripts/audit_licenses.py. Reproducible offline license collector. Invokes pip-licenses, post-processes raw license strings to SPDX via the in-script mapping table, emits per-package JSON evidence to evidence/<date>/dependency-licenses.json, regenerates the Section 4 Markdown table, and fails loud on UNKNOWN licenses, non-permissive licenses, or transitive-set drift from the grounding baseline. Implements B008.
 - B007 Pillar 1 Zero Trust device compliance demo: scripts/demo_b007_device_compliance.py (MSAL ROPC against borrowed Graph CLI client, expects AADSTS53000) and docs/demos/b007-device-compliance.md (prereqs, run, expected SigninLogs row, KQL hunt, pass/fail criteria). Validates ZT-S01 against ATT&CK T1078.004 with MITRE M1036 as the defensive control under test.
@@ -38,6 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- scripts/replay_log.py points at schemas/replay-log/v0.2.json, bumps SCHEMA_VERSION to "0.2", adds the kind field to ReplayLogEntry (defaults to "graph_call"), and refuses unknown kinds at write_entry time alongside the existing G-1 tenant lock and outcome checks.
+- scripts/run_with_replay_log.py passes kind="graph_call" when constructing the ReplayLogEntry for the wrapped tool's subprocess result.
+- tests/test_replay_log.py asserts SCHEMA_VERSION == "0.2", that the round-tripped payload carries kind == "graph_call", and adds TestRefusal.test_unknown_kind_refused to lock the write_entry kind guard.
+- samples/replay-log/ canonical entries and tests/fixtures/entries/ good fixtures restamped with schema_version "0.2" and kind "graph_call" so the committed-samples and good-fixtures suites validate against v0.2.
 - scripts/tool_list_users.py wires the replay-log writer. Every invocation emits a single replay-log entry (success or error) via replay_log.write_entry. Defaults to replay-logs/ (gitignored). Pass--replay-log-dir samples/replay-log to produce a canonical entry. Error paths now capture an RFC 9457 problem-details block in the entry's error field. The legacy evidence JSON on stdout/--output adds an outcome field and a replay_log_entry path pointer.
 - docs(adr): correct ADR 0001 §1 sandbox tenant ID from cf3f9a61-644f-4d47-a11c-a6600a9bc717 (Planner host) to 76b87c33-6178-4ff9-94a7-164792c8e4c6 (cloudharbordemo)
 - docs(guardrails): correct G-1 Sandbox Tenant Lock statement, enforcement, and rationale to reference cloudharbordemo (76b87c33) instead of the Planner host tenant (cf3f9a61)

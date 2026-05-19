@@ -3,6 +3,7 @@
   "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
   "completed_at_utc": "2026-05-15T22:14:35.401085Z",
   "entry_id": "d2359cc0-f634-4be1-84af-1533d47216dc",
+  "kind": "graph_call",
   "outcome": "success",
   "request": {
     "headers": {
@@ -20,7 +21,7 @@
     "row_count": 6,
     "status_code": 200
   },
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "started_at_utc": "2026-05-15T22:14:33.964299Z",
   "technique": {
     "id": "T1087.004",

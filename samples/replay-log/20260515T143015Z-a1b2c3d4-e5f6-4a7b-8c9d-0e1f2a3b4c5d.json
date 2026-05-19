@@ -1,7 +1,9 @@
 {
+  "actor_upn": "meganb@cloudharbor-demo.com",
   "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
   "completed_at_utc": "2026-05-15T14:30:17.412000Z",
   "entry_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+  "kind": "graph_call",
   "outcome": "success",
   "request": {
     "headers": {
@@ -19,13 +21,12 @@
     "row_count": 25,
     "status_code": 200
   },
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "started_at_utc": "2026-05-15T14:30:15.000000Z",
   "technique": {
     "id": "T1087.004",
     "name": "Account Discovery: Cloud Account"
   },
   "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
-  "tool": "tool_list_users",
-  "actor_upn": "meganb@cloudharbor-demo.com"
+  "tool": "tool_list_users"
 }

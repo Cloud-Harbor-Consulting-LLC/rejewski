@@ -150,6 +150,13 @@ def _shape_response(kind: str, response: dict[str, Any]) -> dict[str, Any]:
     return shaped
 
 
+def _shape_technique(payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": payload.pop("technique_id"),
+        "name": payload.pop("technique_name"),
+    }
+
+
 def _filename(entry: ReplayLogEntry) -> str:
     stamp = entry.started_at_utc.replace("-", "").replace(":", "")
     return f"{stamp}-{entry.entry_id}.json"
@@ -201,6 +208,7 @@ def write_entry(entry: ReplayLogEntry, *, log_dir: Path | None = None) -> Path:
     shaped_response = _shape_response(entry.kind, entry.response)
     payload = asdict(entry)
     payload["response"] = shaped_response
+    payload["technique"] = _shape_technique(payload)
     payload = _scrub(payload)
     if payload.get("error") is None:
         payload.pop("error", None)

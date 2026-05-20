@@ -21,6 +21,7 @@ BAD_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "bad-entries"
 
 def _valid_entry(**overrides):
     base = dict(
+        kind="graph_call",
         tool="tool_list_users",
         technique_id="T1087.004",
         technique_name="Account Discovery: Cloud Account",
@@ -47,7 +48,7 @@ def _valid_entry(**overrides):
 
 class TestSchemaFidelity:
     def test_schema_version_constant(self):
-        assert SCHEMA_VERSION == "0.2"
+        assert SCHEMA_VERSION == "0.3"
 
     def test_committed_samples_validate(self):
         files = sorted(SAMPLES.glob("*.json"))
@@ -82,7 +83,7 @@ class TestRoundTrip:
             "id": "T1087.004",
             "name": "Account Discovery: Cloud Account",
         }
-        assert loaded["schema_version"] == "0.2"
+        assert loaded["schema_version"] == "0.3"
         assert loaded["kind"] == "graph_call"
         assert loaded["response"] == {
             "status_code": 200,

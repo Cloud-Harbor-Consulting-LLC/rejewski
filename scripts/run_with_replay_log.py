@@ -1,3 +1,23 @@
+#!/usr/bin/env python3
+"""
+Rejewski — external subprocess wrapper that guarantees a replay-log entry
+even if the wrapped tool crashes mid-run.
+
+Usage:
+    python scripts/run_with_replay_log.py \\
+        --tool scripts/tool_list_users.py \\
+        --technique-id T1087.004 \\
+        --technique-name "Account Discovery: Cloud Account" \\
+        --tenant-id <guid> --actor-upn <upn> [-- <tool args...>]
+
+The wrapper runs the tool as a subprocess, records start/end timestamps,
+captures the tool's stdout JSON envelope (when present), and emits one
+graph_call replay-log entry to samples/replay-log/.
+
+If the tool exits non-zero or fails to emit a parseable envelope, the
+wrapper writes an outcome=error entry with stderr tail in error.message.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -6,126 +26,129 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT))
-
-from scripts.replay_log import (
-    DEFAULT_KIND,
+from replay_log import (
     ReplayLogEntry,
     make_error,
     utc_now_iso,
     write_entry,
 )
 
-WRAPPER_ERROR_TYPE_URN = "urn:rejewski:error:wrapped-tool-failed"
+DEFAULT_CLIENT_ID = "14d82eec-204b-4c2f-b7e8-296a70dab67e"
+ERROR_TYPE_URN = "urn:rejewski:error:tool-subprocess-failed"
+STDERR_TAIL_CHARS = 4000
 
 
-def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Run a Rejewski tool and write a replay-log entry."
-    )
-    parser.add_argument("--tool-name", required=True)
+def _parse_args() -> tuple[argparse.Namespace, list[str]]:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--tool", required=True, help="Path to the tool script")
     parser.add_argument("--technique-id", required=True)
     parser.add_argument("--technique-name", required=True)
     parser.add_argument("--tenant-id", required=True)
-    parser.add_argument("--borrowed-client-id", required=True)
     parser.add_argument("--actor-upn", required=True)
-    parser.add_argument("--graph-method", default="GET")
-    parser.add_argument("--graph-url", required=True)
-    parser.add_argument(
-        "--graph-query",
-        help="JSON object of query parameters",
-        default=None,
-    )
-    parser.add_argument(
-        "tool_cmd",
-        nargs=argparse.REMAINDER,
-        help="Tool invocation after --, e.g. -- python scripts/tool_list_users.py --top 999",
-    )
-    return parser.parse_args()
+    parser.add_argument("--borrowed-client-id", default=DEFAULT_CLIENT_ID)
+    parser.add_argument("--tool-name", default=None)
+    return parser.parse_known_args()
 
 
-def _parse_query(raw: str | None) -> dict | None:
-    if not raw:
+def _tool_label(args: argparse.Namespace) -> str:
+    if args.tool_name:
+        return args.tool_name
+    return Path(args.tool).stem
+
+
+def _try_parse_envelope(stdout: str) -> dict | None:
+    stdout = (stdout or "").strip()
+    if not stdout:
         return None
-    return json.loads(raw)
-
-
-def _row_count_from_stdout(stdout: str) -> int:
     try:
-        body = json.loads(stdout)
+        return json.loads(stdout)
     except json.JSONDecodeError:
-        return 0
-    if isinstance(body, dict) and isinstance(body.get("value"), list):
-        return len(body["value"])
-    if isinstance(body, list):
-        return len(body)
-    return 0
+        for line in reversed(stdout.splitlines()):
+            line = line.strip()
+            if line.startswith("{") and line.endswith("}"):
+                try:
+                    return json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+    return None
 
 
 def main() -> int:
-    args = _parse_args()
-    cmd = args.tool_cmd
-    if cmd and cmd[0] == "--":
-        cmd = cmd[1:]
-    if not cmd:
-        sys.stderr.write("error: pass the tool invocation after --\n")
-        return 2
+    args, tool_args = _parse_args()
+    started_at = utc_now_iso()
+    cmd = [sys.executable, args.tool, *tool_args]
 
-    started = utc_now_iso()
-    proc = subprocess.run(cmd, capture_output=True, text=True)
-    completed = utc_now_iso()
+    proc = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
 
-    request = {
-        "method": args.graph_method,
-        "url": args.graph_url,
-        "headers": {"User-Agent": f"rejewski-{args.tool_name}/0.1"},
-    }
-    query = _parse_query(args.graph_query)
-    if query is not None:
-        request["query"] = query
+    completed_at = utc_now_iso()
+    envelope = _try_parse_envelope(proc.stdout)
+    stderr_tail = (proc.stderr or "")[-STDERR_TAIL_CHARS:]
 
-    if proc.returncode == 0:
-        outcome = "success"
-        error = None
-        response = {
-            "status_code": 200,
-            "page_count": 1,
-            "row_count": _row_count_from_stdout(proc.stdout),
+    if proc.returncode == 0 and envelope is not None:
+        outcome = envelope.get("outcome", "success")
+        request_obj = envelope.get("request") or {
+            "method": "GET",
+            "url": "n/a",
+            "headers": {},
         }
-    else:
-        outcome = "error"
-        message = (proc.stderr or "").strip()[:500] or "wrapped tool exited non-zero"
-        error = make_error(
-            type_=WRAPPER_ERROR_TYPE_URN,
-            message=message,
-        )
-        response = {
-            "status_code": 0,
+        response_obj = envelope.get("response") or {
+            "status_code": 200,
             "page_count": 0,
             "row_count": 0,
         }
+        error_block = envelope.get("error")
+    else:
+        outcome = "error"
+        request_obj = {
+            "method": "subprocess",
+            "url": args.tool,
+            "headers": {},
+            "argv": cmd,
+        }
+        response_obj = {
+            "status_code": 0,
+            "page_count": 0,
+            "row_count": 0,
+            "retry_count": 0,
+        }
+        msg = (
+            f"tool subprocess exit={proc.returncode}; "
+            f"stderr_tail={stderr_tail!r}"
+        )
+        error_block = make_error(
+            type_=ERROR_TYPE_URN,
+            message=msg,
+            status_code=None,
+        )
 
     entry = ReplayLogEntry(
-        tool=args.tool_name,
+        kind="graph_call",
+        tool=_tool_label(args),
         technique_id=args.technique_id,
         technique_name=args.technique_name,
         tenant_id=args.tenant_id,
         borrowed_client_id=args.borrowed_client_id,
         actor_upn=args.actor_upn,
-        started_at_utc=started,
-        completed_at_utc=completed,
-        request=request,
-        response=response,
+        started_at_utc=started_at,
+        completed_at_utc=completed_at,
+        request=request_obj,
+        response=response_obj,
         outcome=outcome,
-        error=error,
-        kind=DEFAULT_KIND,
+        error=error_block,
     )
+    target = write_entry(entry)
 
-    path = write_entry(entry)
-    sys.stdout.write(f"replay-log entry written: {path}\n")
+    sys.stdout.write(proc.stdout)
+    if proc.stderr:
+        sys.stderr.write(proc.stderr)
+    sys.stderr.write(f"\n[replay-log] wrote {target}\n")
     return proc.returncode
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

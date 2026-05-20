@@ -11,7 +11,8 @@ v0.3 (Wed May 20, 2026): kind-discriminated response shapes.
 
 Writes one JSON entry per run to samples/replay-log/<utc-stamp>-<uuid>.json,
 validated against schemas/replay-log/v0.3.json. Tokens, passwords, and
-known secret fields are scrubbed before serialization.
+known secret fields are scrubbed before serialization. Tenant GUID is
+redacted from the error block before serialization (second-layer scrub).
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import sys
 import tempfile
 import uuid
 from dataclasses import asdict, dataclass, field
@@ -26,12 +28,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import jsonschema
+from jsonschema import Draft202012Validator, FormatChecker
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_VERSION = "0.3"
 SCHEMA_PATH = REPO_ROOT / "schemas" / "replay-log" / "v0.3.json"
 DEFAULT_LOG_DIR = REPO_ROOT / "samples" / "replay-log"
+
+SANDBOX_TENANT_ID = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
+REDACTED = "00000000-0000-0000-0000-000000000000"
 
 ALLOWED_KINDS = ("graph_call", "token_event")
 ALLOWED_OUTCOMES = ("success", "error", "throttled", "row_cap_hit")
@@ -52,6 +57,16 @@ SECRET_KEY_PATTERN = re.compile(
     r"(access_token|refresh_token|id_token|client_secret|password|authorization|bearer)",
     re.IGNORECASE,
 )
+
+_TENANT_GUID_RE = re.compile(re.escape(SANDBOX_TENANT_ID), re.IGNORECASE)
+
+
+def _load_schema() -> dict[str, Any]:
+    with SCHEMA_PATH.open("r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+_VALIDATOR = Draft202012Validator(_load_schema(), format_checker=FormatChecker())
 
 
 def utc_now_iso() -> str:
@@ -100,6 +115,16 @@ def _scrub(value: Any) -> Any:
     return value
 
 
+def _redact_tenant_guid(value: Any) -> Any:
+    if isinstance(value, str):
+        return _TENANT_GUID_RE.sub(REDACTED, value)
+    if isinstance(value, dict):
+        return {k: _redact_tenant_guid(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_redact_tenant_guid(v) for v in value]
+    return value
+
+
 def _shape_response(kind: str, response: dict[str, Any]) -> dict[str, Any]:
     if kind == "graph_call":
         required = GRAPH_CALL_RESPONSE_REQUIRED
@@ -109,7 +134,7 @@ def _shape_response(kind: str, response: dict[str, Any]) -> dict[str, Any]:
         optional = TOKEN_EVENT_RESPONSE_OPTIONAL
     else:
         raise ValueError(
-            f"unknown kind: {kind!r}; expected one of {ALLOWED_KINDS}"
+            f"invalid kind: {kind!r}; expected one of {ALLOWED_KINDS}"
         )
 
     shaped: dict[str, Any] = {}
@@ -122,18 +147,7 @@ def _shape_response(kind: str, response: dict[str, Any]) -> dict[str, Any]:
     for key in optional:
         if key in response:
             shaped[key] = response[key]
-    allowed = set(required) | set(optional)
-    extras = [k for k in response.keys() if k not in allowed]
-    if extras:
-        raise ValueError(
-            f"response envelope has unexpected keys for kind={kind}: {extras}"
-        )
     return shaped
-
-
-def _load_schema() -> dict[str, Any]:
-    with SCHEMA_PATH.open("r", encoding="utf-8") as fh:
-        return json.load(fh)
 
 
 def _filename(entry: ReplayLogEntry) -> str:
@@ -151,6 +165,12 @@ def _atomic_write(path: Path, payload: dict[str, Any]) -> None:
             json.dump(payload, fh, indent=2, sort_keys=False)
             fh.write("\n")
         os.replace(tmp_path, path)
+        if sys.platform != "win32":
+            dir_fd = os.open(str(path.parent), os.O_DIRECTORY)
+            try:
+                os.fsync(dir_fd)
+            finally:
+                os.close(dir_fd)
     except Exception:
         try:
             os.unlink(tmp_path)
@@ -168,6 +188,15 @@ def write_entry(entry: ReplayLogEntry, *, log_dir: Path | None = None) -> Path:
         raise ValueError(
             f"invalid outcome: {entry.outcome!r}; expected one of {ALLOWED_OUTCOMES}"
         )
+    if not entry.borrowed_client_id or not entry.borrowed_client_id.strip():
+        raise ValueError(
+            "borrowed_client_id is required (no-tenant-app-reg posture, G-3)"
+        )
+    if entry.tenant_id != SANDBOX_TENANT_ID:
+        raise ValueError(
+            f"tenant lock (G-1): tenant_id must be {SANDBOX_TENANT_ID}, "
+            f"got {entry.tenant_id!r}"
+        )
 
     shaped_response = _shape_response(entry.kind, entry.response)
     payload = asdict(entry)
@@ -175,11 +204,16 @@ def write_entry(entry: ReplayLogEntry, *, log_dir: Path | None = None) -> Path:
     payload = _scrub(payload)
     if payload.get("error") is None:
         payload.pop("error", None)
+    elif isinstance(payload.get("error"), dict):
+        payload["error"] = _redact_tenant_guid(payload["error"])
 
-    schema = _load_schema()
-    jsonschema.validate(instance=payload, schema=schema)
+    _VALIDATOR.validate(payload)
 
     out_dir = log_dir if log_dir is not None else DEFAULT_LOG_DIR
     target = out_dir / _filename(entry)
+    if target.exists():
+        raise FileExistsError(
+            f"refusing to overwrite existing replay-log entry: {target}"
+        )
     _atomic_write(target, payload)
     return target

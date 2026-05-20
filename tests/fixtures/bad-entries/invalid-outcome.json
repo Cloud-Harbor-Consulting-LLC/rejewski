@@ -1,24 +1,25 @@
 {
-  "actor_upn": "meganb@cloudharbor-demo.com",
-  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
-  "completed_at_utc": "2026-05-15T14:40:01.000000Z",
-  "entry_id": "44444444-4444-4444-8444-444444444444",
-  "outcome": "pending",
-  "request": {
-    "method": "GET",
-    "url": "https://graph.microsoft.com/v1.0/users"
-  },
-  "response": {
-    "page_count": 1,
-    "row_count": 0,
-    "status_code": 200
-  },
-  "schema_version": "0.1",
-  "started_at_utc": "2026-05-15T14:40:00.000000Z",
+  "schema_version": "0.3",
+  "entry_id": "55555555-6666-4777-8888-999999999999",
+  "kind": "graph_call",
+  "tool": "tool_list_users",
   "technique": {
     "id": "T1087.004",
     "name": "Account Discovery: Cloud Account"
   },
   "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
-  "tool": "tool_list_users"
+  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+  "actor_upn": "meganb@cloudharbor-demo.com",
+  "started_at_utc": "2026-05-15T14:30:15Z",
+  "completed_at_utc": "2026-05-15T14:30:16Z",
+  "request": {
+    "method": "GET",
+    "url": "https://graph.microsoft.com/v1.0/users"
+  },
+  "response": {
+    "status_code": 200,
+    "page_count": 1,
+    "row_count": 0
+  },
+  "outcome": "pending"
 }

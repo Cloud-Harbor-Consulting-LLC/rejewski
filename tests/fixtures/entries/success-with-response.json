@@ -1,31 +1,32 @@
 {
-  "actor_upn": "meganb@cloudharbor-demo.com",
-  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
-  "completed_at_utc": "2026-05-15T14:36:05.420000Z",
-  "entry_id": "22222222-2222-4222-8222-222222222222",
+  "schema_version": "0.3",
+  "entry_id": "22222222-3333-4444-8555-666666666666",
   "kind": "graph_call",
-  "outcome": "row_cap_hit",
-  "request": {
-    "headers": {
-      "User-Agent": "rejewski-tool-list-users/0.1"
-    },
-    "method": "GET",
-    "url": "https://graph.microsoft.com/v1.0/users?$select=id,displayName&$top=999"
-  },
-  "response": {
-    "page_count": 2,
-    "retry_count": 1,
-    "row_cap": 1000,
-    "row_cap_hit": true,
-    "row_count": 1000,
-    "status_code": 200
-  },
-  "schema_version": "0.2",
-  "started_at_utc": "2026-05-15T14:36:00.000000Z",
+  "tool": "tool_list_users",
   "technique": {
     "id": "T1087.004",
     "name": "Account Discovery: Cloud Account"
   },
   "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
-  "tool": "tool_list_users"
+  "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+  "actor_upn": "meganb@cloudharbor-demo.com",
+  "started_at_utc": "2026-05-15T14:30:15Z",
+  "completed_at_utc": "2026-05-15T14:30:16Z",
+  "request": {
+    "method": "GET",
+    "url": "https://graph.microsoft.com/v1.0/users",
+    "headers": {
+      "User-Agent": "rejewski-tool-list-users/0.1",
+      "Content-Type": "application/json"
+    }
+  },
+  "response": {
+    "status_code": 200,
+    "page_count": 1,
+    "row_count": 6,
+    "row_cap": 1000,
+    "row_cap_hit": false,
+    "retry_count": 0
+  },
+  "outcome": "success"
 }

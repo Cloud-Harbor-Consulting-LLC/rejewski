@@ -32,7 +32,9 @@ from replay_log import (
 
 GRAPH_SCOPE_DEFAULT = ["https://graph.microsoft.com/.default"]
 TOKEN_AUTHORITY_FMT = "https://login.microsoftonline.com/{tenant_id}"
-TOKEN_ENDPOINT_URL_FMT = "https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
+TOKEN_ENDPOINT_URL_FMT = (
+    "https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
+)
 DEFAULT_CLIENT_ID = "14d82eec-204b-4c2f-b7e8-296a70dab67e"  # Graph CLI Tools (ADR-0004 §4)
 CLIENT_CAPABILITIES = ["CP1"]  # CAE-aware per ADR-0005 §2
 
@@ -270,6 +272,7 @@ def _emit_token_event(
         "correlation_id": correlation_id,
         "persistence_kind": persistence_kind,
         "cache_path": str(cache_path),
+        "flow": flow,
     }
     entry = ReplayLogEntry(
         kind="token_event",

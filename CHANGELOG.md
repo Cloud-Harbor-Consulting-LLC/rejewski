@@ -43,10 +43,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- scripts/replay_log.py: SCHEMA_VERSION bumped to 0.3, SCHEMA_PATH points at v0.3.json, _shape_response is now kind-aware and validates required/optional keys per the graph_call vs token_event split. Closes the schema/code mismatch surfaced on Wed May 20, 2026 (response envelope missing required key: page_count for token_event entries).
+- scripts/replay_log.py: SCHEMA_VERSION bumped to 0.3, SCHEMA_PATH points at v0.3.json, "_shape_response" is now kind-aware and validates required/optional keys per the graph_call vs token_event split. Closes the schema/code mismatch surfaced on Wed May 20, 2026 (response envelope missing required key: page_count for token_event entries).
 - scripts/identity.py: _emit_token_event response payload now includes the flow field on the response side as well (graph_call branch unaffected). No change to acquisition logic.
 - scripts/run_with_replay_log.py: stderr capture for failed subprocesses bumped from 500-char head to 4000-char tail so the actionable last line of Python tracebacks survives. Twice this session the head-truncated message hid the root cause.
-- scripts/tool_list_users.py wires the replay-log writer. Every invocation emits a single replay-log entry (success or error) via replay_log.write_entry. Defaults to replay-logs/ (gitignored). Pass--replay-log-dir samples/replay-log to produce a canonical entry. Error paths now capture an RFC 9457 problem-details block in the entry's error field. The legacy evidence JSON on stdout/--output adds an outcome field and a replay_log_entry path pointer.
+- scripts/tool_list_users.py wires the replay-log writer. Every invocation emits a single replay-log entry (success or error) via replay_log.write_entry. Defaults to replay-logs/ (gitignored). Pass --replay-log-dir samples/replay-log to produce a canonical entry. Error paths now capture an RFC 9457 problem-details block in the entry's error field. The legacy evidence JSON on stdout/--output adds an outcome field and a replay_log_entry path pointer.
 - docs(adr): correct ADR 0001 §1 sandbox tenant ID from cf3f9a61-644f-4d47-a11c-a6600a9bc717 (Planner host) to 76b87c33-6178-4ff9-94a7-164792c8e4c6 (cloudharbordemo)
 - docs(guardrails): correct G-1 Sandbox Tenant Lock statement, enforcement, and rationale to reference cloudharbordemo (76b87c33) instead of the Planner host tenant (cf3f9a61)
 - docs/threat-model.md: bump v0.1 → v0.2 with four bundled corrections — §1 tenant ID corrected to 76b87c33 (was cf3f9a61), §3 adversary-model section expanded with the no-tenant-app-reg posture and first-party client borrowing note, §5 extended with the T1069.003 deferred surface (/me/transitiveMemberOf and /directoryRoles as Sprint 2+ uplift), ADR 0003 added to the cross-references.
@@ -54,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- scripts/replay_log.py: writer now reshapes technique into the v0.3 nested {id, name} object before schema validation. The ReplayLogEntry dataclass keeps flat technique_id/technique_name fields for caller ergonomics; asdict() output is transformed via a new "_shape_technique" helper between response shaping and "_scrub". Closes the additionalProperties violation surfaced by tests/test_replay_log.py::TestRoundTrip on Wed May 20, 2026 (technique_id, technique_name were unexpected at the top level under v0.3).
 - scripts/replay_log.py — guard the post-replace directory fsync behind sys.platform != "win32" so the writer runs cleanly on Windows. NTFS's metadata journal already orders the directory entry after the atomic os.replace; the explicit dir-fsync was POSIX-only durability belt-and-suspenders that raised PermissionError [Errno 13] on Windows because NTFS does not expose directories as file descriptors. Behavior on Linux/macOS is unchanged.
 
 ### Pinned

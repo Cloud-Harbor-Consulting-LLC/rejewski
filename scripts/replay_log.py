@@ -10,9 +10,11 @@ v0.3 (Wed May 20, 2026): kind-discriminated response shapes.
                            cache_path, flow)
 
 Writes one JSON entry per run to samples/replay-log/<utc-stamp>-<uuid>.json,
-validated against schemas/replay-log/v0.3.json. Tokens, passwords, and
-known secret fields are scrubbed before serialization. Tenant GUID is
-redacted from the error block before serialization (second-layer scrub).
+validated against schemas/replay-log/v0.3.json. Two-layer secret scrubbing:
+allow-list for request.headers (Authorization and any other non-listed header
+is dropped key-and-value); deny-list for all other dict keys (value replaced
+with [REDACTED] when key matches SECRET_KEY_PATTERN). Tenant GUID is redacted
+from the error block before serialization.
 """
 
 from __future__ import annotations
@@ -51,6 +53,15 @@ TOKEN_EVENT_RESPONSE_OPTIONAL = (
     "persistence_kind",
     "cache_path",
     "flow",
+)
+
+ALLOWED_REQUEST_HEADERS = (
+    "User-Agent",
+    "Content-Type",
+    "Accept",
+    "ConsistencyLevel",
+    "Prefer",
+    "Client-Request-Id",
 )
 
 SECRET_KEY_PATTERN = re.compile(
@@ -157,6 +168,19 @@ def _shape_technique(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _allowlist_request_headers(request: dict[str, Any]) -> dict[str, Any]:
+    headers = request.get("headers")
+    if not isinstance(headers, dict):
+        return request
+    allowed = {h.lower() for h in ALLOWED_REQUEST_HEADERS}
+    request["headers"] = {
+        k: v
+        for k, v in headers.items()
+        if isinstance(k, str) and k.lower() in allowed
+    }
+    return request
+
+
 def _filename(entry: ReplayLogEntry) -> str:
     stamp = entry.started_at_utc.replace("-", "").replace(":", "")
     return f"{stamp}-{entry.entry_id}.json"
@@ -209,6 +233,8 @@ def write_entry(entry: ReplayLogEntry, *, log_dir: Path | None = None) -> Path:
     payload = asdict(entry)
     payload["response"] = shaped_response
     payload["technique"] = _shape_technique(payload)
+    if isinstance(payload.get("request"), dict):
+        payload["request"] = _allowlist_request_headers(payload["request"])
     payload = _scrub(payload)
     if payload.get("error") is None:
         payload.pop("error", None)

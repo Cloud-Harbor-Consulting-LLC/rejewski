@@ -1,13 +1,14 @@
 # Project Harbor Sonar — Threat Model
 
-- Version: v0.2
-- Last updated: 2026-05-14
+- Version: v0.3
+- Last updated: 2026-05-22
 - Status: Living document
 - Authors: Derek Morgan
 - Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/
 
 ## Change log
 
+- v0.3 (2026-05-22) — Sprint 1 W3 catalogue expansion. §5 adds a Sprint 2+ catalogued techniques subsection covering T1526 Cloud Service Discovery (candidate Graph surfaces /subscribedSkus, /servicePrincipals, /applications, /organization documented for Sprint 2+ modelling) and T1538 Cloud Service Dashboard (catalogued as out of programmatic Rejewski scope; preserved for consumer awareness). §7 adds T1538 to the out-of-scope list.
 - v0.2 (2026-05-14) — Tenant ID correction in §1 (cf3f9a61 → 76b87c33). Adversary-model note added to §3 covering the no-tenant-app-reg posture and first-party client borrowing. §5 extended with T1069.003 deferred surface (transitiveMemberOf, directoryRoles). ADR 0003 cross-reference added.
 - v0.1 (2026-05-14) — Initial outline shipped Thu morning as part of the Sat-item pull-forward bundle.
 
@@ -86,6 +87,17 @@ Each module follows the ADR 0003 format: YAML front matter, eight required secti
 
 The deferral is not because these endpoints are dangerous — both are read-only and inside the Sprint 1 consent-floor scope set — but because each opens a meaningfully larger result surface that needs its own row-cap calibration (per G-9) and detection-baseline pass before Rejewski emulates it. Sprint 2 work will pick them up.
 
+**Sprint 2+ catalogued techniques.** The following Discovery-tactic techniques are catalogued in this threat model to lock terminology and scope before implementation, but are not exercised in Sprint 1. Each will graduate to a docs/techniques/ module under the ADR 0003 format when its sprint opens.
+
+| Technique | Tactic | Status | Surface |
+|-----------|--------|--------|---------|
+| T1526 Cloud Service Discovery | Discovery | Sprint 2+ candidate | /subscribedSkus, /servicePrincipals, /applications, /organization |
+| T1538 Cloud Service Dashboard | Discovery | Out of programmatic Rejewski scope | Azure portal / Microsoft 365 admin center / Defender portal / Entra admin center GUIs |
+
+**T1526 Cloud Service Discovery.** An adversary with valid cloud credentials enumerates the licensed services, subscriptions, registered applications, and tenant metadata available to them — the goal is to inventory what the tenant pays for and runs, so later-stage techniques can target the highest-value surfaces. For Rejewski against cloudharbordemo, the candidate Graph surfaces are `GET /subscribedSkus` (licensed SKUs and service plan details — e.g. ENTERPRISEPACK, EMS, defender add-ons), `GET /servicePrincipals` (third-party and Microsoft service principals visible to the signed-in user), `GET /applications` (tenant app registrations the user is permitted to read), and `GET /organization` (tenant display name, verified domains, country, technical contacts, and assigned plans). Each surface has a separate row-cap calibration (per G-9) and scope footprint, so they will be modelled as one technique module per Graph surface when Sprint 2+ scopes them in. T1526 is a natural pair with T1087.004 and T1069.003 in the Discovery kill-chain leg: account discovery + group discovery + service discovery together map the tenant's identity-and-licensing footprint before any Collection or Lateral Movement objective is engaged.
+
+**T1538 Cloud Service Dashboard.** This technique describes adversary use of a cloud-provider GUI dashboard — Azure portal (portal.azure.com), Microsoft 365 admin center (admin.microsoft.com), Defender portal (security.microsoft.com), or Entra admin center (entra.microsoft.com) — with stolen credentials, to enumerate services, resources, and configurations through human-driven browser navigation rather than API calls. Rejewski is a programmatic Graph client and does not drive browser sessions, so T1538 is **catalogued but not in scope for Rejewski emulation**. It is recorded here so consumers of Rejewski's evidence understand: when Rejewski simulates Discovery, it produces Graph-API audit signal (sign-in logs, audit logs, Defender for Cloud Apps anomaly hits on programmatic enumeration) — it does **not** produce the dashboard-session and interactive-GUI signals that T1538 emulation would require. Detection coverage for T1538 must come from other tooling.
+
 ## 6. Trust boundaries
 
 ```
@@ -121,6 +133,7 @@ The following are explicitly out of scope for Sprint 1 and are tracked for later
 - Conditional-access bypasses (location spoofing, device compliance manipulation).
 - Real-user data of any kind (G-7).
 - Production tenants other than cloudharbordemo (G-1).
+- Cloud-dashboard GUI reconnaissance (T1538). Catalogued in §5 but out of programmatic Rejewski scope; consumers of Rejewski evidence must source dashboard-session signal from other tooling.
 
 ## 8. References
 

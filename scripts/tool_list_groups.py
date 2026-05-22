@@ -14,7 +14,7 @@ borrowed first-party client defaults to Microsoft Graph Command Line Tools
 (14d82eec) and falls back to Azure CLI (04b07795) via FOCI per ADR 0004 v0.2.
 
 Every invocation writes a replay-log entry (success, error, throttled, or
-row_cap_hit) to the configured replay-log directory under the v0.2 schema
+row_cap_hit) to the configured replay-log directory under the v0.3 schema
 with kind="graph_call". 401 mid-pagination recovers via the encrypted cache,
 not in-memory MSAL state.
 
@@ -47,6 +47,7 @@ from replay_log import (
 )
 
 GRAPH_BASE = "https://graph.microsoft.com/v1.0"
+GRAPH_SCOPE = ["https://graph.microsoft.com/.default"]
 DEFAULT_SELECT = "id,displayName,mailNickname,groupTypes,securityEnabled,mailEnabled,visibility"
 DEFAULT_TOP = 999
 DEFAULT_ROW_CAP = 1000
@@ -158,7 +159,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     load_dotenv()
     tenant_id = os.environ["AZURE_TENANT_ID"]
-    client_id = os.environ.get("FOCI_CLIENT_ID", "14d82eec-204b-4c2f-b7e8-296a70dab67e")
+    client_id = os.environ.get("FOCI_CLIENT_ID", identity.DEFAULT_CLIENT_ID)
     upn = os.environ["COMPROMISED_USER_UPN"]
     password = os.environ.get("COMPROMISED_USER_PASSWORD")
 
@@ -170,6 +171,7 @@ def main() -> int:
             actor_upn=upn,
             tenant_id=tenant_id,
             client_id=client_id,
+            scopes=GRAPH_SCOPE,
             password=password,
             replay_log_dir=replay_log_dir,
         )

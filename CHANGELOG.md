@@ -29,8 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TestSchemaFidelity.test_good_fixtures_validate to exercise the new fixtures against the v0.1 schema.
 - Tenant-GUID redaction in RFC 9457 error block string fields (type, detail, instance) in scripts/replay_log.py. Closes pre-mortem failure mode #1 from the replay-log writer design report.
 - tests/fixtures/entries/ with 3 valid sample entries (minimal-success, success-with-response, error-outcome) for positive schema validation.
-- tests/test_replay_log.py::TestScrubbing::test_tenant_guid_redacted_in_error_detail.
-- pytest test surface for the replay-log writer middleware. Four test classes: schema fidelity (validates committed samples + asserts bad fixtures fail), round-trip (write → read → re-validate → JSON-equal), refusal (overwrite + missing borrowed_client_id + wrong tenant + schema validation failure + missing required entry field), scrubbing (Authorization header allow-list + access_token deny-list + nested credentials + tenant-GUID redaction in RFC 9457 error block).
+- tests/test_replay_log.py::TestScrubbing::test_tenant_guid_redacted_in_error_message.
+- pytest test surface for the replay-log writer middleware. Four test classes: schema fidelity (validates committed samples + asserts bad fixtures fail), round-trip (write → read → re-validate → JSON-equal), refusal (overwrite + missing borrowed_client_id + wrong tenant + unknown outcome + unknown kind), scrubbing (Authorization header allow-list + access_token deny-list + nested credentials + tenant-GUID redaction in RFC 9457 error block).
 - tests/fixtures/bad-entries/ with three negative-validation fixtures: missing-tenant-id.json, invalid-outcome.json, wrong-schema-version.json.
 - requirements-dev.txt pinning pytest>=8,<9.
 - Guardrail G-9 — Enumeration row cap. Bounds discovery technique row counts at the configured per-endpoint default; promotes the row-cap rule already referenced in T1087.004 and T1069.003 Procedure sections to governed status.

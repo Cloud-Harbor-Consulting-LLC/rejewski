@@ -1,13 +1,14 @@
 # Project Harbor Sonar — Threat Model
 
-- Version: v0.3
-- Last updated: 2026-05-22
+- Version: v0.4
+- Last updated: 2026-05-26
 - Status: Living document
 - Authors: Derek Morgan
 - Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/
 
 ## Change log
 
+- v0.4 (2026-05-26) — Sprint 2 W5 pull-forward. T1526 Cloud Service Discovery activated for the /identity/conditionalAccess/policies surface (docs/techniques/T1526.md created). §5 active technique table updated to include T1526; Sprint 2+ catalogued subsection updated to reflect T1526 implementation status and CA policies surface. §8 adds T1526 cross-reference.
 - v0.3 (2026-05-22) — Sprint 1 W3 catalogue expansion. §5 adds a Sprint 2+ catalogued techniques subsection covering T1526 Cloud Service Discovery (candidate Graph surfaces /subscribedSkus, /servicePrincipals, /applications, /organization documented for Sprint 2+ modelling) and T1538 Cloud Service Dashboard (catalogued as out of programmatic Rejewski scope; preserved for consumer awareness). §7 adds T1538 to the out-of-scope list.
 - v0.2 (2026-05-14) — Tenant ID correction in §1 (cf3f9a61 → 76b87c33). Adversary-model note added to §3 covering the no-tenant-app-reg posture and first-party client borrowing. §5 extended with T1069.003 deferred surface (transitiveMemberOf, directoryRoles). ADR 0003 cross-reference added.
 - v0.1 (2026-05-14) — Initial outline shipped Thu morning as part of the Sat-item pull-forward bundle.
@@ -68,15 +69,18 @@ The adversary's starting capabilities **do not include**:
 
 Sandbox assets carry no real-world sensitivity, but the **evidence ledger** and **SharePoint Evidence folder** do — they are the chain of custody that grounds every KPI claim Rejewski makes downstream.
 
-## 5. Sprint 1 technique scope
+## 5. Active technique scope
 
-Three MITRE ATT&CK techniques are in scope for Sprint 1, in kill-chain order:
+The following MITRE ATT&CK techniques are implemented in Rejewski, in kill-chain order.
+Sprint 1 shipped T1078.004, T1087.004, and T1069.003. T1526 was activated via the Sprint 2
+W5 pull-forward (2026-05-26) to build calendar buffer toward the v1.0 tag.
 
-| Technique | Tactic | Module |
-|-----------|--------|--------|
-| T1078.004 Valid Accounts: Cloud Accounts | Initial Access | docs/techniques/T1078.004.md |
-| T1087.004 Account Discovery: Cloud Account | Discovery | docs/techniques/T1087.004.md |
-| T1069.003 Permission Groups Discovery: Cloud Groups | Discovery | docs/techniques/T1069.003.md |
+| Technique | Tactic | Sprint | Module |
+|-----------|--------|--------|--------|
+| T1078.004 Valid Accounts: Cloud Accounts | Initial Access | 1 | docs/techniques/T1078.004.md |
+| T1087.004 Account Discovery: Cloud Account | Discovery | 1 | docs/techniques/T1087.004.md |
+| T1069.003 Permission Groups Discovery: Cloud Groups | Discovery | 1 | docs/techniques/T1069.003.md |
+| T1526 Cloud Service Discovery | Discovery | 2 W5 pull-forward | docs/techniques/T1526.md |
 
 Each module follows the ADR 0003 format: YAML front matter, eight required sections, and cited cross-references to this threat model, the governing ADR(s), and docs/guardrails.md.
 
@@ -91,10 +95,12 @@ The deferral is not because these endpoints are dangerous — both are read-only
 
 | Technique | Tactic | Status | Surface |
 |-----------|--------|--------|---------|
-| T1526 Cloud Service Discovery | Discovery | Sprint 2+ candidate | /subscribedSkus, /servicePrincipals, /applications, /organization |
+| T1526 Cloud Service Discovery | Discovery | Implemented — Sprint 2 W5 pull-forward (2026-05-26) | /identity/conditionalAccess/policies (active); /subscribedSkus, /servicePrincipals, /applications, /organization (deferred to Sprint 2 main body) |
 | T1538 Cloud Service Dashboard | Discovery | Out of programmatic Rejewski scope | Azure portal / Microsoft 365 admin center / Defender portal / Entra admin center GUIs |
 
-**T1526 Cloud Service Discovery.** An adversary with valid cloud credentials enumerates the licensed services, subscriptions, registered applications, and tenant metadata available to them — the goal is to inventory what the tenant pays for and runs, so later-stage techniques can target the highest-value surfaces. For Rejewski against cloudharbordemo, the candidate Graph surfaces are `GET /subscribedSkus` (licensed SKUs and service plan details — e.g. ENTERPRISEPACK, EMS, defender add-ons), `GET /servicePrincipals` (third-party and Microsoft service principals visible to the signed-in user), `GET /applications` (tenant app registrations the user is permitted to read), and `GET /organization` (tenant display name, verified domains, country, technical contacts, and assigned plans). Each surface has a separate row-cap calibration (per G-9) and scope footprint, so they will be modelled as one technique module per Graph surface when Sprint 2+ scopes them in. T1526 is a natural pair with T1087.004 and T1069.003 in the Discovery kill-chain leg: account discovery + group discovery + service discovery together map the tenant's identity-and-licensing footprint before any Collection or Lateral Movement objective is engaged.
+**T1526 Cloud Service Discovery.** An adversary with valid cloud credentials enumerates cloud services, security configurations, and tenant metadata to inventory the target environment before engaging Collection or Lateral Movement objectives. T1526 is now active in Rejewski for the Conditional Access policies surface (Sprint 2 W5 pull-forward, 2026-05-26): `GET /identity/conditionalAccess/policies` enumerates all CA policies in the tenant, revealing which users/groups are covered, what grant controls are enforced (MFA, compliant device, block), which applications are in scope, and whether any policies are in report-only mode. This surface requires the signed-in user to hold at least Security Reader — making it a post-privilege-escalation discovery step in the kill chain (see docs/techniques/T1526.md §"Required privilege" for the full operator prerequisite and attack strategy note).
+
+Additional T1526 surfaces remain in the Sprint 2 main body catalogue and are not yet active: `GET /subscribedSkus` (licensed SKUs and service plan details), `GET /servicePrincipals` (third-party and Microsoft service principals), `GET /applications` (tenant app registrations), and `GET /organization` (tenant display name, verified domains, country, technical contacts). Each additional surface needs its own row-cap calibration (per G-9) and will be modelled as a separate technique surface entry when Sprint 2 opens. T1526 is a natural complement to T1087.004 and T1069.003 in the Discovery kill-chain leg: account discovery + group discovery + service/policy discovery together map the tenant's identity-and-configuration footprint.
 
 **T1538 Cloud Service Dashboard.** This technique describes adversary use of a cloud-provider GUI dashboard — Azure portal (portal.azure.com), Microsoft 365 admin center (admin.microsoft.com), Defender portal (security.microsoft.com), or Entra admin center (entra.microsoft.com) — with stolen credentials, to enumerate services, resources, and configurations through human-driven browser navigation rather than API calls. Rejewski is a programmatic Graph client and does not drive browser sessions, so T1538 is **catalogued but not in scope for Rejewski emulation**. It is recorded here so consumers of Rejewski's evidence understand: when Rejewski simulates Discovery, it produces Graph-API audit signal (sign-in logs, audit logs, Defender for Cloud Apps anomaly hits on programmatic enumeration) — it does **not** produce the dashboard-session and interactive-GUI signals that T1538 emulation would require. Detection coverage for T1538 must come from other tooling.
 
@@ -141,5 +147,5 @@ The following are explicitly out of scope for Sprint 1 and are tracked for later
 - ADR 0002 — Consent floor evidence format
 - ADR 0003 — Technique Module Format
 - docs/guardrails.md — G-1 through G-9
-- docs/techniques/T1078.004.md, T1087.004.md, T1069.003.md
+- docs/techniques/T1078.004.md, T1087.004.md, T1069.003.md, T1526.md
 - MITRE ATT&CK Enterprise — <https://attack.mitre.org/matrices/enterprise/>

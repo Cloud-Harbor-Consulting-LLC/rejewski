@@ -341,6 +341,7 @@ def main() -> int:
             scopes=GRAPH_SCOPE,
             password=password,
             replay_log_dir=replay_log_dir,
+            run_id=args.run_id,
         )
         return result["access_token"]
 

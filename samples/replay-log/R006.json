@@ -1,0 +1,46 @@
+[
+  {
+    "event": "consent.granted",
+    "run_id": "R006",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "operator_object_id": "48df3ad2-9110-4c27-9630-f82b1b8eb177",
+    "techniques": ["T1087.004"],
+    "expected_duration_seconds": 360,
+    "prompt_emitted_at": "2026-05-27T21:41:44.000Z",
+    "confirmed_at": "2026-05-27T21:41:47.000Z",
+    "confirmation_latency_seconds": 3
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_service_principals",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-05-27T21:41:56Z",
+    "completed_at_utc": "2026-05-27T21:41:59Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/servicePrincipals?$select=id,appId,displayName,accountEnabled,servicePrincipalType,signInAudience,appOwnerOrganizationId,tags,homepage&$top=100",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-service-principals/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 3,
+      "row_count": 279,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R006",
+    "schema_version": "0.4",
+    "entry_id": "53e18804-6a51-470f-b532-02a1e094746a",
+    "technique": {
+      "id": "T1087.004",
+      "name": "Account Discovery: Cloud Account"
+    }
+  }
+]

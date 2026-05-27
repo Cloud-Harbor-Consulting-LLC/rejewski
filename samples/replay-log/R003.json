@@ -1,0 +1,46 @@
+[
+  {
+    "event": "consent.granted",
+    "run_id": "R003",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "operator_object_id": "48df3ad2-9110-4c27-9630-f82b1b8eb177",
+    "techniques": ["T1069.003"],
+    "expected_duration_seconds": 360,
+    "prompt_emitted_at": "2026-05-27T12:07:24.000Z",
+    "confirmed_at": "2026-05-27T12:07:27.000Z",
+    "confirmation_latency_seconds": 3
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_groups",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-05-27T12:07:29Z",
+    "completed_at_utc": "2026-05-27T12:07:30Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/groups?$select=id,displayName,mailNickname,groupTypes,securityEnabled,mailEnabled,visibility&$top=999",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-groups/0.2 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 19,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R003",
+    "schema_version": "0.4",
+    "entry_id": "f3b1c169-5d59-4a7e-9147-46a32c75c818",
+    "technique": {
+      "id": "T1069.003",
+      "name": "Permission Groups Discovery: Cloud Groups"
+    }
+  }
+]

@@ -315,6 +315,11 @@ def parse_args() -> argparse.Namespace:
             "use samples/replay-log for canonical runs)"
         ),
     )
+    p.add_argument(
+        "--run-id",
+        default=None,
+        help="run binding key (e.g. R002); propagated to replay-log entry",
+    )
     return p.parse_args()
 
 
@@ -408,6 +413,7 @@ def main() -> int:
         response=response_obj,
         outcome=outcome,
         error=error_block,
+        run_id=args.run_id,
     )
 
     replay_path = write_entry(replay_entry, log_dir=replay_log_dir)

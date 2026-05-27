@@ -1,0 +1,46 @@
+[
+  {
+    "event": "consent.granted",
+    "run_id": "R004",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "operator_object_id": "48df3ad2-9110-4c27-9630-f82b1b8eb177",
+    "techniques": ["T1087.004"],
+    "expected_duration_seconds": 360,
+    "prompt_emitted_at": "2026-05-27T12:07:34.000Z",
+    "confirmed_at": "2026-05-27T12:07:37.000Z",
+    "confirmation_latency_seconds": 3
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_applications",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-05-27T12:07:39Z",
+    "completed_at_utc": "2026-05-27T12:07:40Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/applications?$select=id,appId,displayName,publisherDomain,signInAudience,createdDateTime&$top=999",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-applications/0.2 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 6,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R004",
+    "schema_version": "0.4",
+    "entry_id": "3f28718a-404f-4a14-a90b-919aff2d56a3",
+    "technique": {
+      "id": "T1087.004",
+      "name": "Account Discovery: Cloud Account"
+    }
+  }
+]

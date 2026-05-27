@@ -48,14 +48,21 @@ def _valid_entry(**overrides):
 
 class TestSchemaFidelity:
     def test_schema_version_constant(self):
-        assert SCHEMA_VERSION == "0.3"
+        assert SCHEMA_VERSION == "0.4"
 
     def test_committed_samples_validate(self):
         files = sorted(SAMPLES.glob("*.json"))
         assert files, "no committed samples found under samples/replay-log/"
         for path in files:
             payload = json.loads(path.read_text())
-            _VALIDATOR.validate(payload)
+            if isinstance(payload, list):
+                # R00N.json arrays: skip consent records, validate replay entries
+                for item in payload:
+                    if isinstance(item, dict) and "event" in item and "schema_version" not in item:
+                        continue  # consent.granted / consent.declined — separate schema
+                    _VALIDATOR.validate(item)
+            else:
+                _VALIDATOR.validate(payload)
 
     def test_good_fixtures_validate(self):
         files = sorted(GOOD_FIXTURES.glob("*.json"))
@@ -83,7 +90,7 @@ class TestRoundTrip:
             "id": "T1087.004",
             "name": "Account Discovery: Cloud Account",
         }
-        assert loaded["schema_version"] == "0.3"
+        assert loaded["schema_version"] == "0.4"
         assert loaded["kind"] == "graph_call"
         assert loaded["response"] == {
             "status_code": 200,

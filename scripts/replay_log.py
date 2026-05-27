@@ -2,6 +2,10 @@
 """
 Rejewski — replay-log writer middleware.
 
+v0.4 (Wed May 27, 2026): adds optional run_id binding field.
+  - run_id propagates the consent.granted run ID (e.g. "R002") into every
+    downstream graph_call and token_event entry in the run. Omitted when None.
+
 v0.3 (Wed May 20, 2026): kind-discriminated response shapes.
   - graph_call : response requires (status_code, page_count, row_count);
                  optional (row_cap, row_cap_hit, retry_count)
@@ -10,7 +14,7 @@ v0.3 (Wed May 20, 2026): kind-discriminated response shapes.
                            cache_path, flow)
 
 Writes one JSON entry per run to samples/replay-log/<utc-stamp>-<uuid>.json,
-validated against schemas/replay-log/v0.3.json. Two-layer secret scrubbing:
+validated against schemas/replay-log/v0.4.json. Two-layer secret scrubbing:
 allow-list for request.headers (Authorization and any other non-listed header
 is dropped key-and-value); deny-list for all other dict keys (value replaced
 with [REDACTED] when key matches SECRET_KEY_PATTERN). Tenant GUID is redacted
@@ -33,8 +37,8 @@ from typing import Any
 from jsonschema import Draft202012Validator, FormatChecker
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SCHEMA_VERSION = "0.3"
-SCHEMA_PATH = REPO_ROOT / "schemas" / "replay-log" / "v0.3.json"
+SCHEMA_VERSION = "0.4"
+SCHEMA_PATH = REPO_ROOT / "schemas" / "replay-log" / "v0.4.json"
 DEFAULT_LOG_DIR = REPO_ROOT / "samples" / "replay-log"
 
 SANDBOX_TENANT_ID = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
@@ -108,6 +112,7 @@ class ReplayLogEntry:
     response: dict[str, Any]
     outcome: str
     error: dict[str, Any] | None = None
+    run_id: str | None = None
     schema_version: str = SCHEMA_VERSION
     entry_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
@@ -231,6 +236,8 @@ def write_entry(entry: ReplayLogEntry, *, log_dir: Path | None = None) -> Path:
 
     shaped_response = _shape_response(entry.kind, entry.response)
     payload = asdict(entry)
+    if payload.get("run_id") is None:
+        payload.pop("run_id", None)
     payload["response"] = shaped_response
     payload["technique"] = _shape_technique(payload)
     if isinstance(payload.get("request"), dict):

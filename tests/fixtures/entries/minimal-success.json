@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.3",
+  "schema_version": "0.4",
   "entry_id": "11111111-2222-4333-8444-555555555555",
   "kind": "graph_call",
   "tool": "tool_list_users",

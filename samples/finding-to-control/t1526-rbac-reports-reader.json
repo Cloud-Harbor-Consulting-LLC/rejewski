@@ -1,0 +1,26 @@
+{
+  "mapping_id": "ft1526-rbac-reports-reader-001",
+  "finding": {
+    "technique_id": "T1526",
+    "technique_name": "Cloud Service Discovery",
+    "observed_in": [
+      "samples/replay-log/R005.json"
+    ],
+    "severity": "medium",
+    "rationale": "Enumeration of Conditional Access policies via GET /identity/conditionalAccess/policies exposes the defender's detection coverage and policy gaps to an adversary — revealing which user populations lack MFA, which locations are trusted, and which applications have no CA coverage. Access to CA policy configuration should be restricted to the minimum role required for the job function; accounts that only need audit or reporting visibility should hold Reports Reader rather than Security Reader or higher, which reduces the tenant-configuration attack surface available to a compromised account."
+  },
+  "control": {
+    "control_family": "rbac",
+    "control_id": "Reports Reader",
+    "control_type": "preventive",
+    "microsoft_pillar": "Identities",
+    "nist_800_207_tenets": ["T4", "T6"],
+    "reference_url": "https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#reports-reader"
+  },
+  "mapping_metadata": {
+    "created_utc": "2026-05-27T12:30:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1",
+    "status": "active"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "mapping_id": "ft1069-003-ca-sif001-signinfrequency-8h-001",
+  "finding": {
+    "technique_id": "T1069.003",
+    "technique_name": "Permission Groups Discovery: Cloud Groups",
+    "observed_in": [
+      "samples/replay-log/R003.json"
+    ],
+    "severity": "medium",
+    "rationale": "Group membership enumeration via GET /groups and GET /me/memberOf reveals organizational structure and role affiliations — security groups, distribution lists, and Microsoft 365 groups — that guide adversary targeting for spear-phishing or privilege escalation. A sign-in frequency CA policy limits the usable lifetime of a stolen delegated token by requiring periodic re-authentication, constraining the adversary's enumeration window after initial compromise."
+  },
+  "control": {
+    "control_family": "conditional_access",
+    "control_id": "CA-SIF001-SignInFrequency-8h",
+    "control_type": "preventive",
+    "microsoft_pillar": "Identities",
+    "nist_800_207_tenets": ["T3", "T4", "T6"],
+    "reference_url": "https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-access-session-lifetime"
+  },
+  "mapping_metadata": {
+    "created_utc": "2026-05-27T12:30:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1",
+    "status": "active"
+  }
+}

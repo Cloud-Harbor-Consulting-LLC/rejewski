@@ -1,0 +1,27 @@
+{
+  "mapping_id": "ft1087-004-ca-cov008-blockbylocation-001",
+  "finding": {
+    "technique_id": "T1087.004",
+    "technique_name": "Account Discovery: Cloud Account",
+    "observed_in": [
+      "samples/replay-log/20260515T221433Z-d2359cc0-f634-4be1-84af-1533d47216dc.json",
+      "samples/replay-log/R002.json"
+    ],
+    "severity": "medium",
+    "rationale": "Bulk enumeration of /users returns tenant-wide user directory data that an adversary can use to build phishing target lists or identify high-privilege accounts for lateral movement. A location-based CA policy restricts Graph API access to named trusted locations, reducing the enumeration surface available to a compromised credential operating from an untrusted network. This control is most effective when combined with named location definitions that enumerate corporate egress ranges."
+  },
+  "control": {
+    "control_family": "conditional_access",
+    "control_id": "CA-COV008-BlockByLocation",
+    "control_type": "preventive",
+    "microsoft_pillar": "Identities",
+    "nist_800_207_tenets": ["T3", "T4"],
+    "reference_url": "https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-access-policy-block-access"
+  },
+  "mapping_metadata": {
+    "created_utc": "2026-05-27T12:30:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1",
+    "status": "active"
+  }
+}

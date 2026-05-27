@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/schemas/finding-to-control/v0.1.json",
+  "title": "Rejewski Finding-to-Control Mapping",
+  "description": "Hand-authored mapping from a Rejewski replay-log finding (ATT&CK technique) to the Zero Trust control that mitigates it. v0.1 supports conditional_access and rbac control families. additionalProperties: false on every object; explicit required arrays; draft 2020-12.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["mapping_id", "finding", "control", "mapping_metadata"],
+  "properties": {
+    "mapping_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Stable kebab-case slug uniquely identifying this mapping record."
+    },
+    "finding": {
+      "$ref": "#/$defs/Finding"
+    },
+    "control": {
+      "$ref": "#/$defs/Control"
+    },
+    "mapping_metadata": {
+      "$ref": "#/$defs/MappingMetadata"
+    }
+  },
+  "$defs": {
+    "Finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["technique_id", "technique_name", "observed_in", "severity", "rationale"],
+      "properties": {
+        "technique_id": {
+          "type": "string",
+          "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$",
+          "description": "MITRE ATT&CK technique ID, e.g. T1087.004."
+        },
+        "technique_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable ATT&CK technique name."
+        },
+        "observed_in": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true,
+          "description": "Paths to committed replay-log samples that demonstrate this finding. May be empty for catalogued-but-not-yet-observed mappings."
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["informational", "low", "medium", "high", "critical"],
+          "description": "Finding severity rating."
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Explanation of the finding risk and why the mapped control mitigates it."
+        }
+      }
+    },
+    "Control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["control_family", "control_id", "control_type", "microsoft_pillar", "nist_800_207_tenets", "reference_url"],
+      "properties": {
+        "control_family": {
+          "type": "string",
+          "enum": ["conditional_access", "rbac"],
+          "description": "Broad category of the control."
+        },
+        "control_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identifier for the specific control within its family."
+        },
+        "control_type": {
+          "type": "string",
+          "enum": ["preventive", "detective", "corrective"],
+          "description": "Control type classification."
+        },
+        "microsoft_pillar": {
+          "type": "string",
+          "enum": ["Identities", "Endpoints", "Network", "Applications", "Data", "Infrastructure"],
+          "description": "Microsoft Zero Trust pillar this control belongs to."
+        },
+        "nist_800_207_tenets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^T[1-7]$"
+          },
+          "uniqueItems": true,
+          "description": "NIST SP 800-207 Zero Trust tenets addressed by this control (T1–T7)."
+        },
+        "reference_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Canonical Microsoft documentation URL for this control."
+        }
+      }
+    },
+    "MappingMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_utc", "author", "schema_version", "status"],
+      "properties": {
+        "created_utc": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp when this mapping was authored."
+        },
+        "author": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Author or system that created this mapping."
+        },
+        "schema_version": {
+          "type": "string",
+          "const": "0.1",
+          "description": "Schema version; always '0.1' for this schema."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "active", "deprecated"],
+          "description": "Lifecycle status of this mapping."
+        }
+      }
+    }
+  }
+}

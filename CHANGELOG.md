@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `samples/replay-log/R003.json` — Sprint 1 consented run sample: T1069.003 Permission Groups Discovery: Cloud Groups (tool_list_groups), run R003, cloudharbordemo sandbox (2026-05-27). JSON array: consent.granted record + graph_call entry; 19 groups enumerated, 1 page, outcome success.
 - `samples/replay-log/R004.json` — Sprint 1 consented run sample: T1087.004 Account Discovery: Cloud Account Surface B (tool_list_applications), run R004, cloudharbordemo sandbox (2026-05-27). JSON array: consent.granted record + graph_call entry; 6 applications enumerated, 1 page, outcome success.
 - `samples/replay-log/R005.json` — Sprint 1 consented run sample: T1526 Cloud Service Discovery (tool_list_ca_policies), run R005, cloudharbordemo sandbox (2026-05-27). JSON array: consent.granted record + graph_call entry; 20 CA policies enumerated, 1 page, outcome success.
+- `schemas/finding-to-control/v0.1.json` — JSON Schema (draft 2020-12) for hand-authored finding-to-control mapping records. Required fields: mapping_id (stable kebab-case slug), finding (technique_id, technique_name, observed_in, severity, rationale), control (control_family, control_id, control_type, microsoft_pillar, nist_800_207_tenets, reference_url), mapping_metadata (created_utc, author, schema_version const "0.1", status). additionalProperties: false everywhere; control_family enum: conditional_access | rbac.
+- `samples/finding-to-control/t1078.004-conditional_access-ca-sig003-guests-requiremfa.json` — T1078.004 Valid Accounts: Cloud Accounts → CA-SIG003-Guests-RequireMFA (preventive, Identities pillar, NIST 800-207 T4 T6).
+- `samples/finding-to-control/t1087.004-conditional_access-ca-cov008-blockbylocation.json` — T1087.004 Account Discovery: Cloud Account → CA-COV008-BlockByLocation (preventive, Identities pillar, NIST 800-207 T3 T4).
+- `samples/finding-to-control/t1069.003-conditional_access-ca-sif001-signinfrequency-8h.json` — T1069.003 Permission Groups Discovery: Cloud Groups → CA-SIF001-SignInFrequency-8h (preventive, Identities pillar, NIST 800-207 T3 T4 T6).
+- `samples/finding-to-control/t1550.001-rbac-directory-readers.json` — T1550.001 Use Alternate Authentication Material: Application Access Token → Directory Readers RBAC scope (preventive, Identities pillar, NIST 800-207 T4 T6).
+- `samples/finding-to-control/t1526-rbac-reports-reader.json` — T1526 Cloud Service Discovery → Reports Reader RBAC scope (preventive, Identities pillar, NIST 800-207 T4 T6).
+- `tests/test_finding_to_control_schema.py` — pytest test suite: loads v0.1.json, validates all 5 samples, asserts missing-required-field and wrong-schema-version payloads fail.
 
 ### Changed
 

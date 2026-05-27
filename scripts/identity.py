@@ -124,6 +124,7 @@ def acquire_token(
     scopes: list[str] | None = None,
     password: str | None = None,
     replay_log_dir: Path | None = None,
+    run_id: str | None = None,
 ) -> dict[str, Any]:
     """Acquire a delegated Graph access token (silent reuse → ROPC fallback).
 
@@ -209,6 +210,7 @@ def acquire_token(
             cache_path=cache_path,
             error_block=error_block,
             replay_log_dir=replay_log_dir,
+            run_id=run_id,
         )
         raise
 
@@ -228,6 +230,7 @@ def acquire_token(
         cache_path=cache_path,
         error_block=None,
         replay_log_dir=replay_log_dir,
+        run_id=run_id,
     )
 
     return {
@@ -258,6 +261,7 @@ def _emit_token_event(
     cache_path: Path,
     error_block: dict[str, Any] | None,
     replay_log_dir: Path | None,
+    run_id: str | None,
 ) -> None:
     request_obj: dict[str, Any] = {
         "method": "POST",
@@ -288,6 +292,7 @@ def _emit_token_event(
         response=response_obj,
         outcome=outcome,
         error=error_block,
+        run_id=run_id,
     )
     if replay_log_dir is not None:
         write_entry(entry, log_dir=replay_log_dir)

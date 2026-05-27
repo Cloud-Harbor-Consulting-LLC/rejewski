@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `scripts/identity.py`, `tool_list_users.py`, `tool_list_groups.py`, `tool_list_applications.py`, `tool_list_ca_policies.py`, `tool_list_role_assignments.py`, `tool_list_service_principals.py`: thread `run_id` through `identity.acquire_token()` → `_emit_token_event()` → `ReplayLogEntry` for token_event entries. Each tool's `token_getter` closure now passes `run_id=args.run_id`; eliminates unbound token_event side-effect files during canonical sample runs.
 - `scripts/replay_log.py`: `SCHEMA_VERSION` bumped `"0.3"→"0.4"`, `SCHEMA_PATH` updated to `v0.4.json`, optional `run_id: str | None = None` field added to `ReplayLogEntry` dataclass (stripped from serialized payload when `None` to satisfy `additionalProperties: false`). Docstring updated to reflect v0.4 changelog.
 - `scripts/tool_list_users.py`, `tool_list_groups.py`, `tool_list_applications.py`, `tool_list_ca_policies.py`, `tool_list_role_assignments.py`: add `--run-id` CLI argument (optional string, default `None`); passed as `run_id` to `ReplayLogEntry` to bind each run's replay-log entry to the consent-flow run ID.
 - `tests/test_replay_log.py`: `SCHEMA_VERSION` assertion updated `"0.3"→"0.4"`; `test_committed_samples_validate` extended to handle JSON array sample files — consent records (detected by `event` key, no `schema_version`) are skipped, replay entries (graph_call/token_event) are validated against the v0.4 schema; `TestRoundTrip` schema_version assertion updated `"0.3"→"0.4"`.

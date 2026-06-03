@@ -1,13 +1,14 @@
 # Project Harbor Sonar — Threat Model
 
-- Version: v0.4
-- Last updated: 2026-05-26
+- Version: v0.5
+- Last updated: 2026-06-03
 - Status: Living document
 - Authors: Derek Morgan
-- Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/
+- Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/, docs/attck-coverage.md
 
 ## Change log
 
+- v0.5 (2026-06-03) — Sprint 1 W4 ATT&CK coverage doc. Two techniques catalogued for Sprint 2: T1087.003 Account Discovery: Email Account (docs/techniques/T1087.003.md created) and T1518.001 Software Discovery: Security Software Discovery (docs/techniques/T1518.001.md created). §5 active technique table and Sprint 2+ catalogued subsection updated. docs/attck-coverage.md introduced as the standalone coverage KPI reference. Total mapped techniques: 7 (5 implemented, 2 catalogued).
 - v0.4 (2026-05-26) — Sprint 2 W5 pull-forward. T1526 Cloud Service Discovery activated for the /identity/conditionalAccess/policies surface (docs/techniques/T1526.md created). §5 active technique table updated to include T1526; Sprint 2+ catalogued subsection updated to reflect T1526 implementation status and CA policies surface. §8 adds T1526 cross-reference.
 - v0.3 (2026-05-22) — Sprint 1 W3 catalogue expansion. §5 adds a Sprint 2+ catalogued techniques subsection covering T1526 Cloud Service Discovery (candidate Graph surfaces /subscribedSkus, /servicePrincipals, /applications, /organization documented for Sprint 2+ modelling) and T1538 Cloud Service Dashboard (catalogued as out of programmatic Rejewski scope; preserved for consumer awareness). §7 adds T1538 to the out-of-scope list.
 - v0.2 (2026-05-14) — Tenant ID correction in §1 (cf3f9a61 → 76b87c33). Adversary-model note added to §3 covering the no-tenant-app-reg posture and first-party client borrowing. §5 extended with T1069.003 deferred surface (transitiveMemberOf, directoryRoles). ADR 0003 cross-reference added.
@@ -71,16 +72,20 @@ Sandbox assets carry no real-world sensitivity, but the **evidence ledger** and 
 
 ## 5. Active technique scope
 
-The following MITRE ATT&CK techniques are implemented in Rejewski, in kill-chain order.
-Sprint 1 shipped T1078.004, T1087.004, and T1069.003. T1526 was activated via the Sprint 2
-W5 pull-forward (2026-05-26) to build calendar buffer toward the v1.0 tag.
+The following MITRE ATT&CK techniques are implemented or catalogued in Rejewski, in
+kill-chain order. Sprint 1 shipped T1078.004, T1087.004, T1069.003, T1550.001, and T1526.
+T1087.003 and T1518.001 were catalogued Sprint 1 W4 (2026-06-03). The authoritative
+coverage count and path-to-target table are in docs/attck-coverage.md.
 
-| Technique | Tactic | Sprint | Module |
-|-----------|--------|--------|--------|
-| T1078.004 Valid Accounts: Cloud Accounts | Initial Access | 1 | docs/techniques/T1078.004.md |
-| T1087.004 Account Discovery: Cloud Account | Discovery | 1 | docs/techniques/T1087.004.md |
-| T1069.003 Permission Groups Discovery: Cloud Groups | Discovery | 1 | docs/techniques/T1069.003.md |
-| T1526 Cloud Service Discovery | Discovery | 2 W5 pull-forward | docs/techniques/T1526.md |
+| Technique | Tactic | Status | Sprint | Module |
+|-----------|--------|--------|--------|--------|
+| T1078.004 Valid Accounts: Cloud Accounts | Initial Access | Implemented | 1 | docs/techniques/T1078.004.md |
+| T1087.004 Account Discovery: Cloud Account | Discovery | Implemented | 1 | docs/techniques/T1087.004.md |
+| T1069.003 Permission Groups Discovery: Cloud Groups | Discovery | Implemented | 1 | docs/techniques/T1069.003.md |
+| T1550.001 Use Alternate Authentication Material: Application Access Token | Defense Evasion / Lateral Movement | Implemented | 1 | *No module yet — ADR 0005 + scripts/identity.py* |
+| T1526 Cloud Service Discovery | Discovery | Implemented | 2 W5 pull-forward | docs/techniques/T1526.md |
+| T1087.003 Account Discovery: Email Account | Discovery | Catalogued | 2 | docs/techniques/T1087.003.md |
+| T1518.001 Software Discovery: Security Software Discovery | Discovery | Catalogued | 2 | docs/techniques/T1518.001.md |
 
 Each module follows the ADR 0003 format: YAML front matter, eight required sections, and cited cross-references to this threat model, the governing ADR(s), and docs/guardrails.md.
 
@@ -91,11 +96,13 @@ Each module follows the ADR 0003 format: YAML front matter, eight required secti
 
 The deferral is not because these endpoints are dangerous — both are read-only and inside the Sprint 1 consent-floor scope set — but because each opens a meaningfully larger result surface that needs its own row-cap calibration (per G-9) and detection-baseline pass before Rejewski emulates it. Sprint 2 work will pick them up.
 
-**Sprint 2+ catalogued techniques.** The following Discovery-tactic techniques are catalogued in this threat model to lock terminology and scope before implementation, but are not exercised in Sprint 1. Each will graduate to a docs/techniques/ module under the ADR 0003 format when its sprint opens.
+**Sprint 2+ catalogued techniques.** The following techniques are catalogued in this threat model — technique modules exist per ADR 0003 format, but no scripts have been written and no sandbox runs executed. Each activates when its sprint opens. The full coverage map is in docs/attck-coverage.md.
 
 | Technique | Tactic | Status | Surface |
 |-----------|--------|--------|---------|
 | T1526 Cloud Service Discovery | Discovery | Implemented — Sprint 2 W5 pull-forward (2026-05-26) | /identity/conditionalAccess/policies (active); /subscribedSkus, /servicePrincipals, /applications, /organization (deferred to Sprint 2 main body) |
+| T1087.003 Account Discovery: Email Account | Discovery | Catalogued — Sprint 2 (2026-06-03) | GET /users with mail, proxyAddresses, mailEnabled, mailNickname, userType $select projection |
+| T1518.001 Software Discovery: Security Software Discovery | Discovery | Catalogued — Sprint 2 (2026-06-03) | GET /subscribedSkus (service plan enumeration to identify active Microsoft security products) |
 | T1538 Cloud Service Dashboard | Discovery | Out of programmatic Rejewski scope | Azure portal / Microsoft 365 admin center / Defender portal / Entra admin center GUIs |
 
 **T1526 Cloud Service Discovery.** An adversary with valid cloud credentials enumerates cloud services, security configurations, and tenant metadata to inventory the target environment before engaging Collection or Lateral Movement objectives. T1526 is now active in Rejewski for the Conditional Access policies surface (Sprint 2 W5 pull-forward, 2026-05-26): `GET /identity/conditionalAccess/policies` enumerates all CA policies in the tenant, revealing which users/groups are covered, what grant controls are enforced (MFA, compliant device, block), which applications are in scope, and whether any policies are in report-only mode. This surface requires the signed-in user to hold at least Security Reader — making it a post-privilege-escalation discovery step in the kill chain (see docs/techniques/T1526.md §"Required privilege" for the full operator prerequisite and attack strategy note).
@@ -146,6 +153,8 @@ The following are explicitly out of scope for Sprint 1 and are tracked for later
 - ADR 0001 — Sprint 1 Rules of Engagement
 - ADR 0002 — Consent floor evidence format
 - ADR 0003 — Technique Module Format
+- ADR 0005 — Token Persistence and Reuse (T1550.001 implementation basis)
 - docs/guardrails.md — G-1 through G-9
-- docs/techniques/T1078.004.md, T1087.004.md, T1069.003.md, T1526.md
+- docs/attck-coverage.md — authoritative technique count and path-to-target table
+- docs/techniques/T1078.004.md, T1087.004.md, T1069.003.md, T1526.md, T1087.003.md, T1518.001.md
 - MITRE ATT&CK Enterprise — <https://attack.mitre.org/matrices/enterprise/>

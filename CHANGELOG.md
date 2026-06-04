@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/attck-coverage.md` — standalone ATT&CK coverage reference doc. Maps 7 techniques (5 implemented, 2 catalogued) with a path-to-Sprint-2-target table, notes the T1550.001 module gap, and includes an excluded-technique table documenting techniques deliberately out of Rejewski scope.
 - `docs/techniques/T1087.003.md` — T1087.003 Account Discovery: Email Account technique module per ADR 0003 format. Catalogued for Sprint 2; no script yet.
 - `docs/techniques/T1518.001.md` — T1518.001 Software Discovery: Security Software Discovery technique module per ADR 0003 format. Catalogued for Sprint 2; carries a dual-attribution note re T1526 overlap; no script yet.
+- `scripts/replay_log_viewer.py` (v0.1 prototype) — CLI that reads any Rejewski replay-log file (single JSON object or array) and prints each entry in compact human-readable form to stdout. Renders graph_call, token_event, and consent records, then a `--- N entries (X graph_call, Y token_event, Z consent) ---` summary. Accepts a path argument or `-` for stdin. Pure local file reader: no Graph calls, no network, no schema validation. Detects consent records by either the `event` key (roe-consent-flow.md §3 shape) or a `consent.`-prefixed `kind`. Exits 1 with a stderr message on missing file or JSON parse error.
 
 ### Changed
 

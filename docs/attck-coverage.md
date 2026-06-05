@@ -1,7 +1,7 @@
 # Rejewski ATT&CK Coverage Map
 
 - Version: v0.1
-- Last updated: 2026-06-03
+- Last updated: 2026-06-05
 - Status: Living document — updated at each sprint checkpoint
 - Authors: Derek Morgan
 - Related: docs/threat-model.md, docs/techniques/, docs/guardrails.md
@@ -15,7 +15,7 @@ maps, catalogues, or explicitly excludes. It is the authoritative source for the
 "ATT&CK techniques mapped" KPI tracked in the Sprint Checkpoint KPIs tab of
 phs-kpi-dashboard-v1.0.xlsx.
 
-**Current count:** 7 unique techniques (5 implemented, 2 catalogued, 0 excluded-and-counted)
+**Current count:** 10 unique techniques (5 implemented, 5 catalogued, 0 excluded-and-counted)
 
 **Sprint 2 checkpoint target (Sat 2026-07-04):** 10 unique techniques
 
@@ -34,6 +34,9 @@ phs-kpi-dashboard-v1.0.xlsx.
 | T1526 | Cloud Service Discovery | Discovery | Implemented — Sprint 2 W5 pull-forward | docs/techniques/T1526.md | scripts/tool_list_ca_policies.py |
 | T1087.003 | Account Discovery: Email Account | Discovery | Catalogued — Sprint 2 | docs/techniques/T1087.003.md | *Pending Sprint 2* |
 | T1518.001 | Software Discovery: Security Software Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1518.001.md | *Pending Sprint 2* |
+| T1082 | System Information Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1082.md | *Pending Sprint 2* |
+| T1213.002 | Data from Information Repositories: Sharepoint | Collection | Catalogued — Sprint 2 | docs/techniques/T1213.002.md | *Pending Sprint 2* |
+| T1482 | Domain Trust Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1482.md | *Pending Sprint 2* |
 
 **Status definitions:**
 - **Implemented** — a working script exists and at least one consented sandbox run has produced replay-log evidence.
@@ -58,7 +61,8 @@ the KPI count is not affected by the absence of the module.
 | Tactic | Techniques | IDs |
 |--------|-----------|-----|
 | Initial Access | 1 | T1078.004 |
-| Discovery | 5 | T1087.004, T1069.003, T1526, T1087.003, T1518.001 |
+| Discovery | 7 | T1087.004, T1069.003, T1526, T1087.003, T1518.001, T1082, T1482 |
+| Collection | 1 | T1213.002 |
 | Defense Evasion / Lateral Movement | 1 | T1550.001 |
 
 Discovery dominates the current coverage, consistent with Rejewski's Sprint 1–2
@@ -76,9 +80,14 @@ T1078.004          T1087.004  T1069.003  T1526       T1550.001
 Valid Accounts     Account    Groups     Service
 Cloud Accounts     Discovery  Discovery  Discovery
 
-                   T1087.003  T1518.001
-                   Email      Security
-                   Account    Software
+                   T1087.003  T1518.001  T1082       T1482
+                   Email      Security   System      Domain Trust
+                   Account    Software   Info         Discovery
+
+Collection
+──────────────────────────────
+T1213.002
+Info Repositories: SharePoint
 ```
 
 T1078.004 is the prerequisite for every downstream technique — no Graph call runs without
@@ -95,9 +104,11 @@ targets and avoid detection. T1550.001 operationalises the token that T1078.004 
 |--------|-----------------|---------------|
 | S1 (W1–W3) | T1078.004, T1087.004, T1069.003, T1550.001, T1526 | 5 |
 | S1 W4 (today) | T1087.003, T1518.001 | **7** |
-| S2 (3 more needed) | TBD at S2 sprint planning | 10 |
+| S1 W4b (today) | T1082, T1213.002, T1482 | **10** |
+| S2 | Done — Sprint 2 checkpoint target met | 10 |
 
-Three more techniques are needed in Sprint 2 to hit the checkpoint target of 10.
+Sprint 2 checkpoint target of 10 techniques reached. Technique selection for the Sprint 3
+checkpoint target (TBD at S2 kick-off) opens when Sprint 2 begins.
 Candidates to select at the S2 retro from the Sprint 2+ catalogue in docs/threat-model.md:
 
 - T1069.003 deferred surfaces (transitiveMemberOf, directoryRoles) — already modelled,

@@ -1,13 +1,19 @@
 # Project Harbor Sonar — Threat Model
 
-- Version: v0.5
-- Last updated: 2026-06-03
+- Version: v0.6
+- Last updated: 2026-06-05
 - Status: Living document
 - Authors: Derek Morgan
 - Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/, docs/attck-coverage.md
 
 ## Change log
 
+- v0.6 (2026-06-05) — Sprint 1 W4 threat-model head-start. Three techniques catalogued
+  for Sprint 2: T1082 System Information Discovery (docs/techniques/T1082.md),
+  T1213.002 Data from Information Repositories: Sharepoint
+  (docs/techniques/T1213.002.md), and T1482 Domain Trust Discovery
+  (docs/techniques/T1482.md). §5 active technique table and Sprint 2+ catalogued
+  subsection updated. Total mapped techniques: 10 (5 implemented, 5 catalogued).
 - v0.5 (2026-06-03) — Sprint 1 W4 ATT&CK coverage doc. Two techniques catalogued for Sprint 2: T1087.003 Account Discovery: Email Account (docs/techniques/T1087.003.md created) and T1518.001 Software Discovery: Security Software Discovery (docs/techniques/T1518.001.md created). §5 active technique table and Sprint 2+ catalogued subsection updated. docs/attck-coverage.md introduced as the standalone coverage KPI reference. Total mapped techniques: 7 (5 implemented, 2 catalogued).
 - v0.4 (2026-05-26) — Sprint 2 W5 pull-forward. T1526 Cloud Service Discovery activated for the /identity/conditionalAccess/policies surface (docs/techniques/T1526.md created). §5 active technique table updated to include T1526; Sprint 2+ catalogued subsection updated to reflect T1526 implementation status and CA policies surface. §8 adds T1526 cross-reference.
 - v0.3 (2026-05-22) — Sprint 1 W3 catalogue expansion. §5 adds a Sprint 2+ catalogued techniques subsection covering T1526 Cloud Service Discovery (candidate Graph surfaces /subscribedSkus, /servicePrincipals, /applications, /organization documented for Sprint 2+ modelling) and T1538 Cloud Service Dashboard (catalogued as out of programmatic Rejewski scope; preserved for consumer awareness). §7 adds T1538 to the out-of-scope list.
@@ -74,8 +80,9 @@ Sandbox assets carry no real-world sensitivity, but the **evidence ledger** and 
 
 The following MITRE ATT&CK techniques are implemented or catalogued in Rejewski, in
 kill-chain order. Sprint 1 shipped T1078.004, T1087.004, T1069.003, T1550.001, and T1526.
-T1087.003 and T1518.001 were catalogued Sprint 1 W4 (2026-06-03). The authoritative
-coverage count and path-to-target table are in docs/attck-coverage.md.
+T1087.003 and T1518.001 were catalogued Sprint 1 W4 (2026-06-03). T1082, T1213.002,
+and T1482 were catalogued Sprint 1 W4 (2026-06-05). The authoritative coverage count
+and path-to-target table are in docs/attck-coverage.md.
 
 | Technique | Tactic | Status | Sprint | Module |
 |-----------|--------|--------|--------|--------|
@@ -86,6 +93,9 @@ coverage count and path-to-target table are in docs/attck-coverage.md.
 | T1526 Cloud Service Discovery | Discovery | Implemented | 2 W5 pull-forward | docs/techniques/T1526.md |
 | T1087.003 Account Discovery: Email Account | Discovery | Catalogued | 2 | docs/techniques/T1087.003.md |
 | T1518.001 Software Discovery: Security Software Discovery | Discovery | Catalogued | 2 | docs/techniques/T1518.001.md |
+| T1082 System Information Discovery | Discovery | Catalogued | 2 | docs/techniques/T1082.md |
+| T1213.002 Data from Information Repositories: Sharepoint | Collection | Catalogued | 2 | docs/techniques/T1213.002.md |
+| T1482 Domain Trust Discovery | Discovery | Catalogued | 2 | docs/techniques/T1482.md |
 
 Each module follows the ADR 0003 format: YAML front matter, eight required sections, and cited cross-references to this threat model, the governing ADR(s), and docs/guardrails.md.
 
@@ -103,6 +113,9 @@ The deferral is not because these endpoints are dangerous — both are read-only
 | T1526 Cloud Service Discovery | Discovery | Implemented — Sprint 2 W5 pull-forward (2026-05-26) | /identity/conditionalAccess/policies (active); /subscribedSkus, /servicePrincipals, /applications, /organization (deferred to Sprint 2 main body) |
 | T1087.003 Account Discovery: Email Account | Discovery | Catalogued — Sprint 2 (2026-06-03) | GET /users with mail, proxyAddresses, mailEnabled, mailNickname, userType $select projection |
 | T1518.001 Software Discovery: Security Software Discovery | Discovery | Catalogued — Sprint 2 (2026-06-03) | GET /subscribedSkus (service plan enumeration to identify active Microsoft security products) |
+| T1082 System Information Discovery | Discovery | Catalogued — Sprint 2 (2026-06-05) | GET /organization (tenant name, hybrid status, provisioned plans, verified domains, security contacts) |
+| T1213.002 Data from Information Repositories: Sharepoint | Collection | Catalogued — Sprint 2 (2026-06-05) | GET /sites, GET /sites/{id}/drives, GET /sites/{id}/lists — requires Sites.Read.All scope |
+| T1482 Domain Trust Discovery | Discovery | Catalogued — Sprint 2 (2026-06-05) | GET /domains, GET /domains/{id}/federationConfiguration — requires Domain.Read.All scope |
 | T1538 Cloud Service Dashboard | Discovery | Out of programmatic Rejewski scope | Azure portal / Microsoft 365 admin center / Defender portal / Entra admin center GUIs |
 
 **T1526 Cloud Service Discovery.** An adversary with valid cloud credentials enumerates cloud services, security configurations, and tenant metadata to inventory the target environment before engaging Collection or Lateral Movement objectives. T1526 is now active in Rejewski for the Conditional Access policies surface (Sprint 2 W5 pull-forward, 2026-05-26): `GET /identity/conditionalAccess/policies` enumerates all CA policies in the tenant, revealing which users/groups are covered, what grant controls are enforced (MFA, compliant device, block), which applications are in scope, and whether any policies are in report-only mode. This surface requires the signed-in user to hold at least Security Reader — making it a post-privilege-escalation discovery step in the kill chain (see docs/techniques/T1526.md §"Required privilege" for the full operator prerequisite and attack strategy note).
@@ -156,5 +169,5 @@ The following are explicitly out of scope for Sprint 1 and are tracked for later
 - ADR 0005 — Token Persistence and Reuse (T1550.001 implementation basis)
 - docs/guardrails.md — G-1 through G-9
 - docs/attck-coverage.md — authoritative technique count and path-to-target table
-- docs/techniques/T1078.004.md, T1087.004.md, T1069.003.md, T1526.md, T1087.003.md, T1518.001.md
+- docs/techniques/T1078.004.md, T1087.004.md, T1069.003.md, T1526.md, T1087.003.md, T1518.001.md, T1082.md, T1213.002.md, T1482.md
 - MITRE ATT&CK Enterprise — <https://attack.mitre.org/matrices/enterprise/>

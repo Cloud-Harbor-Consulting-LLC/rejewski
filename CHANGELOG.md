@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- docs/techniques/T1082.md — System Information Discovery; catalogued Sprint 2; GET /organization surface; hybrid-status detection and provisioned plan enumeration.
+- docs/techniques/T1213.002.md — Data from Information Repositories: Sharepoint; catalogued Sprint 2; GET /sites, /drives, /lists; requires Sites.Read.All scope.
+- docs/techniques/T1482.md — Domain Trust Discovery; catalogued Sprint 2; GET /domains and /federationConfiguration; Managed vs Federated domain classification.
 - `schemas/replay-log/v0.4.json` — extends v0.3: adds optional `run_id` binding field (propagates the consent.granted run ID into all downstream graph_call and token_event entries in the same run); `schema_version` const updated to `"0.4"`. Consent records themselves follow the separate roe-consent-flow.md §3 schema and are not validated by this schema.
 - `samples/replay-log/R002.json` — Sprint 1 consented run sample: T1087.004 Account Discovery: Cloud Account (tool_list_users), run R002, cloudharbordemo sandbox (2026-05-27). JSON array: consent.granted record + graph_call entry; 8 users enumerated, 1 page, outcome success.
 - `samples/replay-log/R003.json` — Sprint 1 consented run sample: T1069.003 Permission Groups Discovery: Cloud Groups (tool_list_groups), run R003, cloudharbordemo sandbox (2026-05-27). JSON array: consent.granted record + graph_call entry; 19 groups enumerated, 1 page, outcome success.
@@ -32,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- docs/threat-model.md — v0.5 → v0.6; three new techniques added to §5 table and Sprint 2+ catalogued subsection; technique count updated to 10.
+- docs/attck-coverage.md — technique count updated to 10 (5 implemented, 5 catalogued); three new rows in technique table; tactic distribution and kill chain updated; path-to-S2 target marked complete.
 - `scripts/identity.py`, `tool_list_users.py`, `tool_list_groups.py`, `tool_list_applications.py`, `tool_list_ca_policies.py`, `tool_list_role_assignments.py`, `tool_list_service_principals.py`: thread `run_id` through `identity.acquire_token()` → `_emit_token_event()` → `ReplayLogEntry` for token_event entries. Each tool's `token_getter` closure now passes `run_id=args.run_id`; eliminates unbound token_event side-effect files during canonical sample runs.
 - `scripts/replay_log.py`: `SCHEMA_VERSION` bumped `"0.3"→"0.4"`, `SCHEMA_PATH` updated to `v0.4.json`, optional `run_id: str | None = None` field added to `ReplayLogEntry` dataclass (stripped from serialized payload when `None` to satisfy `additionalProperties: false`). Docstring updated to reflect v0.4 changelog.
 - `scripts/tool_list_users.py`, `tool_list_groups.py`, `tool_list_applications.py`, `tool_list_ca_policies.py`, `tool_list_role_assignments.py`: add `--run-id` CLI argument (optional string, default `None`); passed as `run_id` to `ReplayLogEntry` to bind each run's replay-log entry to the consent-flow run ID.

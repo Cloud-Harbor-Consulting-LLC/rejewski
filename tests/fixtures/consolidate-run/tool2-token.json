@@ -1,0 +1,13 @@
+{
+  "kind": "token_event",
+  "tool": "scripts.identity",
+  "run_id": "R900",
+  "outcome": "success",
+  "response": {
+    "status_code": 200,
+    "persistence_kind": "encrypted",
+    "cache_path": "/home/operator/.cache/rejewski/token.bin",
+    "flow": "silent"
+  },
+  "entry_id": "22222222-2222-4222-8222-222222222222"
+}

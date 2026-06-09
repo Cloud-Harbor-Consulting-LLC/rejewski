@@ -1,0 +1,12 @@
+{
+  "kind": "graph_call",
+  "tool": "tool_list_applications",
+  "run_id": "R900",
+  "outcome": "success",
+  "response": {
+    "status_code": 200,
+    "page_count": 1,
+    "row_count": 6
+  },
+  "entry_id": "33333333-3333-4333-8333-3333333333aa"
+}

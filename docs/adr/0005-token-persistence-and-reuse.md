@@ -14,7 +14,7 @@ ADR-0004 settled the token acquisition model: delegated tokens, borrowed first-p
 
 Backlog item B021 (Sprint 1 W2, spawned 2026-05-15 during Tool 1 scoping) is the work to ship a shared refresh-token reuse helper so every Rejewski tool after Tool 1 acquires tokens silently — no fresh ROPC password grant per invocation. Without this helper the simulation's defender footprint is wrong (interactive ROPC every minute looks like a brute-force run, not a credentialed adversary holding a session), the credential exposure is wrong (the compromised password is materialized to the process memory of every tool), and tradecraft fidelity drops (Midnight Blizzard / Octo Tempest both hold one session across many actions).
 
-The persistence question is therefore: where and how does Rejewski store the borrowed refresh token, so that subsequent tools silently re-acquire access tokens without re-running ROPC, without leaving plaintext credentials on disk, and without diverging from how Microsoft Graph PowerShell stores its tokens with the same client ID?
+The persistence question is therefore: where and how does Rejewski store the borrowed refresh token, so that subsequent tools silently re-acquire access tokens without re-running ROPC, without leaving plaintext credentials on disk, and without diverging from how Microsoft Graph Command Line Tools stores its tokens with the same client ID?
 
 ## 2. Decision
 
@@ -44,7 +44,7 @@ Every token acquisition — silent reuse or interactive ROPC — emits a `token_
 - **Scope shape:** requested scopes are determined by the calling tool; helper does not narrow or escalate. Default `https://graph.microsoft.com/.default` when the caller does not specify.
 - **Consent path:** pre-consented (ADR-0004 §4).
 - **MFA posture:** silent path bypasses MFA challenges by design (refresh token already redeems claims). CAE-driven mid-session claims challenges arrive as `insufficient_claims` errors; helper escalates to interactive ROPC with the `claims_challenge` parameter populated.
-- **Dwell-signal expectations:** every silent redemption produces a non-interactive sign-in log entry with `appId=14d82eec...`, `clientAppUsed=Mobile Apps and Desktop clients`, `tokenIssuerType=AzureAD`. Volumetric anomaly (long-running sessions, scope diversity over time, IP/UA drift) is the differentiator from legitimate Graph PowerShell admin sessions per b021-research-report.md §11.
+- **Dwell-signal expectations:** every silent redemption produces a non-interactive sign-in log entry with `appId=14d82eec...`, `clientAppUsed=Mobile Apps and Desktop clients`, `tokenIssuerType=AzureAD`. Volumetric anomaly (long-running sessions, scope diversity over time, IP/UA drift) is the differentiator from legitimate Graph Command Line Tools admin sessions per b021-research-report.md §11.
 
 ## 5. Consequences
 

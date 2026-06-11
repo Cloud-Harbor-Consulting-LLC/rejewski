@@ -26,7 +26,7 @@ No production tenant, no customer tenant, no Cloud Harbor Consulting corporate t
 
 Tenant scope is enforced by G-1 (Sandbox Tenant Lock) in docs/guardrails.md. Any technique module that resolves to a tenant ID other than 76b87c33-6178-4ff9-94a7-164792c8e4c6 must abort before any Graph call is issued. The runtime config at rejewski.config.json carries the sandbox tenant ID; the loader in scripts/rejewski_runtime.py is responsible for the pre-flight comparison.
 
-Compromised-user model: token acquisition borrows first-party Microsoft client IDs (Sprint 1 default: Microsoft Graph PowerShell, client ID 14d82eec-204b-4c2f-b7e8-296a70dab67e) against seed credentials in the sandbox tenant. Rejewski never creates a tenant-side app registration in the target tenant. Gaining an app registration is itself a future ATT&CK technique to simulate (T1098.005 Device Registration, T1606 Forge Web Credentials, T1550.001 Application Access Token, OAuth illicit consent grant) and stays on the Sprint 2+ roadmap.
+Compromised-user model: token acquisition borrows first-party Microsoft client IDs (Sprint 1 default: Microsoft Graph Command Line Tools, client ID 14d82eec-204b-4c2f-b7e8-296a70dab67e) against seed credentials in the sandbox tenant. Rejewski never creates a tenant-side app registration in the target tenant. Gaining an app registration is itself a future ATT&CK technique to simulate (T1098.005 Device Registration, T1606 Forge Web Credentials, T1550.001 Application Access Token, OAuth illicit consent grant) and stays on the Sprint 2+ roadmap.
 
 ### 2. Consent floor
 

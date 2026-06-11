@@ -35,7 +35,7 @@ REQUIRED PRIVILEGE — SCOPE AND DIRECTORY ROLE:
       (1) RoleManagement.Read.Directory OAuth scope — admin-consented on
           the client. Note: this scope is less commonly pre-consented on
           first-party Microsoft clients than Policy.Read.All. If the
-          borrowed Graph PowerShell client (14d82eec) does not have this
+          borrowed Graph Command Line Tools client (14d82eec) does not have this
           scope pre-consented in the target tenant, the token will be
           issued without it and the API call will return HTTP 403. Verify
           with the target tenant administrator before running.

@@ -1,6 +1,6 @@
 """
 Step 4 smoke test: token acquisition as the compromised user, against the
-Microsoft Graph PowerShell FOCI public client ID.
+Microsoft Graph Command Line Tools FOCI public client ID.
 
 Calls:
   - /me  (T1078 valid-account confirmation)

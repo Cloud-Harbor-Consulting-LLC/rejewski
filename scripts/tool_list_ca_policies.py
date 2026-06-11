@@ -27,7 +27,7 @@ kind="graph_call".
 REQUIRED PRIVILEGE — SECURITY READER OR ABOVE:
     GET /identity/conditionalAccess/policies requires BOTH:
       (1) Policy.Read.All OAuth scope — admin-consented on the client.
-          The borrowed Microsoft Graph PowerShell client (14d82eec) has
+          The borrowed Microsoft Graph Command Line Tools client (14d82eec) has
           this scope pre-consented as a first-party Microsoft application.
       (2) One of the following Entra directory roles on the signed-in user:
             - Security Reader (minimum)

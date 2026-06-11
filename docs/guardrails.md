@@ -48,7 +48,7 @@ Operational rules that bound every Sprint 1 technique. Each guardrail has an ID,
 
 ## G-4 — FOCI client allowlist
 
-**Statement.** Sprint 1 uses Microsoft Graph PowerShell (14d82eec-204b-4c2f-b7e8-296a70dab67e) as the sole borrowed first-party FOCI client.
+**Statement.** Sprint 1 uses Microsoft Graph Command Line Tools (14d82eec-204b-4c2f-b7e8-296a70dab67e) as the sole borrowed first-party FOCI client.
 
 **Rationale.** Constraining the borrowed-client surface to one well-understood, broadly-trusted Microsoft client keeps the sign-in fingerprint stable and predictable. It also gives blue-team detection a single app ID to baseline against during Sprint 1 evidence capture.
 
@@ -84,7 +84,7 @@ Operational rules that bound every Sprint 1 technique. Each guardrail has an ID,
 
 **Scope.** All evidence content destined for the public Rejewski repo. SharePoint-side evidence is unredacted for operator use.
 
-**Exceptions.** The cloudharbordemo tenant ID (76b87c33-6178-4ff9-94a7-164792c8e4c6) and the Graph PowerShell client ID (14d82eec) are not redacted — both are public Microsoft-published values.
+**Exceptions.** The cloudharbordemo tenant ID (76b87c33-6178-4ff9-94a7-164792c8e4c6) and the Graph Command Line Tools client ID (14d82eec) are not redacted — both are public Microsoft-published values.
 
 ---
 

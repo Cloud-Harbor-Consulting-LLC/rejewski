@@ -48,7 +48,7 @@ def _valid_entry(**overrides):
 
 class TestSchemaFidelity:
     def test_schema_version_constant(self):
-        assert SCHEMA_VERSION == "0.4"
+        assert SCHEMA_VERSION == "0.5"
 
     def test_committed_samples_validate(self):
         files = sorted(SAMPLES.glob("*.json"))
@@ -90,7 +90,7 @@ class TestRoundTrip:
             "id": "T1087.004",
             "name": "Account Discovery: Cloud Account",
         }
-        assert loaded["schema_version"] == "0.4"
+        assert loaded["schema_version"] == "0.5"
         assert loaded["kind"] == "graph_call"
         assert loaded["response"] == {
             "status_code": 200,
@@ -100,6 +100,22 @@ class TestRoundTrip:
             "row_cap_hit": False,
             "retry_count": 0,
         }
+
+
+class TestModelId:
+    def test_model_id_present_round_trips(self, tmp_path):
+        entry = _valid_entry(model_id="claude-opus-4-6")
+        written = write_entry(entry, log_dir=tmp_path)
+        loaded = json.loads(written.read_text())
+        _VALIDATOR.validate(loaded)
+        assert loaded["model_id"] == "claude-opus-4-6"
+
+    def test_model_id_omitted_when_none(self, tmp_path):
+        entry = _valid_entry()  # model_id defaults to None
+        written = write_entry(entry, log_dir=tmp_path)
+        loaded = json.loads(written.read_text())
+        _VALIDATOR.validate(loaded)
+        assert "model_id" not in loaded
 
 
 class TestRefusal:

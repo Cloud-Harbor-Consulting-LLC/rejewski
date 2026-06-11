@@ -42,7 +42,7 @@
     },
     "outcome": "success",
     "run_id": "R007",
-    "schema_version": "0.4",
+    "schema_version": "0.5",
     "entry_id": "6ba243b7-05b6-4567-9e25-8d2d7833c2d6",
     "technique": {
       "id": "T1550.001",
@@ -75,7 +75,7 @@
     },
     "outcome": "success",
     "run_id": "R007",
-    "schema_version": "0.4",
+    "schema_version": "0.5",
     "entry_id": "236af495-b469-4af2-800d-bbc6dda3a03f",
     "technique": {
       "id": "T1087.004",
@@ -111,7 +111,7 @@
     },
     "outcome": "success",
     "run_id": "R007",
-    "schema_version": "0.4",
+    "schema_version": "0.5",
     "entry_id": "4554687b-f729-4ca7-89a8-2cad72337225",
     "technique": {
       "id": "T1550.001",

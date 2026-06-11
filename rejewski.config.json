@@ -23,6 +23,21 @@
     "logging": {
       "audit_log_path": "logs/rejewski-audit.jsonl",
       "redact_secrets": true
+    },
+    "routing": {
+      "default_model": "claude-sonnet-4-6",
+      "hard_step_model": "claude-opus-4-6",
+      "hard_steps": [
+        "finding_to_control",
+        "role_assignment_analysis",
+        "privilege_correlation",
+        "token_chaining",
+        "domain_trust_analysis"
+      ],
+      "hard_techniques": [
+        "T1550.001",
+        "T1482"
+      ]
     }
   }
 }

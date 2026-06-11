@@ -2,6 +2,13 @@
 """
 Rejewski — replay-log writer middleware.
 
+v0.5 (Thu Jun 11, 2026): adds optional model_id field.
+  - model_id records which Claude model handled the reasoning-loop step that
+    produced this entry (Sonnet/Opus routing — see
+    scripts/rejewski_runtime.RoutingConfig). Routine enumeration steps carry
+    "claude-sonnet-4-6"; hard multi-hop analysis steps carry "claude-opus-4-6".
+    Omitted from the serialized payload when None, so v0.4 producers stay valid.
+
 v0.4 (Wed May 27, 2026): adds optional run_id binding field.
   - run_id propagates the consent.granted run ID (e.g. "R002") into every
     downstream graph_call and token_event entry in the run. Omitted when None.
@@ -37,8 +44,8 @@ from typing import Any
 from jsonschema import Draft202012Validator, FormatChecker
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SCHEMA_VERSION = "0.4"
-SCHEMA_PATH = REPO_ROOT / "schemas" / "replay-log" / "v0.4.json"
+SCHEMA_VERSION = "0.5"
+SCHEMA_PATH = REPO_ROOT / "schemas" / "replay-log" / "v0.5.json"
 DEFAULT_LOG_DIR = REPO_ROOT / "samples" / "replay-log"
 
 SANDBOX_TENANT_ID = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
@@ -113,6 +120,7 @@ class ReplayLogEntry:
     outcome: str
     error: dict[str, Any] | None = None
     run_id: str | None = None
+    model_id: str | None = None
     schema_version: str = SCHEMA_VERSION
     entry_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
@@ -238,6 +246,8 @@ def write_entry(entry: ReplayLogEntry, *, log_dir: Path | None = None) -> Path:
     payload = asdict(entry)
     if payload.get("run_id") is None:
         payload.pop("run_id", None)
+    if payload.get("model_id") is None:
+        payload.pop("model_id", None)
     payload["response"] = shaped_response
     payload["technique"] = _shape_technique(payload)
     if isinstance(payload.get("request"), dict):

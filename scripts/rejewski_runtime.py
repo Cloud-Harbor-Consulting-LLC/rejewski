@@ -40,11 +40,58 @@ SDK_FIELDS = {
 
 
 @dataclass
+class RoutingConfig:
+    """Sonnet/Opus model routing for the reasoning loop.
+
+    The loop runs on ``default_model`` (Sonnet 4.6) by default and escalates a
+    step to ``hard_step_model`` (Opus 4.6) when the step needs deeper, multi-hop
+    inference. A step is "hard" when its name is in ``hard_steps`` or its mapped
+    ATT&CK technique is in ``hard_techniques`` — callers can also force the
+    decision explicitly via ``select_model(hard=...)``.
+    """
+
+    default_model: str = "claude-sonnet-4-6"
+    hard_step_model: str = "claude-opus-4-6"
+    hard_steps: frozenset[str] = field(default_factory=frozenset)
+    hard_techniques: frozenset[str] = field(default_factory=frozenset)
+
+    def is_hard(
+        self,
+        *,
+        step: str | None = None,
+        technique_id: str | None = None,
+    ) -> bool:
+        """True if the step warrants the stronger (Opus) model."""
+        if step is not None and step in self.hard_steps:
+            return True
+        if technique_id is not None and technique_id in self.hard_techniques:
+            return True
+        return False
+
+    def select_model(
+        self,
+        *,
+        step: str | None = None,
+        technique_id: str | None = None,
+        hard: bool | None = None,
+    ) -> str:
+        """Return the model id to run this step on.
+
+        ``hard`` (when not None) overrides the name/technique classification —
+        pass ``hard=True`` to force Opus or ``hard=False`` to force Sonnet.
+        """
+        if hard is None:
+            hard = self.is_hard(step=step, technique_id=technique_id)
+        return self.hard_step_model if hard else self.default_model
+
+
+@dataclass
 class RejewskiConfig:
     analytics_disabled: bool = True
     session_keep_warm: bool = True
     audit_log_path: str = "logs/rejewski-audit.jsonl"
     redact_secrets: bool = True
+    routing: RoutingConfig = field(default_factory=RoutingConfig)
 
 
 @dataclass
@@ -66,11 +113,24 @@ def load_config(path: Path | str | None = None) -> RuntimeConfig:
 
     rj = raw.get("rejewski", {})
     logging_cfg = rj.get("logging", {})
+    routing_defaults = RoutingConfig()
+    routing_cfg_raw = rj.get("routing", {})
+    routing_cfg = RoutingConfig(
+        default_model=routing_cfg_raw.get(
+            "default_model", routing_defaults.default_model
+        ),
+        hard_step_model=routing_cfg_raw.get(
+            "hard_step_model", routing_defaults.hard_step_model
+        ),
+        hard_steps=frozenset(routing_cfg_raw.get("hard_steps", ())),
+        hard_techniques=frozenset(routing_cfg_raw.get("hard_techniques", ())),
+    )
     rejewski_cfg = RejewskiConfig(
         analytics_disabled=rj.get("analytics_disabled", True),
         session_keep_warm=rj.get("session_keep_warm", True),
         audit_log_path=logging_cfg.get("audit_log_path", "logs/rejewski-audit.jsonl"),
         redact_secrets=logging_cfg.get("redact_secrets", True),
+        routing=routing_cfg,
     )
 
     if rejewski_cfg.analytics_disabled:
@@ -92,3 +152,8 @@ if __name__ == "__main__":
     print("Session keep-warm:", cfg.rejewski.session_keep_warm)
     print("Audit log path:", cfg.rejewski.audit_log_path)
     print("Redact secrets:", cfg.rejewski.redact_secrets)
+    routing = cfg.rejewski.routing
+    print("Routing default model:", routing.default_model)
+    print("Routing hard-step model:", routing.hard_step_model)
+    print("Routing hard steps:", sorted(routing.hard_steps))
+    print("Routing hard techniques:", sorted(routing.hard_techniques))

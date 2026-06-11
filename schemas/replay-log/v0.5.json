@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/schemas/replay-log/v0.5.json",
+  "title": "Rejewski Replay Log Entry",
+  "description": "Schema-validated replay-log entry for Rejewski tool runs. v0.5 extends v0.4: adds an optional model_id field recording which Claude model handled the reasoning-loop step that produced this entry (Sonnet/Opus routing — see scripts/rejewski_runtime.RoutingConfig). Optional and additive; entries written outside a model-routed reasoning loop omit it, so all v0.4 producers remain valid. Everything else is identical to v0.4: optional run_id binding field, and kind-discriminated allOf if/then/else (graph_call carries pagination + row counters; token_event carries AADSTS + cache + correlation metadata). additionalProperties is enforced inside each per-kind response shape.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "entry_id",
+    "tool",
+    "technique",
+    "tenant_id",
+    "borrowed_client_id",
+    "actor_upn",
+    "started_at_utc",
+    "completed_at_utc",
+    "request",
+    "response",
+    "outcome"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.5"
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["graph_call", "token_event"],
+      "description": "Discriminator for the response shape. Narrows the response object per kind via the top-level allOf if/then below."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Binding key propagated from the consent.granted record to all downstream entries in the run (e.g. 'R002'). Optional; omitted for entries that pre-date v0.4 or that were written outside a consented run context."
+    },
+    "model_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The Claude model that handled the reasoning-loop step which produced this entry (e.g. 'claude-sonnet-4-6' for routine enumeration, 'claude-opus-4-6' for hard multi-hop analysis steps). Optional; omitted for entries that pre-date v0.5 or that were written outside a model-routed reasoning loop."
+    },
+    "entry_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tool": {
+      "type": "string",
+      "minLength": 1
+    },
+    "technique": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "borrowed_client_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "actor_upn": {
+      "type": "string",
+      "format": "email"
+    },
+    "started_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["method", "url"],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"]
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "response": {
+      "type": "object"
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["success", "error", "throttled", "row_cap_hit"]
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "message"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string"
+        },
+        "status_code": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "kind": { "const": "graph_call" } },
+        "required": ["kind"]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status_code", "page_count", "row_count"],
+            "properties": {
+              "status_code": { "type": "integer", "minimum": 0 },
+              "page_count": { "type": "integer", "minimum": 0 },
+              "row_count": { "type": "integer", "minimum": 0 },
+              "row_cap": { "type": "integer", "minimum": 0 },
+              "row_cap_hit": { "type": "boolean" },
+              "retry_count": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "kind": { "const": "token_event" } },
+        "required": ["kind"]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status_code"],
+            "properties": {
+              "status_code": { "type": "integer", "minimum": 0 },
+              "aadsts_code": {
+                "type": ["string", "null"]
+              },
+              "correlation_id": {
+                "type": ["string", "null"]
+              },
+              "persistence_kind": {
+                "type": "string",
+                "enum": ["encrypted", "plaintext"]
+              },
+              "cache_path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "flow": {
+                "type": "string",
+                "enum": ["silent", "ropc"]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

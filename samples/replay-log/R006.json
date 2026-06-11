@@ -36,7 +36,7 @@
     },
     "outcome": "success",
     "run_id": "R006",
-    "schema_version": "0.4",
+    "schema_version": "0.5",
     "entry_id": "53e18804-6a51-470f-b532-02a1e094746a",
     "technique": {
       "id": "T1087.004",

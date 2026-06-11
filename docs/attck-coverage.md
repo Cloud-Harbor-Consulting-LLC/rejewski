@@ -30,7 +30,7 @@ phs-kpi-dashboard-v1.0.xlsx.
 | T1078.004 | Valid Accounts: Cloud Accounts | Initial Access | Implemented — Sprint 1 | docs/techniques/T1078.004.md | scripts/identity.py |
 | T1087.004 | Account Discovery: Cloud Account | Discovery | Implemented — Sprint 1 | docs/techniques/T1087.004.md | scripts/tool_list_users.py, scripts/tool_list_applications.py, scripts/tool_list_role_assignments.py, scripts/tool_list_service_principals.py |
 | T1069.003 | Permission Groups Discovery: Cloud Groups | Discovery | Implemented — Sprint 1 | docs/techniques/T1069.003.md | scripts/tool_list_groups.py |
-| T1550.001 | Use Alternate Authentication Material: Application Access Token | Defense Evasion / Lateral Movement | Implemented — Sprint 1 | *No module yet — see note below* | scripts/identity.py (ADR 0005) |
+| T1550.001 | Use Alternate Authentication Material: Application Access Token | Defense Evasion / Lateral Movement | Implemented — Sprint 1 | docs/techniques/T1550.001.md | scripts/identity.py (ADR 0005) |
 | T1526 | Cloud Service Discovery | Discovery | Implemented — Sprint 2 W5 pull-forward | docs/techniques/T1526.md | scripts/tool_list_ca_policies.py |
 | T1087.003 | Account Discovery: Email Account | Discovery | Catalogued — Sprint 2 | docs/techniques/T1087.003.md | *Pending Sprint 2* |
 | T1518.001 | Software Discovery: Security Software Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1518.001.md | *Pending Sprint 2* |
@@ -45,14 +45,13 @@ phs-kpi-dashboard-v1.0.xlsx.
 
 ---
 
-## T1550.001 module gap
+## T1550.001 module gap — RESOLVED
 
-T1550.001 Use Alternate Authentication Material: Application Access Token is counted in
-the "ATT&CK techniques mapped" KPI. The implementation basis is scripts/identity.py
+Resolved (B024, 2026-06-11): the technique module now exists at
+docs/techniques/T1550.001.md, authored per ADR 0003 format against scripts/identity.py
 (the borrowed-token persistence helper shipped Sprint 1, W2, Tue 2026-05-19) and
-ADR 0005 (Token Persistence and Reuse). A technique module per ADR 0003 format does not
-yet exist at docs/techniques/T1550.001.md. Creating it is a Sprint 2 follow-on task;
-the KPI count is not affected by the absence of the module.
+ADR 0005 (Token Persistence and Reuse). The Module column at the T1550.001 row above
+points to it. No gap remains.
 
 ---
 

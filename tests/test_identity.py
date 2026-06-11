@@ -48,7 +48,7 @@ class TestCachePathResolution:
         monkeypatch.delenv(identity.ENV_CACHE_PATH, raising=False)
         monkeypatch.setattr(sys, "platform", "linux")
         path = identity._default_cache_path(ACTOR_UPN)
-        assert ".cache/rejewski" in str(path)
+        assert ".cache/rejewski" in path.as_posix()
         assert path.name.endswith(".bin")
         assert "meganb" in path.name.lower()
 
@@ -56,7 +56,7 @@ class TestCachePathResolution:
         monkeypatch.delenv(identity.ENV_CACHE_PATH, raising=False)
         monkeypatch.setattr(sys, "platform", "darwin")
         path = identity._default_cache_path(ACTOR_UPN)
-        assert "Library/Caches/rejewski" in str(path)
+        assert "Library/Caches/rejewski" in path.as_posix()
 
     def test_windows_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delenv(identity.ENV_CACHE_PATH, raising=False)
@@ -144,7 +144,7 @@ class TestAcquireToken:
         assert len(events) == 1
         assert events[0]["kind"] == "token_event"
         assert events[0]["outcome"] == "success"
-        assert events[0]["technique_id"] == "T1550.001"
+        assert events[0]["technique"]["id"] == "T1550.001"
         assert events[0]["request"]["flow"] == identity.FLOW_SILENT
         assert "access_token" not in json.dumps(events[0])
 

@@ -26,7 +26,7 @@ Each scenario below names the NIST tenets it stresses and the Microsoft pillars 
 All three scenarios assume the following adversary profile, established in Sprint 1:
 
 - **Adversary identity.** Rejewski operates as an external threat actor with knowledge of a compromised set of credentials for Megan Bowen (<meganb@cloudharbor-demo.com>) in the sandbox tenant cloudharbordemo (76b87c33-6178-4ff9-94a7-164792c8e4c6).
-- **Borrowed client.** Microsoft Graph PowerShell first-party FOCI client (app ID 14d82eec-204b-4c2f-b7e8-296a70dab67e). No app registration is created in the target tenant. See guardrails.md G-1.
+- **Borrowed client.** Microsoft Graph Command Line Tools first-party FOCI client (app ID 14d82eec-204b-4c2f-b7e8-296a70dab67e). No app registration is created in the target tenant. See guardrails.md G-1.
 - **Token acquisition.** MSAL Resource Owner Password Credential (ROPC) delegated flow against the v2.0 token endpoint. ROPC carries no device claim and produces no Primary Refresh Token.
 - **Telemetry assumption.** Diagnostic settings are enabled to forward SigninLogs, AuditLogs, and MicrosoftGraphActivityLogs to a Log Analytics workspace. Where a signal depends on a non-default diagnostic setting, this is called out in the scenario.
 
@@ -83,7 +83,7 @@ SigninLogs
 
 **Adversary action.**
 
-Rejewski submits the compromised password via MSAL ROPC against the v2.0 token endpoint, borrowing the Microsoft Graph PowerShell FOCI client ID. ROPC is a non-interactive password grant: no browser, no MFA prompt, no PRT. If the user is enforced for MFA via Conditional Access and the policy evaluates on this sign-in, the token is denied. If MFA is not enforced for this user-app pairing, the token is issued and the only signal is a risky-sign-in event.
+Rejewski submits the compromised password via MSAL ROPC against the v2.0 token endpoint, borrowing the Microsoft Graph Command Line Tools FOCI client ID. ROPC is a non-interactive password grant: no browser, no MFA prompt, no PRT. If the user is enforced for MFA via Conditional Access and the policy evaluates on this sign-in, the token is denied. If MFA is not enforced for this user-app pairing, the token is issued and the only signal is a risky-sign-in event.
 
 **Defensive control surface.**
 
@@ -100,7 +100,7 @@ Two complementary surfaces. (a) Conditional Access policy enforcing Require MFA 
   - Password spray (passwordSpray) — fires when an attacker successfully validates a user's password after broad attempts.
   - Microsoft Entra threat intelligence (investigationsThreatIntelligence) — real-time.
 - **Risk aggregation.** Sign-in risk level (low / medium / high) is recorded on the SigninLogs row; user risk aggregates into riskLevelAggregated. Risk-based CA can MFA-challenge or block when aggregated risk exceeds threshold.
-- **clientAppUsed field.** Inferred as Mobile Apps and Desktop clients (modern auth, non-interactive). This is not the legacy Other clients value. Distinguishing ROPC from legitimate Graph PowerShell admin usage requires the riskEventType signal — see Gaps §1.
+- **clientAppUsed field.** Inferred as Mobile Apps and Desktop clients (modern auth, non-interactive). This is not the legacy Other clients value. Distinguishing ROPC from legitimate Graph Command Line Tools admin usage requires the riskEventType signal — see Gaps §1.
 - **Audit signals.** Password resets, MFA registrations, and added authentication methods are recorded in AuditLogs under Authentication methods. Rejewski does not perform these during ROPC, so their absence reinforces the signal of credential-only misuse.
 - **Hunt query (KQL).**
 

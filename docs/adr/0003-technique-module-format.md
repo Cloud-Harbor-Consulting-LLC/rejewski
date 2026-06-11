@@ -9,7 +9,7 @@
 
 Sprint 1 ships three MITRE ATT&CK technique modules (T1078.004, T1087.004, T1069.003) under docs/techniques/. Each module documents Rejewski's emulation of one technique against the cloudharbordemo sandbox tenant. Without a shared format, modules drift on what they record, making cross-technique comparison, guardrail enforcement, and evidence audit harder than necessary.
 
-The no-tenant-app-reg posture means every technique module must explicitly name the borrowed first-party OAuth client. Sprint 1 borrows Microsoft Graph PowerShell (14d82eec-204b-4c2f-b7e8-296a70dab67e). Future sprints may borrow other FOCI clients; gaining a tenant app registration is itself a Sprint 2+ technique. The format must surface this choice unambiguously rather than leaving it in tribal knowledge.
+The no-tenant-app-reg posture means every technique module must explicitly name the borrowed first-party OAuth client. Sprint 1 borrows Microsoft Graph Command Line Tools (14d82eec-204b-4c2f-b7e8-296a70dab67e). Future sprints may borrow other FOCI clients; gaining a tenant app registration is itself a Sprint 2+ technique. The format must surface this choice unambiguously rather than leaving it in tribal knowledge.
 
 ## Decision
 
@@ -24,7 +24,7 @@ technique_name: "Valid Accounts: Cloud Accounts"
 tactic: Initial Access
 sprint: 1
 status: implemented
-first_party_client: Microsoft Graph PowerShell
+first_party_client: Microsoft Graph Command Line Tools
 first_party_client_id: 14d82eec-204b-4c2f-b7e8-296a70dab67e
 sandbox_tenant: cloudharbordemo
 sandbox_tenant_id: 76b87c33-6178-4ff9-94a7-164792c8e4c6

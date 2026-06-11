@@ -60,7 +60,7 @@ The adversary's starting capabilities **do not include**:
 - Admin role assignments. The seeded test accounts are ordinary users.
 - Tenant-side persistence artifacts (mailbox rules, OAuth grants, app passwords). These are Sprint 2+ targets, not starting state.
 
-**No-tenant-app-reg posture (committed 2026-05-13).** Every Sprint 1 technique runs under a borrowed first-party Microsoft OAuth client — Microsoft Graph PowerShell (14d82eec-204b-4c2f-b7e8-296a70dab67e) by default. The choice is deliberate: it leaves no Rejewski-controlled application object in the sandbox tenant and accurately models an early-stage adversary who has not yet established their own tenant footprint. G-2 and G-4 in docs/guardrails.md codify this posture as enforceable rules; ADR 0003 surfaces it in every technique module's front matter via the first_party_client and first_party_client_id fields.
+**No-tenant-app-reg posture (committed 2026-05-13).** Every Sprint 1 technique runs under a borrowed first-party Microsoft OAuth client — Microsoft Graph Command Line Tools (14d82eec-204b-4c2f-b7e8-296a70dab67e) by default. The choice is deliberate: it leaves no Rejewski-controlled application object in the sandbox tenant and accurately models an early-stage adversary who has not yet established their own tenant footprint. G-2 and G-4 in docs/guardrails.md codify this posture as enforceable rules; ADR 0003 surfaces it in every technique module's front matter via the first_party_client and first_party_client_id fields.
 
 **Adversary objective.** Reconnaissance and discovery in Sprint 1 — enumerate accounts and groups to inform later-sprint targeting. Write-side objectives (persistence, lateral movement, exfiltration) are out of scope and gated behind a consent-floor uplift ADR.
 
@@ -153,7 +153,7 @@ The following are explicitly out of scope for Sprint 1 and are tracked for later
 
 - Tenant app registration creation, modification, or compromise (G-2).
 - Write-side Graph scopes (G-3): Mail.Send, Directory.ReadWrite.All, Group.ReadWrite.All, admin-consent scopes.
-- Additional FOCI clients beyond Graph PowerShell (G-4): Azure CLI, Visual Studio, others.
+- Additional FOCI clients beyond Graph Command Line Tools (G-4): Azure CLI, Visual Studio, others.
 - Hybrid identity flows (synced on-prem AD accounts).
 - Token persistence beyond the session-keep-warm window (G-8).
 - Conditional-access bypasses (location spoofing, device compliance manipulation).

@@ -1,0 +1,5 @@
+# Line-ending policy (B026).
+# Normalize all text files to LF in the repository and on checkout, so that
+# core.autocrlf=true on Windows clients cannot produce spurious CRLF/LF diffs
+# (root cause of the PR #53 173-line threat-model.md churn).
+* text=auto eol=lf

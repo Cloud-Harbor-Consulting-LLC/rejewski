@@ -1,7 +1,7 @@
 # Rejewski ATT&CK Coverage Map
 
 - Version: v0.1
-- Last updated: 2026-06-05
+- Last updated: 2026-06-16
 - Status: Living document — updated at each sprint checkpoint
 - Authors: Derek Morgan
 - Related: docs/threat-model.md, docs/techniques/, docs/guardrails.md
@@ -15,7 +15,7 @@ maps, catalogues, or explicitly excludes. It is the authoritative source for the
 "ATT&CK techniques mapped" KPI tracked in the Sprint Checkpoint KPIs tab of
 phs-kpi-dashboard-v1.0.xlsx.
 
-**Current count:** 10 unique techniques (5 implemented, 5 catalogued, 0 excluded-and-counted)
+**Current count:** 10 unique techniques (7 implemented, 3 catalogued, 0 excluded-and-counted)
 
 **Sprint 2 checkpoint target (Sat 2026-07-04):** 10 unique techniques
 
@@ -33,8 +33,8 @@ phs-kpi-dashboard-v1.0.xlsx.
 | T1550.001 | Use Alternate Authentication Material: Application Access Token | Defense Evasion / Lateral Movement | Implemented — Sprint 1 | docs/techniques/T1550.001.md | scripts/identity.py (ADR 0005) |
 | T1526 | Cloud Service Discovery | Discovery | Implemented — Sprint 2 W5 pull-forward | docs/techniques/T1526.md | scripts/tool_list_ca_policies.py |
 | T1087.003 | Account Discovery: Email Account | Discovery | Catalogued — Sprint 2 | docs/techniques/T1087.003.md | *Pending Sprint 2* |
-| T1518.001 | Software Discovery: Security Software Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1518.001.md | *Pending Sprint 2* |
-| T1082 | System Information Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1082.md | *Pending Sprint 2* |
+| T1518.001 | Software Discovery: Security Software Discovery | Discovery | Implemented — Sprint 2 | docs/techniques/T1518.001.md | scripts/tool_dfi_health.py |
+| T1082 | System Information Discovery | Discovery | Implemented — Sprint 2 | docs/techniques/T1082.md | scripts/tool_intune_devices.py |
 | T1213.002 | Data from Information Repositories: Sharepoint | Collection | Catalogued — Sprint 2 | docs/techniques/T1213.002.md | *Pending Sprint 2* |
 | T1482 | Domain Trust Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1482.md | *Pending Sprint 2* |
 

@@ -1,13 +1,25 @@
 # Project Harbor Sonar — Threat Model
 
-- Version: v0.6
-- Last updated: 2026-06-05
+- Version: v0.7
+- Last updated: 2026-06-19
 - Status: Living document
 - Authors: Derek Morgan
 - Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/, docs/attck-coverage.md
 
 ## Change log
 
+- v0.7 (2026-06-19) — Sprint 2 catalogue expansion. Six techniques catalogued:
+  T1580 Cloud Infrastructure Discovery (docs/techniques/T1580.md), T1538 Cloud Service
+  Dashboard (docs/techniques/T1538.md), T1213.003 Data from Information Repositories: Code
+  Repositories (docs/techniques/T1213.003.md), T1530 Data from Cloud Storage
+  (docs/techniques/T1530.md), T1619 Cloud Storage Object Discovery
+  (docs/techniques/T1619.md), and T1114.002 Email Collection: Remote Email Collection
+  (docs/techniques/T1114.002.md). **T1538 re-scoped**: previously listed as out of
+  programmatic Rejewski scope (GUI-based), it is now catalogued for its programmatic Graph
+  `/admin/serviceAnnouncement` and `/reports` service-health/usage surface; the interactive
+  GUI-navigation posture remains out of scope. §5 active technique table and Sprint 2+
+  catalogued subsection updated; §7 out-of-scope T1538 entry refined to the GUI posture
+  only. Total mapped techniques: 16 (7 implemented, 9 catalogued).
 - v0.6 (2026-06-05) — Sprint 1 W4 threat-model head-start. Three techniques catalogued
   for Sprint 2: T1082 System Information Discovery (docs/techniques/T1082.md),
   T1213.002 Data from Information Repositories: Sharepoint
@@ -81,7 +93,9 @@ Sandbox assets carry no real-world sensitivity, but the **evidence ledger** and 
 The following MITRE ATT&CK techniques are implemented or catalogued in Rejewski, in
 kill-chain order. Sprint 1 shipped T1078.004, T1087.004, T1069.003, T1550.001, and T1526.
 T1087.003 and T1518.001 were catalogued Sprint 1 W4 (2026-06-03). T1082, T1213.002,
-and T1482 were catalogued Sprint 1 W4 (2026-06-05). The authoritative coverage count
+and T1482 were catalogued Sprint 1 W4 (2026-06-05). T1580, T1538, T1213.003, T1530,
+T1619, and T1114.002 were catalogued in the Sprint 2 catalogue expansion (2026-06-19),
+bringing the total to 16 mapped techniques. The authoritative coverage count
 and path-to-target table are in docs/attck-coverage.md.
 
 | Technique | Tactic | Status | Sprint | Module |
@@ -96,6 +110,12 @@ and path-to-target table are in docs/attck-coverage.md.
 | T1082 System Information Discovery | Discovery | Catalogued | 2 | docs/techniques/T1082.md |
 | T1213.002 Data from Information Repositories: Sharepoint | Collection | Catalogued | 2 | docs/techniques/T1213.002.md |
 | T1482 Domain Trust Discovery | Discovery | Catalogued | 2 | docs/techniques/T1482.md |
+| T1580 Cloud Infrastructure Discovery | Discovery | Catalogued | 2 | docs/techniques/T1580.md |
+| T1538 Cloud Service Dashboard | Discovery | Catalogued | 2 | docs/techniques/T1538.md |
+| T1213.003 Data from Information Repositories: Code Repositories | Collection | Catalogued | 2 | docs/techniques/T1213.003.md |
+| T1530 Data from Cloud Storage | Collection | Catalogued | 2 | docs/techniques/T1530.md |
+| T1619 Cloud Storage Object Discovery | Discovery | Catalogued | 2 | docs/techniques/T1619.md |
+| T1114.002 Email Collection: Remote Email Collection | Collection | Catalogued | 2 | docs/techniques/T1114.002.md |
 
 Each module follows the ADR 0003 format: YAML front matter, eight required sections, and cited cross-references to this threat model, the governing ADR(s), and docs/guardrails.md.
 
@@ -116,13 +136,35 @@ The deferral is not because these endpoints are dangerous — both are read-only
 | T1082 System Information Discovery | Discovery | Catalogued — Sprint 2 (2026-06-05) | GET /organization (tenant name, hybrid status, provisioned plans, verified domains, security contacts) |
 | T1213.002 Data from Information Repositories: Sharepoint | Collection | Catalogued — Sprint 2 (2026-06-05) | GET /sites, GET /sites/{id}/drives, GET /sites/{id}/lists — requires Sites.Read.All scope |
 | T1482 Domain Trust Discovery | Discovery | Catalogued — Sprint 2 (2026-06-05) | GET /domains, GET /domains/{id}/federationConfiguration — requires Domain.Read.All scope |
-| T1538 Cloud Service Dashboard | Discovery | Out of programmatic Rejewski scope | Azure portal / Microsoft 365 admin center / Defender portal / Entra admin center GUIs |
+| T1580 Cloud Infrastructure Discovery | Discovery | Catalogued — Sprint 2 (2026-06-19) | GET /organization, GET /domains, GET /subscribedSkus — requires Organization.Read.All, Domain.Read.All, Directory.Read.All |
+| T1538 Cloud Service Dashboard | Discovery | Catalogued — Sprint 2 (2026-06-19) — programmatic surface only | GET /admin/serviceAnnouncement/healthOverviews, /admin/serviceAnnouncement/issues, /reports/getOffice365ActiveUserDetail — requires ServiceHealth.Read.All, Reports.Read.All. GUI-navigation posture remains out of scope (§7). |
+| T1213.003 Data from Information Repositories: Code Repositories | Collection | Catalogued — Sprint 2 (2026-06-19) | GET /sites?search=*, GET /sites/{id}/drives, GET /sites/{id}/lists — requires Sites.Read.All; SharePoint-surfaced code content only |
+| T1530 Data from Cloud Storage | Collection | Catalogued — Sprint 2 (2026-06-19) | GET /drives, GET /users/{id}/drive/root/children, GET /groups/{id}/drive/root/children — requires Files.Read.All; metadata only per G-7 |
+| T1619 Cloud Storage Object Discovery | Discovery | Catalogued — Sprint 2 (2026-06-19) | GET /drives, GET /drives/{id}/root/children, GET /sites/{id}/drives — requires Files.Read.All, Sites.Read.All; discovery phase preceding T1530 |
+| T1114.002 Email Collection: Remote Email Collection | Collection | Catalogued — Sprint 2 (2026-06-19) | GET /users/{id}/mailFolders, GET /users/{id}/messages ($select metadata projection), GET /users/{id}/mailFolders/{id}/messages — Mail.Read (delegated, self) or Mail.ReadBasic.All / Mail.Read.All (application, cross-user) |
 
 **T1526 Cloud Service Discovery.** An adversary with valid cloud credentials enumerates cloud services, security configurations, and tenant metadata to inventory the target environment before engaging Collection or Lateral Movement objectives. T1526 is now active in Rejewski for the Conditional Access policies surface (Sprint 2 W5 pull-forward, 2026-05-26): `GET /identity/conditionalAccess/policies` enumerates all CA policies in the tenant, revealing which users/groups are covered, what grant controls are enforced (MFA, compliant device, block), which applications are in scope, and whether any policies are in report-only mode. This surface requires the signed-in user to hold at least Security Reader — making it a post-privilege-escalation discovery step in the kill chain (see docs/techniques/T1526.md §"Required privilege" for the full operator prerequisite and attack strategy note).
 
 Additional T1526 surfaces remain in the Sprint 2 main body catalogue and are not yet active: `GET /subscribedSkus` (licensed SKUs and service plan details), `GET /servicePrincipals` (third-party and Microsoft service principals), `GET /applications` (tenant app registrations), and `GET /organization` (tenant display name, verified domains, country, technical contacts). Each additional surface needs its own row-cap calibration (per G-9) and will be modelled as a separate technique surface entry when Sprint 2 opens. T1526 is a natural complement to T1087.004 and T1069.003 in the Discovery kill-chain leg: account discovery + group discovery + service/policy discovery together map the tenant's identity-and-configuration footprint.
 
-**T1538 Cloud Service Dashboard.** This technique describes adversary use of a cloud-provider GUI dashboard — Azure portal (portal.azure.com), Microsoft 365 admin center (admin.microsoft.com), Defender portal (security.microsoft.com), or Entra admin center (entra.microsoft.com) — with stolen credentials, to enumerate services, resources, and configurations through human-driven browser navigation rather than API calls. Rejewski is a programmatic Graph client and does not drive browser sessions, so T1538 is **catalogued but not in scope for Rejewski emulation**. It is recorded here so consumers of Rejewski's evidence understand: when Rejewski simulates Discovery, it produces Graph-API audit signal (sign-in logs, audit logs, Defender for Cloud Apps anomaly hits on programmatic enumeration) — it does **not** produce the dashboard-session and interactive-GUI signals that T1538 emulation would require. Detection coverage for T1538 must come from other tooling.
+**T1538 Cloud Service Dashboard (re-scoped 2026-06-19).** This technique describes
+adversary use of a cloud-provider service dashboard — historically framed as the GUI
+surfaces (Azure portal, Microsoft 365 admin center, Defender portal, Entra admin center)
+driven by stolen credentials through human browser navigation. Through v0.6 this was
+catalogued as **out of programmatic Rejewski scope** on the basis that Rejewski drives no
+browser sessions. v0.7 refines that boundary: the same service-dashboard *data* — service
+health per workload, active incidents/advisories, and per-service usage — is also exposed
+**programmatically** through Microsoft Graph (`GET /admin/serviceAnnouncement/healthOverviews`,
+`/admin/serviceAnnouncement/issues`, `GET /reports/getOffice365ActiveUserDetail`). That
+programmatic surface **is** in Rejewski's wheelhouse and is now catalogued at
+docs/techniques/T1538.md, mirroring the operational service-health framing used in
+T1518.001 (a degraded security workload signals a reduced-detection-coverage window). The
+distinction consumers must understand: Rejewski's T1538 emulation produces **Graph-API
+audit signal** (MicrosoftGraphActivityLogs on the serviceAnnouncement/reports endpoints),
+**not** the interactive admin-center session and portal sign-in signals that a GUI-driven
+T1538 would produce. The GUI-navigation posture therefore remains out of scope (§7);
+detection coverage for *that* posture must still come from portal-session telemetry sourced
+elsewhere.
 
 ## 6. Trust boundaries
 
@@ -159,7 +201,7 @@ The following are explicitly out of scope for Sprint 1 and are tracked for later
 - Conditional-access bypasses (location spoofing, device compliance manipulation).
 - Real-user data of any kind (G-7).
 - Production tenants other than cloudharbordemo (G-1).
-- Cloud-dashboard GUI reconnaissance (T1538). Catalogued in §5 but out of programmatic Rejewski scope; consumers of Rejewski evidence must source dashboard-session signal from other tooling.
+- Cloud-dashboard **GUI-navigation** reconnaissance — the interactive browser-driven posture of T1538 (Azure portal, M365 admin center, Defender/Entra portals). Rejewski drives no browser sessions, so this posture stays out of scope; consumers must source dashboard-session signal from other tooling. Note the boundary refinement (v0.7): the **programmatic** service-dashboard surface of T1538 (Graph `/admin/serviceAnnouncement` and `/reports`) **is** in scope and is catalogued in §5 — only the GUI-navigation posture is excluded here.
 
 ## 8. References
 
@@ -169,5 +211,5 @@ The following are explicitly out of scope for Sprint 1 and are tracked for later
 - ADR 0005 — Token Persistence and Reuse (T1550.001 implementation basis)
 - docs/guardrails.md — G-1 through G-9
 - docs/attck-coverage.md — authoritative technique count and path-to-target table
-- docs/techniques/T1078.004.md, T1087.004.md, T1069.003.md, T1526.md, T1087.003.md, T1518.001.md, T1082.md, T1213.002.md, T1482.md
+- docs/techniques/T1078.004.md, T1087.004.md, T1069.003.md, T1526.md, T1087.003.md, T1518.001.md, T1082.md, T1213.002.md, T1482.md, T1580.md, T1538.md, T1213.003.md, T1530.md, T1619.md, T1114.002.md
 - MITRE ATT&CK Enterprise — <https://attack.mitre.org/matrices/enterprise/>

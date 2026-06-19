@@ -1,7 +1,7 @@
 # Rejewski ATT&CK Coverage Map
 
-- Version: v0.1
-- Last updated: 2026-06-16
+- Version: v0.2
+- Last updated: 2026-06-19
 - Status: Living document — updated at each sprint checkpoint
 - Authors: Derek Morgan
 - Related: docs/threat-model.md, docs/techniques/, docs/guardrails.md
@@ -15,7 +15,7 @@ maps, catalogues, or explicitly excludes. It is the authoritative source for the
 "ATT&CK techniques mapped" KPI tracked in the Sprint Checkpoint KPIs tab of
 phs-kpi-dashboard-v1.0.xlsx.
 
-**Current count:** 10 unique techniques (7 implemented, 3 catalogued, 0 excluded-and-counted)
+**Current count:** 16 unique techniques (7 implemented, 9 catalogued, 0 excluded-and-counted)
 
 **Sprint 2 checkpoint target (Sat 2026-07-04):** 10 unique techniques
 
@@ -37,6 +37,12 @@ phs-kpi-dashboard-v1.0.xlsx.
 | T1082 | System Information Discovery | Discovery | Implemented — Sprint 2 | docs/techniques/T1082.md | scripts/tool_intune_devices.py |
 | T1213.002 | Data from Information Repositories: Sharepoint | Collection | Catalogued — Sprint 2 | docs/techniques/T1213.002.md | *Pending Sprint 2* |
 | T1482 | Domain Trust Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1482.md | *Pending Sprint 2* |
+| T1580 | Cloud Infrastructure Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1580.md | *Pending Sprint 2* |
+| T1538 | Cloud Service Dashboard | Discovery | Catalogued — Sprint 2 | docs/techniques/T1538.md | *Pending Sprint 2* |
+| T1213.003 | Data from Information Repositories: Code Repositories | Collection | Catalogued — Sprint 2 | docs/techniques/T1213.003.md | *Pending Sprint 2* |
+| T1530 | Data from Cloud Storage | Collection | Catalogued — Sprint 2 | docs/techniques/T1530.md | *Pending Sprint 2* |
+| T1619 | Cloud Storage Object Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1619.md | *Pending Sprint 2* |
+| T1114.002 | Email Collection: Remote Email Collection | Collection | Catalogued — Sprint 2 | docs/techniques/T1114.002.md | *Pending Sprint 2* |
 
 **Status definitions:**
 - **Implemented** — a working script exists and at least one consented sandbox run has produced replay-log evidence.
@@ -60,8 +66,8 @@ points to it. No gap remains.
 | Tactic | Techniques | IDs |
 |--------|-----------|-----|
 | Initial Access | 1 | T1078.004 |
-| Discovery | 7 | T1087.004, T1069.003, T1526, T1087.003, T1518.001, T1082, T1482 |
-| Collection | 1 | T1213.002 |
+| Discovery | 10 | T1087.004, T1069.003, T1526, T1087.003, T1518.001, T1082, T1482, T1580, T1538, T1619 |
+| Collection | 4 | T1213.002, T1213.003, T1530, T1114.002 |
 | Defense Evasion / Lateral Movement | 1 | T1550.001 |
 
 Discovery dominates the current coverage, consistent with Rejewski's Sprint 1–2
@@ -83,10 +89,15 @@ Cloud Accounts     Discovery  Discovery  Discovery
                    Email      Security   System      Domain Trust
                    Account    Software   Info         Discovery
 
+                   T1580      T1538      T1619
+                   Cloud      Cloud Svc  Cloud Storage
+                   Infra      Dashboard  Object Disc.
+
 Collection
-──────────────────────────────
-T1213.002
-Info Repositories: SharePoint
+──────────────────────────────────────────────────────────
+T1213.002         T1213.003          T1530         T1114.002
+Info Repos:       Info Repos:        Data from     Remote Email
+SharePoint        Code Repos         Cloud Storage Collection
 ```
 
 T1078.004 is the prerequisite for every downstream technique — no Graph call runs without
@@ -102,11 +113,12 @@ targets and avoid detection. T1550.001 operationalises the token that T1078.004 
 | Sprint | Techniques added | Running total |
 |--------|-----------------|---------------|
 | S1 (W1–W3) | T1078.004, T1087.004, T1069.003, T1550.001, T1526 | 5 |
-| S1 W4 (today) | T1087.003, T1518.001 | **7** |
-| S1 W4b (today) | T1082, T1213.002, T1482 | **10** |
-| S2 | Done — Sprint 2 checkpoint target met | 10 |
+| S1 W4 (2026-06-03) | T1087.003, T1518.001 | **7** |
+| S1 W4b (2026-06-05) | T1082, T1213.002, T1482 | **10** |
+| S2 catalogue expansion (2026-06-19) | T1580, T1538, T1213.003, T1530, T1619, T1114.002 | **16** |
 
-Sprint 2 checkpoint target of 10 techniques reached. Technique selection for the Sprint 3
+Sprint 2 checkpoint target of 10 techniques reached and exceeded (16 catalogued/implemented
+ahead of the Sat 2026-07-04 checkpoint). Technique selection for the Sprint 3
 checkpoint target (TBD at S2 kick-off) opens when Sprint 2 begins.
 Candidates to select at the S2 retro from the Sprint 2+ catalogue in docs/threat-model.md:
 
@@ -125,9 +137,16 @@ Selection is at Derek's discretion at the S2 kick-off or the S1 checkpoint retro
 
 ## Excluded techniques
 
-| Technique | Name | Reason |
-|-----------|------|--------|
-| T1538 | Cloud Service Dashboard | GUI-based (Azure portal, M365 admin center); Rejewski is a programmatic Graph client and does not drive browser sessions. Detailed in docs/threat-model.md §7. |
+No techniques are currently excluded-and-counted.
+
+**T1538 Cloud Service Dashboard re-scoped (2026-06-19).** T1538 was previously excluded on
+the basis that the technique describes human-driven GUI dashboard navigation and Rejewski
+is a programmatic Graph client. That exclusion is now refined: the *interactive GUI
+navigation* posture remains out of scope (Rejewski drives no browser sessions), but the
+*programmatic service-health and service-usage surface* exposed through Microsoft Graph
+`/admin/serviceAnnouncement` and `/reports` is in scope and is now catalogued at
+docs/techniques/T1538.md. The technique therefore moves from the excluded table into the
+catalogued set above. See docs/threat-model.md §5 and §7 for the full rationale.
 
 All write-side ATT&CK techniques (persistence, credential modification, lateral movement
 via write-scope Graph calls) are excluded per G-1 through G-9 in docs/guardrails.md and

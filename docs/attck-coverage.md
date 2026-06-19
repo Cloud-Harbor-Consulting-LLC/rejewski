@@ -45,6 +45,7 @@ phs-kpi-dashboard-v1.0.xlsx.
 | T1114.002 | Email Collection: Remote Email Collection | Collection | Catalogued — Sprint 2 | docs/techniques/T1114.002.md | *Pending Sprint 2* |
 
 **Status definitions:**
+
 - **Implemented** — a working script exists and at least one consented sandbox run has produced replay-log evidence.
 - **Catalogued** — a technique module exists per ADR 0003 format, defining scope and implementation path, but no script has been written and no sandbox run has been executed.
 - **Excluded** — explicitly out of Rejewski scope; documented in docs/threat-model.md §7.

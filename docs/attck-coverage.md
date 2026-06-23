@@ -1,7 +1,7 @@
 # Rejewski ATT&CK Coverage Map
 
-- Version: v0.2
-- Last updated: 2026-06-19
+- Version: v0.3
+- Last updated: 2026-06-23
 - Status: Living document — updated at each sprint checkpoint
 - Authors: Derek Morgan
 - Related: docs/threat-model.md, docs/techniques/, docs/guardrails.md
@@ -15,7 +15,7 @@ maps, catalogues, or explicitly excludes. It is the authoritative source for the
 "ATT&CK techniques mapped" KPI tracked in the Sprint Checkpoint KPIs tab of
 phs-kpi-dashboard-v1.0.xlsx.
 
-**Current count:** 16 unique techniques (7 implemented, 9 catalogued, 0 excluded-and-counted)
+**Current count:** 17 unique techniques (9 implemented, 8 catalogued, 0 excluded-and-counted)
 
 **Sprint 2 checkpoint target (Sat 2026-07-04):** 10 unique techniques
 
@@ -37,12 +37,13 @@ phs-kpi-dashboard-v1.0.xlsx.
 | T1082 | System Information Discovery | Discovery | Implemented — Sprint 2 | docs/techniques/T1082.md | scripts/tool_intune_devices.py |
 | T1213.002 | Data from Information Repositories: Sharepoint | Collection | Catalogued — Sprint 2 | docs/techniques/T1213.002.md | *Pending Sprint 2* |
 | T1482 | Domain Trust Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1482.md | *Pending Sprint 2* |
-| T1580 | Cloud Infrastructure Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1580.md | *Pending Sprint 2* |
+| T1580 | Cloud Infrastructure Discovery | Discovery | Implemented — Sprint 2 | docs/techniques/T1580.md | scripts/tool_purview_labels.py |
 | T1538 | Cloud Service Dashboard | Discovery | Catalogued — Sprint 2 | docs/techniques/T1538.md | *Pending Sprint 2* |
 | T1213.003 | Data from Information Repositories: Code Repositories | Collection | Catalogued — Sprint 2 | docs/techniques/T1213.003.md | *Pending Sprint 2* |
 | T1530 | Data from Cloud Storage | Collection | Catalogued — Sprint 2 | docs/techniques/T1530.md | *Pending Sprint 2* |
 | T1619 | Cloud Storage Object Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1619.md | *Pending Sprint 2* |
 | T1114.002 | Email Collection: Remote Email Collection | Collection | Catalogued — Sprint 2 | docs/techniques/T1114.002.md | *Pending Sprint 2* |
+| T1654 | Log Enumeration | Discovery | Implemented — Sprint 2 | docs/techniques/T1654.md | scripts/tool_signin_logs.py |
 
 **Status definitions:**
 
@@ -67,7 +68,7 @@ points to it. No gap remains.
 | Tactic | Techniques | IDs |
 |--------|-----------|-----|
 | Initial Access | 1 | T1078.004 |
-| Discovery | 10 | T1087.004, T1069.003, T1526, T1087.003, T1518.001, T1082, T1482, T1580, T1538, T1619 |
+| Discovery | 11 | T1087.004, T1069.003, T1526, T1087.003, T1518.001, T1082, T1482, T1580, T1538, T1619, T1654 |
 | Collection | 4 | T1213.002, T1213.003, T1530, T1114.002 |
 | Defense Evasion / Lateral Movement | 1 | T1550.001 |
 
@@ -90,9 +91,9 @@ Cloud Accounts     Discovery  Discovery  Discovery
                    Email      Security   System      Domain Trust
                    Account    Software   Info         Discovery
 
-                   T1580      T1538      T1619
-                   Cloud      Cloud Svc  Cloud Storage
-                   Infra      Dashboard  Object Disc.
+                   T1580      T1538      T1619       T1654
+                   Cloud      Cloud Svc  Cloud Stor. Log
+                   Infra      Dashboard  Object Disc Enumeration
 
 Collection
 ──────────────────────────────────────────────────────────
@@ -117,6 +118,7 @@ targets and avoid detection. T1550.001 operationalises the token that T1078.004 
 | S1 W4 (2026-06-03) | T1087.003, T1518.001 | **7** |
 | S1 W4b (2026-06-05) | T1082, T1213.002, T1482 | **10** |
 | S2 catalogue expansion (2026-06-19) | T1580, T1538, T1213.003, T1530, T1619, T1114.002 | **16** |
+| S2 W7 implementation (2026-06-23) | T1580 implemented (Tool 9); T1654 added as implemented (Tool 10) | **17** |
 
 Sprint 2 checkpoint target of 10 techniques reached and exceeded (16 catalogued/implemented
 ahead of the Sat 2026-07-04 checkpoint). Technique selection for the Sprint 3

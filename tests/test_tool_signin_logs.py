@@ -51,7 +51,6 @@ def _signin(idx: int, **overrides) -> dict:
         "riskLevelAggregated": "none",
         "riskState": "none",
         "status": {"errorCode": 0},
-        "signInEventType": "interactiveUser",
     }
     base.update(overrides)
     return base
@@ -96,6 +95,7 @@ class TestSuccessfulList:
                 _signin(1),
                 _signin(
                     2,
+                    isInteractive=False,
                     riskLevelAggregated="medium",
                     status={"errorCode": 50126},
                     appDisplayName="OneDrive",
@@ -125,6 +125,8 @@ class TestSuccessfulList:
         assert out["total_sign_ins"] == 2
         assert out["failed_count"] == 1
         assert out["by_risk_level"]["medium"] == 1
+        assert out["interactive_count"] == 1
+        assert out["non_interactive_count"] == 1
         assert out["unique_apps"] == 2
         assert out["unique_users"] == 2
         assert "createdDateTime ge" in out["filter"]

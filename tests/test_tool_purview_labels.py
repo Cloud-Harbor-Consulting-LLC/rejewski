@@ -44,7 +44,8 @@ def _label(idx: int, **overrides) -> dict:
         "isEnabled": True,
         "isEndpointProtectionEnabled": True,
         "actionSource": "manual",
-        "applicableTo": ["file", "email"],
+        # Live API returns applicableTo as a comma-delimited string.
+        "applicableTo": "file,email",
         "sublabels": [],
     }
     base.update(overrides)
@@ -91,7 +92,7 @@ class TestSuccessfulList:
                     2,
                     isEnabled=False,
                     actionSource="automatic",
-                    applicableTo=["teamwork"],
+                    applicableTo="teamwork",
                     sublabels=[{"id": "sub-2a", "name": "Tier-2A"}],
                 ),
             ]
@@ -122,6 +123,11 @@ class TestSuccessfulList:
         assert out["labels_with_sublabels"] == 1
         assert out["action_source_breakdown"]["manual"] == 1
         assert out["action_source_breakdown"]["automatic"] == 1
+        # applicableTo: label 1 -> "file,email"; label 2 -> "teamwork".
+        # The breakdown counts per-scope, splitting the comma-delimited string.
+        assert out["applicable_to_breakdown"]["file"] == 1
+        assert out["applicable_to_breakdown"]["email"] == 1
+        assert out["applicable_to_breakdown"]["teamwork"] == 1
 
 
 class TestEmptyList:

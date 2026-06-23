@@ -1,13 +1,20 @@
 # Project Harbor Sonar — Threat Model
 
-- Version: v0.7
-- Last updated: 2026-06-19
+- Version: v0.8
+- Last updated: 2026-06-23
 - Status: Living document
 - Authors: Derek Morgan
 - Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/, docs/attck-coverage.md
 
 ## Change log
 
+- v0.8 (2026-06-23) — Sprint 2 W7 implementation. T1580 Cloud Infrastructure
+  Discovery implemented (docs/techniques/T1580.md) via
+  GET /security/dataSecurityAndGovernance/sensitivityLabels (sensitivity label
+  inventory); original org/domains/subscribedSkus catalogued surfaces deferred.
+  T1654 Log Enumeration added as implemented (docs/techniques/T1654.md) via
+  GET /auditLogs/signIns; new technique, added directly as implemented (no prior
+  catalogued stub). Total mapped techniques: 17 (9 implemented, 8 catalogued).
 - v0.7 (2026-06-19) — Sprint 2 catalogue expansion. Six techniques catalogued:
   T1580 Cloud Infrastructure Discovery (docs/techniques/T1580.md), T1538 Cloud Service
   Dashboard (docs/techniques/T1538.md), T1213.003 Data from Information Repositories: Code
@@ -94,8 +101,9 @@ The following MITRE ATT&CK techniques are implemented or catalogued in Rejewski,
 kill-chain order. Sprint 1 shipped T1078.004, T1087.004, T1069.003, T1550.001, and T1526.
 T1087.003 and T1518.001 were catalogued Sprint 1 W4 (2026-06-03). T1082, T1213.002,
 and T1482 were catalogued Sprint 1 W4 (2026-06-05). T1580, T1538, T1213.003, T1530,
-T1619, and T1114.002 were catalogued in the Sprint 2 catalogue expansion (2026-06-19),
-bringing the total to 16 mapped techniques. The authoritative coverage count
+T1619, and T1114.002 were catalogued in the Sprint 2 catalogue expansion (2026-06-19).
+T1580 was implemented and T1654 added as implemented in Sprint 2 W7 (2026-06-23),
+bringing the total to 17 mapped techniques. The authoritative coverage count
 and path-to-target table are in docs/attck-coverage.md.
 
 | Technique | Tactic | Status | Sprint | Module |
@@ -110,12 +118,13 @@ and path-to-target table are in docs/attck-coverage.md.
 | T1082 System Information Discovery | Discovery | Catalogued | 2 | docs/techniques/T1082.md |
 | T1213.002 Data from Information Repositories: Sharepoint | Collection | Catalogued | 2 | docs/techniques/T1213.002.md |
 | T1482 Domain Trust Discovery | Discovery | Catalogued | 2 | docs/techniques/T1482.md |
-| T1580 Cloud Infrastructure Discovery | Discovery | Catalogued | 2 | docs/techniques/T1580.md |
+| T1580 Cloud Infrastructure Discovery | Discovery | Implemented | 2 | docs/techniques/T1580.md |
 | T1538 Cloud Service Dashboard | Discovery | Catalogued | 2 | docs/techniques/T1538.md |
 | T1213.003 Data from Information Repositories: Code Repositories | Collection | Catalogued | 2 | docs/techniques/T1213.003.md |
 | T1530 Data from Cloud Storage | Collection | Catalogued | 2 | docs/techniques/T1530.md |
 | T1619 Cloud Storage Object Discovery | Discovery | Catalogued | 2 | docs/techniques/T1619.md |
 | T1114.002 Email Collection: Remote Email Collection | Collection | Catalogued | 2 | docs/techniques/T1114.002.md |
+| T1654 Log Enumeration | Discovery | Implemented | 2 | docs/techniques/T1654.md |
 
 Each module follows the ADR 0003 format: YAML front matter, eight required sections, and cited cross-references to this threat model, the governing ADR(s), and docs/guardrails.md.
 
@@ -136,7 +145,8 @@ The deferral is not because these endpoints are dangerous — both are read-only
 | T1082 System Information Discovery | Discovery | Catalogued — Sprint 2 (2026-06-05) | GET /organization (tenant name, hybrid status, provisioned plans, verified domains, security contacts) |
 | T1213.002 Data from Information Repositories: Sharepoint | Collection | Catalogued — Sprint 2 (2026-06-05) | GET /sites, GET /sites/{id}/drives, GET /sites/{id}/lists — requires Sites.Read.All scope |
 | T1482 Domain Trust Discovery | Discovery | Catalogued — Sprint 2 (2026-06-05) | GET /domains, GET /domains/{id}/federationConfiguration — requires Domain.Read.All scope |
-| T1580 Cloud Infrastructure Discovery | Discovery | Catalogued — Sprint 2 (2026-06-19) | GET /organization, GET /domains, GET /subscribedSkus — requires Organization.Read.All, Domain.Read.All, Directory.Read.All |
+| T1580 Cloud Infrastructure Discovery | Discovery | Implemented — Sprint 2 W7 (2026-06-23) | GET /security/dataSecurityAndGovernance/sensitivityLabels (active — Purview sensitivity-label inventory; SensitivityLabel.Read delegated, no Entra role required). Original surfaces GET /organization, GET /domains, GET /subscribedSkus deferred as complementary surfaces (see docs/techniques/T1580.md Limitations). |
+| T1654 Log Enumeration | Discovery | Implemented — Sprint 2 W7 (2026-06-23) | GET /auditLogs/signIns — requires AuditLog.Read.All + Reports Reader/Security Reader (or higher) Entra role on the signed-in operator. Mandatory `$filter=createdDateTime ge <window-start>` (default 7-day lookback). |
 | T1538 Cloud Service Dashboard | Discovery | Catalogued — Sprint 2 (2026-06-19) — programmatic surface only | GET /admin/serviceAnnouncement/healthOverviews, /admin/serviceAnnouncement/issues, /reports/getOffice365ActiveUserDetail — requires ServiceHealth.Read.All, Reports.Read.All. GUI-navigation posture remains out of scope (§7). |
 | T1213.003 Data from Information Repositories: Code Repositories | Collection | Catalogued — Sprint 2 (2026-06-19) | GET /sites?search=*, GET /sites/{id}/drives, GET /sites/{id}/lists — requires Sites.Read.All; SharePoint-surfaced code content only |
 | T1530 Data from Cloud Storage | Collection | Catalogued — Sprint 2 (2026-06-19) | GET /drives, GET /users/{id}/drive/root/children, GET /groups/{id}/drive/root/children — requires Files.Read.All; metadata only per G-7 |
@@ -211,5 +221,5 @@ The following are explicitly out of scope for Sprint 1 and are tracked for later
 - ADR 0005 — Token Persistence and Reuse (T1550.001 implementation basis)
 - docs/guardrails.md — G-1 through G-9
 - docs/attck-coverage.md — authoritative technique count and path-to-target table
-- docs/techniques/T1078.004.md, T1087.004.md, T1069.003.md, T1526.md, T1087.003.md, T1518.001.md, T1082.md, T1213.002.md, T1482.md, T1580.md, T1538.md, T1213.003.md, T1530.md, T1619.md, T1114.002.md
+- docs/techniques/T1078.004.md, T1087.004.md, T1069.003.md, T1526.md, T1087.003.md, T1518.001.md, T1082.md, T1213.002.md, T1482.md, T1580.md, T1538.md, T1213.003.md, T1530.md, T1619.md, T1114.002.md, T1654.md
 - MITRE ATT&CK Enterprise — <https://attack.mitre.org/matrices/enterprise/>

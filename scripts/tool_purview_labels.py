@@ -203,15 +203,18 @@ def _compute_label_summary(labels: list[dict[str, Any]]) -> dict[str, Any]:
         return breakdown
 
     def _count_applicable_to() -> dict[str, int]:
-        # applicableTo is reported per label as a list of scopes (email, file,
-        # teamwork, ...). Count each scope occurrence across all labels rather
-        # than deduplicating per label, so the breakdown shows how many labels
-        # cover each surface.
+        # applicableTo is reported per label by the live Graph API as a
+        # comma-delimited string ("email,teamwork,file"); the OpenAPI schema
+        # also permits an array shape. Split commas so the breakdown shows how
+        # many labels cover each surface individually, not how many share the
+        # exact same combination of surfaces.
         breakdown: dict[str, int] = {}
         for label in labels:
-            scopes = label.get("applicableTo") or []
-            if isinstance(scopes, str):
-                scopes = [scopes]
+            raw = label.get("applicableTo") or []
+            if isinstance(raw, str):
+                scopes = [s.strip() for s in raw.split(",") if s.strip()]
+            else:
+                scopes = [s for s in raw if s]
             for scope in scopes:
                 breakdown[scope] = breakdown.get(scope, 0) + 1
         return breakdown

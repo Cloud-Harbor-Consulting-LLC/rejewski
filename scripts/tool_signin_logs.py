@@ -3,11 +3,11 @@
 Rejewski Tool 10 — signin_logs
 ATT&CK T1654 Log Enumeration
 
-Reads Entra ID sign-in logs via Microsoft Graph GET /auditLogs/signIns. The
-sign-in log is an authentication-history goldmine: per event it surfaces the
-identity that signed in (UPN, userId), the application that requested the token
-(appId, appDisplayName), the IP address, the client app type, whether the
-sign-in was interactive, the aggregate risk level, and the success/failure
+Reads Entra ID sign-in logs via Microsoft Graph GET /auditLogs/signIns (v1.0).
+The sign-in log is an authentication-history goldmine: per event it surfaces
+the identity that signed in (UPN, userId), the application that requested the
+token (appId, appDisplayName), the IP address, the client app type, whether
+the sign-in was interactive, the aggregate risk level, and the success/failure
 status. An adversary holding a Reports Reader / Security Reader (or higher)
 delegated grant uses this telemetry to map authentication patterns: which admin
 accounts have signed in recently, which service principals are actively pulling
@@ -85,10 +85,14 @@ ENDPOINT_PATH = "/auditLogs/signIns"
 # Rejewski projects into the evidence JSON. The signIn object carries dozens of
 # fields (full deviceDetail, location, appliedConditionalAccessPolicies); keeping
 # the projection tight keeps the read cheap and the evidence file readable.
+# Note: signInEventType is a beta-only property — querying it via /v1.0 returns
+# HTTP 400 "Could not find a property named 'signInEventType' on type
+# 'microsoft.graph.signIn'". v1.0 /auditLogs/signIns returns interactive user
+# sign-ins; isInteractive is retained for the evidence aggregate.
 DEFAULT_SELECT = (
     "id,createdDateTime,userDisplayName,userPrincipalName,userId,appId,"
     "appDisplayName,ipAddress,clientAppUsed,isInteractive,"
-    "riskLevelAggregated,riskState,status,signInEventType"
+    "riskLevelAggregated,riskState,status"
 )
 # /auditLogs/signIns enforces a $top maximum of 1000; 100 keeps each page small
 # enough to bound the per-call latency while the pagination loop still walks the
@@ -108,14 +112,6 @@ TECHNIQUE_ID = "T1654"
 TECHNIQUE_NAME = "Log Enumeration"
 TOOL_NAME = "tool_signin_logs"
 ERROR_TYPE_URN = "urn:rejewski:error:tool-invocation-failed"
-
-EVENT_TYPE_CHOICES = (
-    "all",
-    "interactiveUser",
-    "nonInteractiveUser",
-    "servicePrincipal",
-    "managedIdentity",
-)
 
 
 def graph_get(
@@ -159,15 +155,11 @@ def graph_get(
     raise RuntimeError(f"{url} -> exhausted {MAX_RETRIES} retries")
 
 
-def _build_filter(start_dt_iso: str, event_type: str) -> str:
+def _build_filter(start_dt_iso: str) -> str:
     """Build the $filter string. createdDateTime is mandatory — without it the
-    /auditLogs/signIns endpoint times out on large tenants — and the event-type
-    clause is appended only when the operator narrowed the request.
+    /auditLogs/signIns endpoint times out on large tenants.
     """
-    clauses = [f"createdDateTime ge {start_dt_iso}"]
-    if event_type != "all":
-        clauses.append(f"signInEventType eq '{event_type}'")
-    return " and ".join(clauses)
+    return f"createdDateTime ge {start_dt_iso}"
 
 
 def list_sign_ins(
@@ -213,24 +205,19 @@ def _compute_signin_summary(sign_ins: list[dict[str, Any]]) -> dict[str, Any]:
     additionalProperties: false on the graph_call response branch, so
     sign-in-specific counts would fail schema validation.
     """
-    by_event_type: dict[str, int] = {
-        "interactiveUser": 0,
-        "nonInteractiveUser": 0,
-        "servicePrincipal": 0,
-        "managedIdentity": 0,
-    }
     by_risk: dict[str, int] = {
         "none": 0, "low": 0, "medium": 0, "high": 0, "hidden": 0,
     }
+    interactive_count = 0
+    non_interactive_count = 0
     failed = 0
     apps: set[str] = set()
     users: set[str] = set()
     for s in sign_ins:
-        et = s.get("signInEventType") or "interactiveUser"
-        if et in by_event_type:
-            by_event_type[et] += 1
+        if s.get("isInteractive") is True:
+            interactive_count += 1
         else:
-            by_event_type[et] = by_event_type.get(et, 0) + 1
+            non_interactive_count += 1
 
         risk = s.get("riskLevelAggregated") or "none"
         if risk in by_risk:
@@ -251,7 +238,8 @@ def _compute_signin_summary(sign_ins: list[dict[str, Any]]) -> dict[str, Any]:
 
     return {
         "total_sign_ins": len(sign_ins),
-        "by_event_type": by_event_type,
+        "interactive_count": interactive_count,
+        "non_interactive_count": non_interactive_count,
         "by_risk_level": by_risk,
         "failed_count": failed,
         "unique_apps": len(apps),
@@ -277,16 +265,6 @@ def parse_args() -> argparse.Namespace:
         help=(
             "lookback window in days (default: 7). The createdDateTime $filter is "
             "MANDATORY — without it, /auditLogs/signIns times out on large tenants."
-        ),
-    )
-    p.add_argument(
-        "--event-type",
-        choices=EVENT_TYPE_CHOICES,
-        default="all",
-        help=(
-            "filter by signInEventType (default: all). 'all' omits the event-type "
-            "clause from the $filter; any other value adds `signInEventType eq "
-            "'<type>'`."
         ),
     )
     p.add_argument(
@@ -346,7 +324,7 @@ def main() -> int:
     # a Z suffix for OData datetime literals on /auditLogs/signIns.
     start_dt = datetime.now(timezone.utc) - timedelta(days=args.days)
     start_dt_iso = start_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
-    filter_str = _build_filter(start_dt_iso, args.event_type)
+    filter_str = _build_filter(start_dt_iso)
 
     started_at = utc_now_iso()
     quoted_filter = requests.utils.quote(filter_str, safe="' ")
@@ -441,7 +419,6 @@ def main() -> int:
         "select": args.select,
         "filter": filter_str,
         "days": args.days,
-        "event_type": args.event_type,
         "page_size": args.page_size,
         "row_cap": args.row_cap,
         "row_count": len(sign_ins),

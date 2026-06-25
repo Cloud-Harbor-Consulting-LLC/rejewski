@@ -68,6 +68,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- chore(persona): system_prompt in rejewski.config.json updated to reflect
+  10-tool scope, FOCI borrowed-client model (14d82eec, no tenant-side app
+  registration), per-run ROE consent requirement, replay-log evidence capture,
+  and full ATT&CK-mapped output requirement. The Sprint-1 "defensive
+  reconnaissance agent" framing was corrected to "adversary-emulation … security
+  reconnaissance agent" — Rejewski itself acts offensively (as a compromised
+  account) inside an authorized defensive engagement; calling the agent
+  "defensive" mislabelled its runtime behaviour. 117 words. Planner W7
+  (Gu1lVDMYI0OQ7F4K7epjT2UAGbDv).
+- chore(voice): voice audit of all 10 scripts/tool_*.py against the
+  tool_purview_labels.py / tool_signin_logs.py reference pattern (stderr for
+  status/error/empty notices, stdout for structured JSON). Findings and
+  corrections:
+  - (a) stderr/stdout routing — all 10 already conformed. No tool routes
+    status/error text to stdout; error detail is carried in the JSON evidence
+    `error_block`. No change.
+  - (b) empty-result handling — Tools 7–10 already conformed. Added the missing
+    `print("No <X> found", file=sys.stderr)` notice to Tools 1–6
+    (tool_list_users "No users found", tool_list_groups "No groups found",
+    tool_list_applications "No applications found", tool_list_ca_policies "No
+    conditional access policies found", tool_list_role_assignments "No role
+    assignments found", tool_list_service_principals "No service principals
+    found"). All six already exited 0 on an empty-but-valid Graph response
+    (outcome=success); only the stderr notice was absent. Exit codes and
+    structured output unchanged.
+  - (c) module docstrings — added the "No tenant-side app registration"
+    paragraph to tool_list_users.py (the only script missing it; the other 9
+    carry it). Added a REQUIRED PRIVILEGE section to Tools 1–3 (list_users,
+    list_groups, list_applications) to match the section Tools 4–10 already
+    carry, documenting the delegated scope and the no-elevated-role Sprint-1
+    ordinary-user posture (threat-model.md §3). Tools 4–10 docstrings already
+    conformed and were left unchanged.
+  No new tests added: the stderr notice mirrors the already-tested Tools 7–10
+  empty-result path and changes no exit code or structured output; suite stays
+  54 green.
 - `scripts/tool_signin_logs.py` — v1.0 compatibility fix. The `signInEventType` property is **beta-only**; querying it via `/v1.0/auditLogs/signIns` returns HTTP 400 ("Could not find a property named 'signInEventType' on type 'microsoft.graph.signIn'"), caught on the first live sandbox run (R009). Removed `signInEventType` from `DEFAULT_SELECT`, removed the `--event-type` CLI argument and its `signInEventType eq '<type>'` $filter clause, and replaced the `by_event_type` aggregate with `interactive_count` / `non_interactive_count` derived from the `isInteractive` boolean (which v1.0 does expose). Procedure and Limitations in `docs/techniques/T1654.md` updated to match. `tests/test_tool_signin_logs.py` re-asserted on the new aggregate shape; suite still 54 green.
 - `docs/techniques/T1654.md` — Evidence section populated with the R009 success run (53 sign-ins, 1 page, outcome=success, meganb holds Reports Reader). Procedure step 3 dropped the `--event-type` description (see v1.0 compatibility fix above). Limitations note added documenting `signInEventType` as a beta-only field with a pointer to the future beta-endpoint module.
 - `scripts/tool_purview_labels.py` — `_count_applicable_to` now splits the comma-delimited `applicableTo` string returned by the live Graph API ("email,teamwork,file") into per-scope counts. Caught on the first sandbox success run, where the pre-fix breakdown grouped by the whole comma-delimited combination (`{"email,teamwork,file": 3}`) instead of per-scope (`{"email": 4, "teamwork": 4, "file": 4, ...}`). Array-shape `applicableTo` (the OpenAPI alternative) is still accepted. Test fixture updated to use the real comma-string shape; new assertions cover the per-scope breakdown.

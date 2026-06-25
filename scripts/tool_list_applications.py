@@ -21,6 +21,14 @@ FOCI fallback per ADR 0004 v0.2.
 Every invocation writes a replay-log entry under the v0.3 schema with
 kind="graph_call".
 
+REQUIRED PRIVILEGE:
+    GET /applications (tenant-wide) requires the Application.Read.All — or the
+    broader Directory.Read.All — delegated scope, admin-consented on the borrowed
+    Microsoft Graph Command Line Tools client (14d82eec). No elevated Entra
+    directory role is required for the read. This is a first-foothold discovery
+    step (the Sprint 1 ordinary-user posture, threat-model.md §3), unlike the
+    role-gated Tools 4–10.
+
 Required environment variables:
     AZURE_TENANT_ID            Target tenant ID (cloudharbordemo: 76b87c33-...)
     FOCI_CLIENT_ID             Borrowed first-party client (default: 14d82eec-...)
@@ -223,6 +231,12 @@ def main() -> int:
         )
 
     completed_at = utc_now_iso()
+
+    # Empty result is a valid, non-error outcome (G-5): notice to stderr keeps
+    # stdout machine-readable, and the graph_call entry below still records
+    # row_count (object_count) 0.
+    if outcome != "error" and not apps:
+        print("No applications found", file=sys.stderr)
 
     response_obj: dict[str, Any] = {
         "status_code": stats["last_status"] if stats["last_status"] else (200 if outcome != "error" else 0),

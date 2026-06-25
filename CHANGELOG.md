@@ -60,7 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   surface tables. T1550.001 Module column updated to
   docs/techniques/T1550.001.md. threat-model.md → v0.9.
 - docs(attck-coverage): Sprint 2 checkpoint target date corrected from
-  Sat 2026-07-04 to Thu 2026-07-02.
+  Sat 2026-07-04 to Thu 2026-07-02 in both the Overview target line and the
+  Path-to-Sprint-2-target narrative.
 - **B022** — replay-log run consolidation no longer drops entries. The Sprint 1 Checkpoint demo used a `[-3:]` slice to pick "the last 3" replay-log files; a run exercising N tools writes 2N files (token_event + graph_call per tool), so any multi-tool run lost data. `scripts/consolidate_run.py` reads all files in `replay-logs/` and filters by `run_id`. (No committed script contained the `[-3:]` slice — a repo-wide grep found zero matches — so the offending combine step lived only in the operator's ad-hoc demo shell; the consolidator supersedes it.)
 - **B023** — operator-local Windows paths in token_event `cache_path` (G-6 violation) are now redacted automatically. `R007.json` was redacted by hand before commit; `scripts/consolidate_run.py` now replaces `cache_path` with `"<redacted>"` on every token_event unconditionally before writing to `samples/`, making the redaction automatic going forward.
 - **B025** — `tests/test_identity.py` three stale failures fixed. `test_silent_reuse_hit` asserted the dropped top-level `technique_id` field; updated to read the current nested `technique.id` shape that `replay_log._shape_technique` writes. `test_linux_default` and `test_darwin_default` asserted forward-slash path substrings against `str(path)`, which fails when the suite runs on Windows; switched to `path.as_posix()` so the platform-branch assertions hold on any host. No tests skipped or mocked around; all 12 pass against the real code.

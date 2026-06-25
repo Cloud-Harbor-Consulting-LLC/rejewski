@@ -17,7 +17,7 @@ phs-kpi-dashboard-v1.0.xlsx.
 
 **Current count:** 17 unique techniques (9 implemented, 8 catalogued, 0 excluded-and-counted)
 
-**Sprint 2 checkpoint target (Sat 2026-07-04):** 10 unique techniques
+**Sprint 2 checkpoint target (Thu 2026-07-02):** 10 unique techniques
 
 **v1.0 target (Sat 2026-10-24):** 25 unique techniques
 

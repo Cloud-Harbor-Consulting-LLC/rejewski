@@ -1,13 +1,19 @@
 # Project Harbor Sonar — Threat Model
 
-- Version: v0.8
-- Last updated: 2026-06-23
+- Version: v0.9
+- Last updated: 2026-06-26
 - Status: Living document
 - Authors: Derek Morgan
 - Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/, docs/attck-coverage.md
 
 ## Change log
 
+- v0.9 (2026-06-26) — §5 stale row corrections. T1518.001 and T1082
+  status updated from Catalogued to Implemented — Sprint 2 W6 (2026-06-16)
+  in both the summary and surface tables; these techniques shipped in PR #56
+  but docs/threat-model.md §5 was not patched at that time. T1550.001 Module
+  column corrected from placeholder text to docs/techniques/T1550.001.md
+  (module shipped PR #52, Jun 11). No technique counts changed.
 - v0.8 (2026-06-23) — Sprint 2 W7 implementation. T1580 Cloud Infrastructure
   Discovery implemented (docs/techniques/T1580.md) via
   GET /security/dataSecurityAndGovernance/sensitivityLabels (sensitivity label
@@ -111,11 +117,11 @@ and path-to-target table are in docs/attck-coverage.md.
 | T1078.004 Valid Accounts: Cloud Accounts | Initial Access | Implemented | 1 | docs/techniques/T1078.004.md |
 | T1087.004 Account Discovery: Cloud Account | Discovery | Implemented | 1 | docs/techniques/T1087.004.md |
 | T1069.003 Permission Groups Discovery: Cloud Groups | Discovery | Implemented | 1 | docs/techniques/T1069.003.md |
-| T1550.001 Use Alternate Authentication Material: Application Access Token | Defense Evasion / Lateral Movement | Implemented | 1 | *No module yet — ADR 0005 + scripts/identity.py* |
+| T1550.001 Use Alternate Authentication Material: Application Access Token | Defense Evasion / Lateral Movement | Implemented | 1 | docs/techniques/T1550.001.md |
 | T1526 Cloud Service Discovery | Discovery | Implemented | 2 W5 pull-forward | docs/techniques/T1526.md |
 | T1087.003 Account Discovery: Email Account | Discovery | Catalogued | 2 | docs/techniques/T1087.003.md |
-| T1518.001 Software Discovery: Security Software Discovery | Discovery | Catalogued | 2 | docs/techniques/T1518.001.md |
-| T1082 System Information Discovery | Discovery | Catalogued | 2 | docs/techniques/T1082.md |
+| T1518.001 Software Discovery: Security Software Discovery | Discovery | Implemented — Sprint 2 | 2 | docs/techniques/T1518.001.md |
+| T1082 System Information Discovery | Discovery | Implemented — Sprint 2 | 2 | docs/techniques/T1082.md |
 | T1213.002 Data from Information Repositories: Sharepoint | Collection | Catalogued | 2 | docs/techniques/T1213.002.md |
 | T1482 Domain Trust Discovery | Discovery | Catalogued | 2 | docs/techniques/T1482.md |
 | T1580 Cloud Infrastructure Discovery | Discovery | Implemented | 2 | docs/techniques/T1580.md |
@@ -141,8 +147,8 @@ The deferral is not because these endpoints are dangerous — both are read-only
 |-----------|--------|--------|---------|
 | T1526 Cloud Service Discovery | Discovery | Implemented — Sprint 2 W5 pull-forward (2026-05-26) | /identity/conditionalAccess/policies (active); /subscribedSkus, /servicePrincipals, /applications, /organization (deferred to Sprint 2 main body) |
 | T1087.003 Account Discovery: Email Account | Discovery | Catalogued — Sprint 2 (2026-06-03) | GET /users with mail, proxyAddresses, mailEnabled, mailNickname, userType $select projection |
-| T1518.001 Software Discovery: Security Software Discovery | Discovery | Catalogued — Sprint 2 (2026-06-03) | GET /subscribedSkus (service plan enumeration to identify active Microsoft security products) |
-| T1082 System Information Discovery | Discovery | Catalogued — Sprint 2 (2026-06-05) | GET /organization (tenant name, hybrid status, provisioned plans, verified domains, security contacts) |
+| T1518.001 Software Discovery: Security Software Discovery | Discovery | Implemented — Sprint 2 W6 (2026-06-16) | GET /subscribedSkus (service plan enumeration to identify active Microsoft security products) |
+| T1082 System Information Discovery | Discovery | Implemented — Sprint 2 W6 (2026-06-16) | GET /organization (tenant name, hybrid status, provisioned plans, verified domains, security contacts) |
 | T1213.002 Data from Information Repositories: Sharepoint | Collection | Catalogued — Sprint 2 (2026-06-05) | GET /sites, GET /sites/{id}/drives, GET /sites/{id}/lists — requires Sites.Read.All scope |
 | T1482 Domain Trust Discovery | Discovery | Catalogued — Sprint 2 (2026-06-05) | GET /domains, GET /domains/{id}/federationConfiguration — requires Domain.Read.All scope |
 | T1580 Cloud Infrastructure Discovery | Discovery | Implemented — Sprint 2 W7 (2026-06-23) | GET /security/dataSecurityAndGovernance/sensitivityLabels (active — Purview sensitivity-label inventory; SensitivityLabel.Read delegated, no Entra role required). Original surfaces GET /organization, GET /domains, GET /subscribedSkus deferred as complementary surfaces (see docs/techniques/T1580.md Limitations). |

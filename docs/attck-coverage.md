@@ -17,7 +17,7 @@ phs-kpi-dashboard-v1.0.xlsx.
 
 **Current count:** 17 unique techniques (9 implemented, 8 catalogued, 0 excluded-and-counted)
 
-**Sprint 2 checkpoint target (Sat 2026-07-04):** 10 unique techniques
+**Sprint 2 checkpoint target (Thu 2026-07-02):** 10 unique techniques
 
 **v1.0 target (Sat 2026-10-24):** 25 unique techniques
 
@@ -121,7 +121,7 @@ targets and avoid detection. T1550.001 operationalises the token that T1078.004 
 | S2 W7 implementation (2026-06-23) | T1580 implemented (Tool 9); T1654 added as implemented (Tool 10) | **17** |
 
 Sprint 2 checkpoint target of 10 techniques reached and exceeded (16 catalogued/implemented
-ahead of the Sat 2026-07-04 checkpoint). Technique selection for the Sprint 3
+ahead of the Thu 2026-07-02 checkpoint). Technique selection for the Sprint 3
 checkpoint target (TBD at S2 kick-off) opens when Sprint 2 begins.
 Candidates to select at the S2 retro from the Sprint 2+ catalogue in docs/threat-model.md:
 

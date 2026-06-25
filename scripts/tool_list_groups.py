@@ -18,6 +18,14 @@ row_cap_hit) to the configured replay-log directory under the v0.3 schema
 with kind="graph_call". 401 mid-pagination recovers via the encrypted cache,
 not in-memory MSAL state.
 
+REQUIRED PRIVILEGE:
+    GET /groups is readable by an ordinary member under the target tenant's
+    default directory permissions — no elevated Entra directory role is
+    required. The borrowed Microsoft Graph Command Line Tools client (14d82eec)
+    carries the Group.Read.All delegated scope. Like Tool 1, this is a
+    first-foothold discovery step (the Sprint 1 ordinary-user posture,
+    threat-model.md §3), not a role-gated one.
+
 Required environment variables:
     AZURE_TENANT_ID            Target tenant ID (cloudharbordemo: 76b87c33-...)
     FOCI_CLIENT_ID             Borrowed first-party client (default: 14d82eec-...)
@@ -220,6 +228,12 @@ def main() -> int:
         )
 
     completed_at = utc_now_iso()
+
+    # Empty result is a valid, non-error outcome (G-5): notice to stderr keeps
+    # stdout machine-readable, and the graph_call entry below still records
+    # row_count (object_count) 0.
+    if outcome != "error" and not groups:
+        print("No groups found", file=sys.stderr)
 
     response_obj: dict[str, Any] = {
         "status_code": stats["last_status"] if stats["last_status"] else (200 if outcome != "error" else 0),

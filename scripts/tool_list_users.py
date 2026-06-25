@@ -8,6 +8,10 @@ token acquired through the shared scripts/identity.acquire_token helper
 (ADR-0005). The helper handles MSAL ROPC on first invocation, encrypted
 persistence via msal-extensions, and silent reuse on every subsequent run.
 
+No tenant-side app registration is created in the target tenant (ADR 0001 §1,
+guardrail G-3). Borrowed first-party client defaults to Microsoft Graph Command
+Line Tools (14d82eec) per ADR 0004 v0.2.
+
 Every invocation writes a replay-log entry (success, error, throttled, or
 row_cap_hit) to the configured replay-log directory. Default is
 replay-logs/ (gitignored). For canonical evidence runs, pass
@@ -16,6 +20,14 @@ replay-logs/ (gitignored). For canonical evidence runs, pass
 Reads creds from .env. Writes JSON evidence to stdout (default) or to a
 file under .replay/ when --output is supplied. Honors guardrail G-9
 enumeration row cap.
+
+REQUIRED PRIVILEGE:
+    GET /users is readable by an ordinary member under the target tenant's
+    default directory permissions — no elevated Entra directory role is
+    required. The borrowed Microsoft Graph Command Line Tools client (14d82eec)
+    carries the User.Read.All delegated scope used to project the full user
+    surface. This is a first-foothold discovery step (the Sprint 1 ordinary-user
+    posture, threat-model.md §3), unlike the role-gated Tools 4–10.
 
 Required environment variables:
     AZURE_TENANT_ID            Target tenant ID (cloudharbordemo: 76b87c33-...)
@@ -217,6 +229,12 @@ def main() -> int:
         )
 
     completed_at = utc_now_iso()
+
+    # Empty result is a valid, non-error outcome (G-5): notice to stderr keeps
+    # stdout machine-readable, and the graph_call entry below still records
+    # row_count (object_count) 0.
+    if outcome != "error" and not users:
+        print("No users found", file=sys.stderr)
 
     response_obj: dict[str, Any] = {
         "status_code": stats["last_status"]

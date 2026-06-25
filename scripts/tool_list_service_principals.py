@@ -340,6 +340,13 @@ def main() -> int:
 
     completed_at = utc_now_iso()
 
+    # Empty result is a valid, non-error outcome (G-5): notice to stderr keeps
+    # stdout machine-readable, and the graph_call entry below still records
+    # row_count (object_count) 0. Note the VISIBILITY caveat above: an
+    # under-privileged operator also gets an empty list (HTTP 200), not a 403.
+    if outcome != "error" and not sps:
+        print("No service principals found", file=sys.stderr)
+
     response_obj: dict[str, Any] = {
         "status_code": stats["last_status"]
         if stats["last_status"]

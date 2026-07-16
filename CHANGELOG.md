@@ -96,6 +96,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `schemas/finding-triage/v0.1.json`: renamed optional field `control_id` →
+  `control_mapping_id` to resolve naming ambiguity with the `finding-to-control`
+  schema's `control.control_id` field. The finding-triage field holds a
+  finding-to-control record's `mapping_id` slug, not a control's own identifier.
+  Corresponding sample updated.
 - chore(persona): system_prompt in rejewski.config.json updated to reflect
   10-tool scope, FOCI borrowed-client model (14d82eec, no tenant-side app
   registration), per-run ROE consent requirement, replay-log evidence capture,

@@ -48,7 +48,7 @@
       "enum": ["low", "medium", "high"],
       "description": "Confidence that this finding is real and correctly attributed."
     },
-    "control_id": {
+    "control_mapping_id": {
       "type": "string",
       "minLength": 1,
       "description": "Optional cross-reference to a finding-to-control mapping record, by that record's mapping_id slug (e.g. ft1087-004-ca-cov008-blockbylocation-001). Omit when the finding is not yet mapped to a control."

@@ -5,7 +5,7 @@
   "run_id": "R010",
   "severity": "medium",
   "confidence": "high",
-  "control_id": "ft1087-004-ca-cov008-blockbylocation-001",
+  "control_mapping_id": "ft1087-004-ca-cov008-blockbylocation-001",
   "evidence": [
     "samples/replay-log/R010.json"
   ],

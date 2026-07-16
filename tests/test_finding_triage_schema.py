@@ -48,3 +48,13 @@ def test_wrong_schema_version_fails():
     payload["triage_metadata"]["schema_version"] = "0.2"
     with pytest.raises(Exception):
         _VALIDATOR.validate(payload)
+
+
+def test_invalid_control_mapping_id_pattern_fails():
+    import copy
+    payload = copy.deepcopy(_VALID_PAYLOAD)
+    # A control.control_id from the finding-to-control schema, not a
+    # mapping_id slug — the exact confusion control_mapping_id is named to avoid.
+    payload["control_mapping_id"] = "CA-COV008-BlockByLocation"
+    with pytest.raises(Exception):
+        _VALIDATOR.validate(payload)

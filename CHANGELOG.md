@@ -17,12 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (informational/low/medium/high/critical), confidence (low/medium/high),
   evidence (array of replay-log paths), triage_status
   (open/reviewed/accepted/false_positive/deferred), triage_metadata (created_utc,
-  author, schema_version const "0.1"). Optional fields: control_id
+  author, schema_version const "0.1"). Optional fields: control_mapping_id
   (cross-reference to a finding-to-control mapping slug), notes.
   additionalProperties: false everywhere; draft 2020-12.
 - `samples/finding-triage/t1087.004-r010-account-discovery.json` — first triage
   finding sample: T1087.004 Account Discovery: Cloud Account, run R010, severity
-  medium, confidence high, control_id cross-referencing the existing
+  medium, confidence high, control_mapping_id cross-referencing the existing
   CA-COV008-BlockByLocation finding-to-control mapping.
 - `tests/test_finding_triage_schema.py` — pytest suite: validates all samples
   under samples/finding-triage/, asserts missing-required-field fails, asserts
@@ -96,11 +96,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `schemas/finding-triage/v0.1.json`: renamed optional field `control_id` →
-  `control_mapping_id` to resolve naming ambiguity with the `finding-to-control`
-  schema's `control.control_id` field. The finding-triage field holds a
-  finding-to-control record's `mapping_id` slug, not a control's own identifier.
-  Corresponding sample updated.
 - chore(persona): system_prompt in rejewski.config.json updated to reflect
   10-tool scope, FOCI borrowed-client model (14d82eec, no tenant-side app
   registration), per-run ROE consent requirement, replay-log evidence capture,

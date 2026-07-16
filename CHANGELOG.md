@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `schemas/finding-triage/v0.1.json` — JSON Schema (draft 2020-12) for Rejewski
+  finding triage records. Required fields: finding_id (kebab-case slug),
+  technique_id (ATT&CK ID), technique_name, run_id, severity
+  (informational/low/medium/high/critical), confidence (low/medium/high),
+  evidence (array of replay-log paths), triage_status
+  (open/reviewed/accepted/false_positive/deferred), triage_metadata (created_utc,
+  author, schema_version const "0.1"). Optional fields: control_id
+  (cross-reference to a finding-to-control mapping slug), notes.
+  additionalProperties: false everywhere; draft 2020-12.
+- `samples/finding-triage/t1087.004-r010-account-discovery.json` — first triage
+  finding sample: T1087.004 Account Discovery: Cloud Account, run R010, severity
+  medium, confidence high, control_id cross-referencing the existing
+  CA-COV008-BlockByLocation finding-to-control mapping.
+- `tests/test_finding_triage_schema.py` — pytest suite: validates all samples
+  under samples/finding-triage/, asserts missing-required-field fails, asserts
+  wrong-schema-version fails.
 - `samples/replay-log/R010.json` — Sprint 2 checkpoint demo formal consent run
   (cloudharbordemo sandbox, 2026-07-02). JSON array of 11 entries: five T1550.001
   token_event entries from scripts.identity (cache_path redacted per B023/G-6) +

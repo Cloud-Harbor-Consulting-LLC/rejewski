@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/schemas/finding-triage/v0.1.json",
+  "title": "Rejewski Finding Triage Record",
+  "description": "Hand-authored triage record for a Rejewski finding: the ATT&CK technique observed, the run that produced it, its severity and confidence ratings, the replay-log evidence backing it, and its triage disposition. Optionally cross-references a finding-to-control mapping by slug. additionalProperties: false on every object; explicit required arrays; draft 2020-12.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "finding_id",
+    "technique_id",
+    "technique_name",
+    "run_id",
+    "severity",
+    "confidence",
+    "evidence",
+    "triage_status",
+    "triage_metadata"
+  ],
+  "properties": {
+    "finding_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Stable kebab-case slug uniquely identifying this triage record."
+    },
+    "technique_id": {
+      "type": "string",
+      "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$",
+      "description": "MITRE ATT&CK technique ID, e.g. T1087.004."
+    },
+    "technique_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable ATT&CK technique name."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Consent-flow run ID that produced this finding, e.g. R010."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["informational", "low", "medium", "high", "critical"],
+      "description": "Finding severity rating."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "Confidence that this finding is real and correctly attributed."
+    },
+    "control_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional cross-reference to a finding-to-control mapping record, by that record's mapping_id slug (e.g. ft1087-004-ca-cov008-blockbylocation-001). Omit when the finding is not yet mapped to a control."
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "description": "Paths to committed replay-log samples that demonstrate this finding. May be empty for a finding recorded before its evidence is committed."
+    },
+    "triage_status": {
+      "type": "string",
+      "enum": ["open", "reviewed", "accepted", "false_positive", "deferred"],
+      "description": "Triage disposition of this finding."
+    },
+    "notes": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional free-text triage notes. Omit when empty."
+    },
+    "triage_metadata": {
+      "$ref": "#/$defs/TriageMetadata"
+    }
+  },
+  "$defs": {
+    "TriageMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_utc", "author", "schema_version"],
+      "properties": {
+        "created_utc": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp when this triage record was authored."
+        },
+        "author": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Author or system that created this triage record."
+        },
+        "schema_version": {
+          "type": "string",
+          "const": "0.1",
+          "description": "Schema version; always '0.1' for this schema."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "mapping_id": "ft1518-001-rbac-security-reader-001",
+  "finding": {
+    "technique_id": "T1518.001",
+    "technique_name": "Software Discovery: Security Software Discovery",
+    "observed_in": [
+      "samples/replay-log/R008.json",
+      "samples/replay-log/R010.json"
+    ],
+    "severity": "medium",
+    "rationale": "Enumeration of Microsoft Defender for Identity sensor health via GET /security/identities/sensors exposes the tenant's detection coverage — sensor count, deployment status, and open health issues — to an adversary. A sensor known to be unhealthy or absent can be exploited as a detection gap window for lateral movement activity. The SecurityIdentitiesSensors.Read.All scope is admin-consented and should be restricted to accounts that legitimately manage DfI sensor infrastructure; the minimum required Entra role for this endpoint should be explicitly assigned rather than broadly delegated."
+  },
+  "control": {
+    "control_family": "rbac",
+    "control_id": "Security Reader",
+    "control_type": "preventive",
+    "microsoft_pillar": "Identities",
+    "nist_800_207_tenets": ["T3", "T4"],
+    "reference_url": "https://learn.microsoft.com/en-us/defender-for-identity/role-groups"
+  },
+  "mapping_metadata": {
+    "created_utc": "2026-07-18T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1",
+    "status": "draft"
+  }
+}

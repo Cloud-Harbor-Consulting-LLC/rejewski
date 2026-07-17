@@ -27,6 +27,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `tests/test_finding_triage_schema.py` — pytest suite: validates all samples
   under samples/finding-triage/, asserts missing-required-field fails, asserts
   wrong-schema-version fails.
+- `samples/finding-to-control/t1518.001-rbac-security-reader.json`,
+  `samples/finding-to-control/t1082-rbac-intune-service-admin.json`,
+  `samples/finding-to-control/t1580-conditional-access-purview-require-compliant-app.json`,
+  `samples/finding-to-control/t1654-rbac-reports-reader.json` — four new
+  finding-to-control mapping records for the implemented techniques that lacked
+  control mappings. T1518.001 maps to Security Reader (RBAC, Identities pillar,
+  NIST T3/T4). T1082 maps to Intune Service Administrator (RBAC, Endpoints
+  pillar, NIST T3/T4). T1580 maps to CA-PUR-001-RequireCompliantApp
+  (conditional_access, Data pillar, NIST T3/T4/T5). T1654 maps to Reports Reader
+  (RBAC, Identities pillar, NIST T3/T4). All four validate against
+  schemas/finding-to-control/v0.1.json. After this PR all 9 implemented
+  techniques have at least one finding-to-control mapping.
+- `docs/findings-report-r011.md` — Sprint 3 W10 findings report skeleton for run
+  R011 (Sat Jul 18, 2026). Pre-filled with all 9 implemented techniques, their
+  tools, endpoints, and control mappings. Object counts, severity, and
+  per-finding triage records are TBD; populated in Part B (post-run brief).
 - `samples/replay-log/R010.json` — Sprint 2 checkpoint demo formal consent run
   (cloudharbordemo sandbox, 2026-07-02). JSON array of 11 entries: five T1550.001
   token_event entries from scripts.identity (cache_path redacted per B023/G-6) +

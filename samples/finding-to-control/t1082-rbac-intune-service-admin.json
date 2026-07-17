@@ -1,0 +1,26 @@
+{
+  "mapping_id": "ft1082-rbac-intune-service-admin-001",
+  "finding": {
+    "technique_id": "T1082",
+    "technique_name": "System Information Discovery",
+    "observed_in": [
+      "samples/replay-log/R008.json"
+    ],
+    "severity": "medium",
+    "rationale": "Enumeration of the Intune-managed device inventory via GET /deviceManagement/managedDevices reveals OS versions, compliance state, encryption status, and enrollment dates across the fleet. An adversary can use this data to identify non-compliant or unencrypted endpoints as lateral movement targets, correlate device ownership to high-value user accounts, and infer last-sync timestamps to time activity around stale device policies. DeviceManagementManagedDevices.Read.All is an Intune-admin-class scope; the accounts that hold it should be limited to device management staff and audited for unexpected additions."
+  },
+  "control": {
+    "control_family": "rbac",
+    "control_id": "Intune Service Administrator",
+    "control_type": "preventive",
+    "microsoft_pillar": "Endpoints",
+    "nist_800_207_tenets": ["T3", "T4"],
+    "reference_url": "https://learn.microsoft.com/en-us/mem/intune/fundamentals/role-based-access-control"
+  },
+  "mapping_metadata": {
+    "created_utc": "2026-07-18T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1",
+    "status": "draft"
+  }
+}

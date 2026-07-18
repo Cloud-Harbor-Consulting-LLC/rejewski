@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1526-r011-ca-policy-discovery-001",
+  "technique_id": "T1526",
+  "technique_name": "Cloud Service Discovery",
+  "run_id": "R011",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1526-rbac-reports-reader-001",
+  "evidence": [
+    "samples/replay-log/R011.json"
+  ],
+  "triage_status": "open",
+  "notes": "25 Conditional Access policies enumerated via GET /identity/conditionalAccess/policies in cloudharbordemo sandbox; outcome=success. Cross-references Reports Reader RBAC preventive control.",
+  "triage_metadata": {
+    "created_utc": "2026-07-18T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

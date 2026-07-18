@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1078-004-r011-valid-accounts-001",
+  "technique_id": "T1078.004",
+  "technique_name": "Valid Accounts: Cloud Accounts",
+  "run_id": "R011",
+  "severity": "informational",
+  "confidence": "low",
+  "control_mapping_id": "ft1078-004-ca-sig003-guests-requiremfa-001",
+  "evidence": [
+    "samples/replay-log/R011.json"
+  ],
+  "triage_status": "open",
+  "notes": "Technique T1078.004 not present in R011.json; verify script execution and replay log.",
+  "triage_metadata": {
+    "created_utc": "2026-07-18T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

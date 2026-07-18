@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1087-004-r011-account-discovery-001",
+  "technique_id": "T1087.004",
+  "technique_name": "Account Discovery: Cloud Account",
+  "run_id": "R011",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1087-004-ca-cov008-blockbylocation-001",
+  "evidence": [
+    "samples/replay-log/R011.json"
+  ],
+  "triage_status": "open",
+  "notes": "8 users enumerated via GET /users in cloudharbordemo sandbox; outcome=success. Cross-references CA-COV008-BlockByLocation preventive control.",
+  "triage_metadata": {
+    "created_utc": "2026-07-18T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

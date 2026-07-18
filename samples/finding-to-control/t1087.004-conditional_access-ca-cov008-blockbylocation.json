@@ -5,7 +5,8 @@
     "technique_name": "Account Discovery: Cloud Account",
     "observed_in": [
       "samples/replay-log/20260515T221433Z-d2359cc0-f634-4be1-84af-1533d47216dc.json",
-      "samples/replay-log/R002.json"
+      "samples/replay-log/R002.json",
+      "samples/replay-log/R011.json"
     ],
     "severity": "medium",
     "rationale": "Bulk enumeration of /users returns tenant-wide user directory data that an adversary can use to build phishing target lists or identify high-privilege accounts for lateral movement. A location-based CA policy restricts Graph API access to named trusted locations, reducing the enumeration surface available to a compromised credential operating from an untrusted network. This control is most effective when combined with named location definitions that enumerate corporate egress ranges."

@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1654-r011-signin-logs-001",
+  "technique_id": "T1654",
+  "technique_name": "Log Enumeration",
+  "run_id": "R011",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1654-rbac-reports-reader-001",
+  "evidence": [
+    "samples/replay-log/R011.json"
+  ],
+  "triage_status": "open",
+  "notes": "30 sign-in records enumerated via GET /auditLogs/signIns in cloudharbordemo sandbox; outcome=success. Cross-references Reports Reader RBAC preventive control.",
+  "triage_metadata": {
+    "created_utc": "2026-07-18T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

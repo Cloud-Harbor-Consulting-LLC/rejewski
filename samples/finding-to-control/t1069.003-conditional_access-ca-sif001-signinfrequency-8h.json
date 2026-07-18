@@ -4,7 +4,8 @@
     "technique_id": "T1069.003",
     "technique_name": "Permission Groups Discovery: Cloud Groups",
     "observed_in": [
-      "samples/replay-log/R003.json"
+      "samples/replay-log/R003.json",
+      "samples/replay-log/R011.json"
     ],
     "severity": "medium",
     "rationale": "Group membership enumeration via GET /groups and GET /me/memberOf reveals organizational structure and role affiliations — security groups, distribution lists, and Microsoft 365 groups — that guide adversary targeting for spear-phishing or privilege escalation. A sign-in frequency CA policy limits the usable lifetime of a stolen delegated token by requiring periodic re-authentication, constraining the adversary's enumeration window after initial compromise."

@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1082-r011-intune-devices-001",
+  "technique_id": "T1082",
+  "technique_name": "System Information Discovery",
+  "run_id": "R011",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1082-rbac-intune-service-admin-001",
+  "evidence": [
+    "samples/replay-log/R011.json"
+  ],
+  "triage_status": "open",
+  "notes": "1 managed devices enumerated via GET /deviceManagement/managedDevices in cloudharbordemo sandbox; outcome=success. Cross-references Intune Service Administrator RBAC preventive control.",
+  "triage_metadata": {
+    "created_utc": "2026-07-18T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

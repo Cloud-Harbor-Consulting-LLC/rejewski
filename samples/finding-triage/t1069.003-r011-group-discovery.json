@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1069-003-r011-group-discovery-001",
+  "technique_id": "T1069.003",
+  "technique_name": "Permission Groups Discovery: Cloud Groups",
+  "run_id": "R011",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1069-003-ca-sif001-signinfrequency-8h-001",
+  "evidence": [
+    "samples/replay-log/R011.json"
+  ],
+  "triage_status": "open",
+  "notes": "19 groups enumerated via GET /me/memberOf in cloudharbordemo sandbox; outcome=success. Cross-references CA-SIF001-SignInFrequency-8h preventive control.",
+  "triage_metadata": {
+    "created_utc": "2026-07-18T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

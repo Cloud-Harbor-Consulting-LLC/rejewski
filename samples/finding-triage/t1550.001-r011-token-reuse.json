@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1550-001-r011-token-reuse-001",
+  "technique_id": "T1550.001",
+  "technique_name": "Use Alternate Authentication Material: Application Access Token",
+  "run_id": "R011",
+  "severity": "high",
+  "confidence": "high",
+  "control_mapping_id": "ft1550-001-rbac-directory-readers-001",
+  "evidence": [
+    "samples/replay-log/R011.json"
+  ],
+  "triage_status": "open",
+  "notes": "Delegated token silently reused for all 9 technique runs via MSAL encrypted cache in cloudharbordemo sandbox. Cross-references Directory Readers RBAC preventive control.",
+  "triage_metadata": {
+    "created_utc": "2026-07-18T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

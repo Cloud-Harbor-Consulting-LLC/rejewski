@@ -43,6 +43,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   R011 (Sat Jul 18, 2026). Pre-filled with all 9 implemented techniques, their
   tools, endpoints, and control mappings. Object counts, severity, and
   per-finding triage records are TBD; populated in Part B (post-run brief).
+- `samples/finding-triage/t1078.004-r011-valid-accounts.json` — finding-triage record for T1078.004 R011
+- `samples/finding-triage/t1087.004-r011-account-discovery.json` — finding-triage record for T1087.004 R011
+- `samples/finding-triage/t1069.003-r011-group-discovery.json` — finding-triage record for T1069.003 R011
+- `samples/finding-triage/t1550.001-r011-token-reuse.json` — finding-triage record for T1550.001 R011
+- `samples/finding-triage/t1526-r011-ca-policy-discovery.json` — finding-triage record for T1526 R011
+- `samples/finding-triage/t1518.001-r011-dfi-sensor-health.json` — finding-triage record for T1518.001 R011
+- `samples/finding-triage/t1082-r011-intune-devices.json` — finding-triage record for T1082 R011
+- `samples/finding-triage/t1580-r011-purview-labels.json` — finding-triage record for T1580 R011
+- `samples/finding-triage/t1654-r011-signin-logs.json` — finding-triage record for T1654 R011
 - `samples/replay-log/R010.json` — Sprint 2 checkpoint demo formal consent run
   (cloudharbordemo sandbox, 2026-07-02). JSON array of 11 entries: five T1550.001
   token_event entries from scripts.identity (cache_path redacted per B023/G-6) +
@@ -99,6 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `docs/techniques/T1654.md` — Evidence section: R009 T1580 outcome corrected from "error 403" to "success, 4 sensitivity labels enumerated"
 - docs(threat-model): §5 T1518.001 and T1082 status rows corrected from
   Catalogued to Implemented — Sprint 2 W6 (2026-06-16) in both summary and
   surface tables. T1550.001 Module column updated to
@@ -112,6 +122,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `docs/findings-report-r011.md` — completed with R011 run data; status DRAFT → Complete
+- `samples/finding-to-control/t1078.004-conditional_access-ca-sig003-guests-requiremfa.json` — R011.json appended to observed_in
+- `samples/finding-to-control/t1087.004-conditional_access-ca-cov008-blockbylocation.json` — R011.json appended to observed_in
+- `samples/finding-to-control/t1069.003-conditional_access-ca-sif001-signinfrequency-8h.json` — R011.json appended to observed_in
+- `samples/finding-to-control/t1550.001-rbac-directory-readers.json` — R011.json appended to observed_in
+- `samples/finding-to-control/t1526-rbac-reports-reader.json` — R011.json appended to observed_in
+- `samples/finding-to-control/t1518.001-rbac-security-reader.json` — R011.json appended to observed_in; status draft → active
+- `samples/finding-to-control/t1082-rbac-intune-service-admin.json` — R011.json appended to observed_in; status draft → active
+- `samples/finding-to-control/t1580-conditional-access-purview-require-compliant-app.json` — R011.json appended to observed_in; status draft → active
+- `samples/finding-to-control/t1654-rbac-reports-reader.json` — R011.json appended to observed_in; status draft → active
 - chore(persona): system_prompt in rejewski.config.json updated to reflect
   10-tool scope, FOCI borrowed-client model (14d82eec, no tenant-side app
   registration), per-run ROE consent requirement, replay-log evidence capture,

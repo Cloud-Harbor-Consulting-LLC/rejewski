@@ -3,7 +3,9 @@
   "finding": {
     "technique_id": "T1078.004",
     "technique_name": "Valid Accounts: Cloud Accounts",
-    "observed_in": [],
+    "observed_in": [
+      "samples/replay-log/R011.json"
+    ],
     "severity": "high",
     "rationale": "Guest and external accounts in M365 tenants frequently lack MFA enforcement because default CA policies target only member users. An adversary who obtains a guest credential can acquire a delegated bearer token via ROPC without triggering a secondary factor, then pivot to discovery techniques. Requiring MFA for all guest sign-ins regardless of network location closes this initial-access gap."
   },

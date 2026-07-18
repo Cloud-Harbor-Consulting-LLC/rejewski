@@ -3,7 +3,9 @@
   "finding": {
     "technique_id": "T1550.001",
     "technique_name": "Use Alternate Authentication Material: Application Access Token",
-    "observed_in": [],
+    "observed_in": [
+      "samples/replay-log/R011.json"
+    ],
     "severity": "high",
     "rationale": "Application access token reuse allows an adversary who captures a delegated token to impersonate the victim account for the token's remaining lifetime without re-authenticating. When the compromised account holds Directory Readers or a broader directory role, the replayed token enables full tenant enumeration across users, groups, and role assignments. Scoping service and monitoring accounts to the minimum required role (e.g., a custom limited-read role rather than Directory Readers) reduces the blast radius of token theft and limits what an adversary can enumerate during the valid token window."
   },

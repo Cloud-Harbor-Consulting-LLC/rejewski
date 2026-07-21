@@ -11,6 +11,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scripts/tool_list_oauth_grants.py` (Tool 11) — OAuth2 delegated permission
+  grant inventory. Enumerates tenant-wide delegated permission grants via Graph
+  GET /oauth2PermissionGrants (T1087.004 Account Discovery: Cloud Account,
+  Surface E). Each grant reveals which client service principal (clientId) has
+  been consented — admin-wide (consentType AllPrincipals) or per-user (Principal)
+  — for which delegated scopes against which resource API (resourceId). Required
+  delegated scope: Directory.Read.All. Privilege prerequisite: Directory Readers
+  (minimum), Global Reader, or Application Administrator on the operator user;
+  the API returns 403 without a qualifying role regardless of scope consent. No
+  $expand on this endpoint (all fields inline). $select=id,clientId,resourceId,
+  consentType,principalId,scope. $top=100 with @odata.nextLink pagination, G-9
+  row cap (default 1000), 429/5xx Retry-After (max 3), 401 mid-pagination
+  recovery. Computes aggregates into the evidence JSON: admin- vs user-consented
+  grant counts, unique client/resource SP counts, and high-privilege grant count
+  (grants whose scope string contains a high-privilege API permission, matched
+  case-insensitively). Empty tenant (no grants) prints "No OAuth2 permission
+  grants found" to stderr, writes row_count 0 graph_call entry, exits 0. CLI:
+  --select/--page-size/--row-cap/--output/--replay-log-dir/--run-id. See
+  docs/techniques/T1087.004.md Surface E.
+- `tests/test_tool_list_oauth_grants.py` — pytest suite for Tool 11, mocking the
+  Graph HTTP layer and token helper. Single-page success (assert endpoint URL,
+  GET method, object_count in replay-log entry), empty-grants response
+  (object_count 0, no error), multi-page @odata.nextLink pagination (all grants
+  across both pages, object_count is total), and evidence-aggregate computation
+  (admin/user consent split, unique client/resource SP counts, and the
+  high-privilege scope flag with a case-insensitive match). Suite grows from 58
+  to 62 tests.
+- `docs/techniques/T1087.004.md` — Surface E section added (OAuth2 delegated
+  permission grant enumeration, Tool 11); front-matter sprint field extended to
+  include Sprint 3 W11; Limitations note added documenting that Surface E covers
+  delegated grants (oauth2PermissionGrants) only and that application role
+  assignments (appRoleAssignments on service principals) are a deferred surface.
+- `docs/attck-coverage.md` — v0.3 → v0.4. T1087.004 Script(s) column updated to
+  append scripts/tool_list_oauth_grants.py. Technique count unchanged at 17
+  (Surface E is an additional surface of the existing T1087.004, not a new
+  technique).
+- `docs/threat-model.md` — v0.9 → v1.0. §5 adds a T1087.004 Surface E note
+  (GET /oauth2PermissionGrants; Directory.Read.All scope; Directory Readers role;
+  deferred appRoleAssignments application-permission surface). Change log v1.0
+  entry prepended. Total mapped techniques unchanged at 17.
 - `schemas/finding-triage/v0.1.json` — JSON Schema (draft 2020-12) for Rejewski
   finding triage records. Required fields: finding_id (kebab-case slug),
   technique_id (ATT&CK ID), technique_name, run_id, severity

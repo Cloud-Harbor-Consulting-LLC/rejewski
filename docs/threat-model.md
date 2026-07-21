@@ -1,13 +1,21 @@
 # Project Harbor Sonar — Threat Model
 
-- Version: v0.9
-- Last updated: 2026-06-26
+- Version: v1.0
+- Last updated: 2026-07-21
 - Status: Living document
 - Authors: Derek Morgan
 - Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/, docs/attck-coverage.md
 
 ## Change log
 
+- v1.0 (2026-07-21) — Sprint 3 W11 Tool 11. T1087.004 Account Discovery:
+  Cloud Account gains Surface E — OAuth2 delegated permission grant enumeration
+  via GET /oauth2PermissionGrants (scripts/tool_list_oauth_grants.py), requiring
+  Directory.Read.All scope and Directory Readers (minimum) directory role. §5
+  adds a T1087.004 Surface E note documenting the endpoint, scope, role, and the
+  deferred appRoleAssignments (application-permission) surface. No new technique
+  added — Surface E is an additional surface of the existing implemented
+  T1087.004. Total mapped techniques unchanged: 17 (9 implemented, 8 catalogued).
 - v0.9 (2026-06-26) — §5 stale row corrections. T1518.001 and T1082
   status updated from Catalogued to Implemented — Sprint 2 W6 (2026-06-16)
   in both the summary and surface tables; these techniques shipped in PR #56
@@ -140,6 +148,20 @@ Each module follows the ADR 0003 format: YAML front matter, eight required secti
 - `GET /directoryRoles` — enumeration of Entra ID directory roles and their members. Sprint 1 omits this surface entirely; role discovery is therefore partial in T1069.003.
 
 The deferral is not because these endpoints are dangerous — both are read-only and inside the Sprint 1 consent-floor scope set — but because each opens a meaningfully larger result surface that needs its own row-cap calibration (per G-9) and detection-baseline pass before Rejewski emulates it. Sprint 2 work will pick them up.
+
+**T1087.004 Surface E (Sprint 3 W11).** Account discovery is extended to the
+delegated-authorization layer via `GET /oauth2PermissionGrants`
+(scripts/tool_list_oauth_grants.py). Each grant reveals which client service
+principal has been consented — admin-wide (consentType `AllPrincipals`) or
+per-user (`Principal`) — for which delegated API scopes against which resource
+API. This surface requires the `Directory.Read.All` delegated scope
+(admin-consented on the FOCI client) and at least the Directory Readers directory
+role on the signed-in user (Global Reader and Application Administrator also
+qualify); an account without a qualifying role receives HTTP 403 regardless of
+scope consent. The application-permission counterpart — `appRoleAssignments` on
+each service principal (`GET /servicePrincipals/{id}/appRoleAssignments`) — is a
+deferred surface not yet enumerated; Surface E covers delegated (on-behalf-of-user)
+grants only.
 
 **Sprint 2+ catalogued techniques.** The following techniques are catalogued in this threat model — technique modules exist per ADR 0003 format, but no scripts have been written and no sandbox runs executed. Each activates when its sprint opens. The full coverage map is in docs/attck-coverage.md.
 

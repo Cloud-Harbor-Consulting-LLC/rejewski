@@ -174,6 +174,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `scripts/replay_log_viewer.py` — v0.1 → v0.2. Adds a `--format {text,html}`
+  flag; text (default, stdout) is unchanged. `--format html --output FILE`
+  writes a self-contained HTML report (no external resources, no JavaScript,
+  valid HTML5): run-metadata header, consent section (granted/declined
+  left-border styling), a Graph-calls table (time, technique, tool, endpoint,
+  rows, outcome), a token-events table (time, technique, outcome), and a summary
+  footer. Outcome badges colour success/row_cap_hit green and error red.
+  `--format html` without `--output` exits 1 with a clear error. Adds
+  `tests/test_replay_log_viewer.py` (HTML metadata/badges/empty-consent, the
+  unchanged text path, and CLI validation).
 - `docs/findings-report-r011.md` — completed with R011 run data; status DRAFT → Complete
 - `samples/finding-to-control/t1078.004-conditional_access-ca-sig003-guests-requiremfa.json` — R011.json appended to observed_in
 - `samples/finding-to-control/t1087.004-conditional_access-ca-cov008-blockbylocation.json` — R011.json appended to observed_in

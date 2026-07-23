@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `docs/replay-report-r011.html` — canonical human-readable HTML report for run
+  R011, rendered from `samples/replay-log/R011.json` by
+  `scripts/replay_log_viewer.py --format html` (v0.2). Self-contained (no
+  external resources, no JavaScript); 21 entries (1 consent, 10 graph_call,
+  10 token_event) with the one T1087.004 role-assignments error badge (the
+  HTTP 400 fixed under B030). Derived view of already-committed sandbox data —
+  no full tenant GUID or token material.
 - `scripts/tool_list_oauth_grants.py` (Tool 11) — OAuth2 delegated permission
   grant inventory. Enumerates tenant-wide delegated permission grants via Graph
   GET /oauth2PermissionGrants (T1087.004 Account Discovery: Cloud Account,

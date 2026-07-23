@@ -148,6 +148,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **B030** — `scripts/tool_list_role_assignments.py` (Tool 5, T1087.004 Surface C)
+  no longer fails with HTTP 400. Graph v1.0 rejects
+  `$expand=principal,roleDefinition` ("Only one property can be expanded in a
+  single query"), which had been failing silently on every run (caught by the
+  try/except and recorded as `outcome: "error"` — surfaced in the R011 sweep).
+  Fix: two sequential paginated GET calls — one `$expand=principal`, one
+  `$expand=roleDefinition` — merged on assignment `id`. Both calls are read-only
+  (G-1); `_compute_ra_summary()` is unaffected (both `principal` and
+  `roleDefinition` are populated in the merged result). The `--expand` CLI arg is
+  deprecated (kept for backward compatibility, no longer forwarded to the URL).
+  Adds `tests/test_tool_list_role_assignments.py` (two-call merge, merged
+  aggregates, empty-list).
 - `docs/techniques/T1654.md` — Evidence section: R009 T1580 outcome corrected from "error 403" to "success, 4 sensitivity labels enumerated"
 - docs(threat-model): §5 T1518.001 and T1082 status rows corrected from
   Catalogued to Implemented — Sprint 2 W6 (2026-06-16) in both summary and

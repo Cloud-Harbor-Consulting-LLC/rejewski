@@ -117,9 +117,13 @@ GRAPH_ENDPOINT = f"{GRAPH_BASE}/roleManagement/directory/roleAssignments"
 # $select applies to the roleAssignment object itself; expanded sub-entities
 # (principal, roleDefinition) are returned whole unless nested $select is used.
 DEFAULT_SELECT = "id,principalId,roleDefinitionId,directoryScopeId"
-# $expand=principal,roleDefinition resolves human-readable names in a single
-# call (+1 RU per expand in the IAM throttling model; negligible at sandbox scale).
-DEFAULT_EXPAND = "principal,roleDefinition"
+# Graph v1.0 allows only ONE navigation property per $expand clause; the former
+# DEFAULT_EXPAND="principal,roleDefinition" returned HTTP 400 "Only one property
+# can be expanded in a single query" (B030). Surface C now issues two sequential
+# paginated calls — one per property — and merges the results on assignment id
+# (see the two-call block in main()).
+EXPAND_PRINCIPAL = "principal"
+EXPAND_ROLE_DEF = "roleDefinition"
 DEFAULT_TOP = 100
 DEFAULT_ROW_CAP = 1000
 MAX_RETRIES = 3
@@ -287,11 +291,12 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--select", default=DEFAULT_SELECT, help="OData $select fields")
     p.add_argument(
-        "--expand", default=DEFAULT_EXPAND,
+        "--expand", default=None,
         help=(
-            "OData $expand navigation properties "
-            "(default: principal,roleDefinition — resolves display names inline; "
-            "set to empty string to skip expand and return IDs only)"
+            "DEPRECATED — ignored. Surface C now uses a two-call merge pattern "
+            "(--expand=principal then --expand=roleDefinition) to work around the "
+            "Graph v1.0 single-property $expand limit. This argument is kept for "
+            "backward compatibility only."
         ),
     )
     p.add_argument(
@@ -346,12 +351,14 @@ def main() -> int:
         return result["access_token"]
 
     started_at = utc_now_iso()
-    # Construct initial URL; omit $expand clause if expand arg is empty
-    expand_clause = f"&$expand={args.expand}" if args.expand else ""
+    # Surface C issues TWO sequential paginated calls (one $expand property each,
+    # per the Graph v1.0 single-property limit); the recorded request reflects the
+    # first ($expand=principal). A second call with $expand=roleDefinition is made
+    # and merged on id in the two-call block below.
     initial_url = (
         f"{GRAPH_ENDPOINT}"
         f"?$select={args.select}"
-        f"{expand_clause}"
+        f"&$expand={EXPAND_PRINCIPAL}"
         f"&$top={args.page_size}"
     )
     request_obj: dict[str, Any] = {
@@ -370,15 +377,42 @@ def main() -> int:
 
     try:
         token = token_getter()
-        assignments = list_role_assignments(
+        # Surface C: Graph v1.0 allows only one $expand property per query.
+        # Two sequential paginated calls are made — one per navigation property —
+        # then merged on assignment id. Both calls are read-only GET (G-1).
+        stats2: dict[str, int] = {"page_count": 0, "retry_count": 0, "last_status": 0}
+
+        # Call 1: resolve principal display names
+        assignments_principal = list_role_assignments(
             token=token,
             token_getter=token_getter,
             select=args.select,
-            expand=args.expand,
+            expand=EXPAND_PRINCIPAL,
             page_size=args.page_size,
             row_cap=args.row_cap,
             stats=stats,
         )
+
+        # Call 2: resolve role definition names
+        assignments_role_def = list_role_assignments(
+            token=token,
+            token_getter=token_getter,
+            select=args.select,
+            expand=EXPAND_ROLE_DEF,
+            page_size=args.page_size,
+            row_cap=args.row_cap,
+            stats=stats2,
+        )
+
+        # Merge: inject roleDefinition from call 2 into call 1 results by id
+        rd_by_id = {a["id"]: a.get("roleDefinition") for a in assignments_role_def}
+        for a in assignments_principal:
+            a["roleDefinition"] = rd_by_id.get(a["id"])
+        assignments = assignments_principal
+
+        # Combine stats across both calls
+        stats["page_count"] += stats2["page_count"]
+        stats["retry_count"] += stats2["retry_count"]
         row_cap_hit = len(assignments) >= args.row_cap
         outcome = "row_cap_hit" if row_cap_hit else "success"
     except (RuntimeError, requests.RequestException) as exc:
@@ -436,7 +470,8 @@ def main() -> int:
         "started_at_utc": started_at,
         "completed_at_utc": completed_at,
         "select": args.select,
-        "expand": args.expand,
+        # Two sequential calls (Graph v1.0 single-$expand limit), merged on id.
+        "expand": f"{EXPAND_PRINCIPAL},{EXPAND_ROLE_DEF} (two-call merge)",
         "page_size": args.page_size,
         "row_cap": args.row_cap,
         "row_count": len(assignments),

@@ -1,6 +1,6 @@
 # ADR 0001 — Rules of Engagement
 
-- **Status:** Proposed (v0.1, outline)
+- **Status:** Accepted
 - **Date:** 2026-05-14
 - **Author:** Derek Morgan
 - **Supersedes:** —
@@ -67,3 +67,4 @@ The operator is recorded in every replay log by Entra ID object ID, not by displ
 | Version | Date | Author | Notes |
 |---------|------|--------|-------|
 | v0.1 | 2026-05-14 | Derek Morgan | Outline. Eight rules committed. Full prose buildout deferred. |
+| v1.0 | 2026-07-25 | Derek Morgan | Status promoted Proposed → Accepted. All eight rules operative since Sprint 1 W1 (2026-05-14); no content changes to the rules. |

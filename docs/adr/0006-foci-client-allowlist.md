@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Date:** 2026-07-22
 - **Deciders:** Derek Morgan (Principal Architect)
-- **Supersedes:** none
+- **Supersedes:** ADR-0004 §4 (Azure CLI fallback provision)
 - **Related:** ADR-0001 (G-3 guardrail), ADR-0004 (identity token acquisition model), docs/guardrails.md
 
 ---
@@ -11,10 +11,16 @@
 ## 1. Context
 
 Rejewski acquires Microsoft Graph tokens by borrowing a first-party Microsoft client
-registered as a member of the Microsoft FOCI (Family of Client IDs) family. FOCI allows
-a refresh token issued to one family-member application to be silently exchanged by any
-other family member, enabling token reuse without re-authentication and without a tenant-
-side app registration.
+rather than registering one in the target tenant. Microsoft's FOCI (Family of Client IDs)
+mechanism allows a refresh token issued to one family-member application to be silently
+exchanged by any other family member, enabling token reuse without re-authentication and
+without a tenant-side app registration.
+
+Which first-party clients are confirmed FOCI family members is a separate question from
+which clients are approved for Rejewski use. This ADR governs the latter. ADR-0004 §4
+records that the designated client 14d82eec is **not** a confirmed FOCI member; that
+distinction is preserved here and matters only for techniques that depend on cross-client
+refresh-token exchange (see §5.3).
 
 The choice of which FOCI client to borrow is a security-relevant decision. Different
 clients carry different detection signals (the client ID appears in Entra sign-in logs
@@ -31,9 +37,9 @@ required to add a new client. This ADR establishes all three.
 
 ## 2. Decision
 
-Only the FOCI client IDs listed in the allowlist below may be used in Rejewski. Adding
+Only the client IDs listed in the allowlist below may be used in Rejewski. Adding
 a new client ID to the allowlist requires a new ADR that supersedes this one. The current
-allowlist contains one client:
+allowlist contains one client, designated per guardrail G-3:
 
 | Client name | Client ID | Approved sprint | Source |
 |---|---|---|---|
@@ -61,7 +67,7 @@ Four factors drove the Sprint 1 selection and remain valid:
    and ROPC-spray campaigns. Sign-in events from this client ID are therefore detectable
    by analysts using existing threat-intel feeds and KQL hunt rules.
 
-3. **No tenant registration.** As a first-party Microsoft FOCI member, 14d82eec does not
+3. **No tenant registration.** As a first-party Microsoft client, 14d82eec does not
    require an Enterprise Application registration in the target tenant. This maintains
    the no-tenant-app-reg posture required by ADR-0001 and minimises the artifact
    footprint in the sandbox.
@@ -75,7 +81,9 @@ Four factors drove the Sprint 1 selection and remain valid:
 ## 4. Identity-Decision Factors
 
 - **Token type:** delegated
-- **Client ID source:** borrowed first-party (FOCI)
+- **Client ID source:** borrowed first-party, designated per guardrail G-3. FOCI family
+  membership of 14d82eec is unconfirmed (ADR-0004 §4); this allowlist is a governance
+  designation, not an assertion of family membership.
 - **Specific client ID(s):** 14d82eec-204b-4c2f-b7e8-296a70dab67e (Microsoft Graph Command
   Line Tools). Provenance: Microsoft Learn (Graph PowerShell documentation), Secureworks
   CTU research, MDSec research.
@@ -122,10 +130,12 @@ Four factors drove the Sprint 1 selection and remain valid:
 
 - The allowlist formalises a decision that was already implicit in ADR-0004. No behaviour
   changes in this sprint; this ADR adds governance documentation only.
-- FOCI family membership of 14d82eec could theoretically change if Microsoft removes
-  the client from the FOCI family. If that occurs, the ROPC token-reuse pattern documented
-  in ADR-0005 would break. The allowlist does not prevent this failure mode; it would
-  require re-evaluation at that point.
+- Whether 14d82eec is a FOCI family member is unresolved — ADR-0004 §4 records it as
+  **not confirmed**. This matters only for techniques that depend on cross-client
+  refresh-token exchange; the same-client silent reuse Rejewski performs today (ADR-0005)
+  does not depend on family membership. A future technique that genuinely requires
+  verified FOCI behaviour needs its own ADR adding a confirmed member to the §2 allowlist
+  — it cannot rely on the superseded ADR-0004 §4 fallback provision.
 
 ---
 
@@ -194,3 +204,4 @@ format as §2 above and document the rationale for each addition in §3.
 | Date | Version | Change | Author |
 |------|---------|--------|--------|
 | 2026-07-22 | v0.1 | Initial decision. Formalises Sprint 1 client selection from ADR-0004. | Derek Morgan |
+| 2026-07-28 | v0.2 | Governance reconciliation with ADR-0004. Supersedes field now records ADR-0004 §4 (Azure CLI fallback provision). FOCI-membership assertions in §1, §2, §3, §4, and §5.3 softened to governance-designation language — ADR-0004 §4 records 14d82eec as not a confirmed FOCI member, and this ADR no longer contradicts that. No change to the allowlist decision itself. | Derek Morgan |

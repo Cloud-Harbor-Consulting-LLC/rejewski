@@ -27,8 +27,8 @@ token_getter callable; 401 mid-pagination recovers from the encrypted cache, not
 in-memory MSAL state.
 
 No tenant-side app registration is created in the target tenant (ADR 0001 §1,
-guardrail G-3). Borrowed first-party client defaults to Microsoft Graph Command
-Line Tools (14d82eec) with Azure CLI (04b07795) FOCI fallback per ADR 0004 v0.2.
+guardrail G-3). Borrowed first-party client is Microsoft Graph Command Line
+Tools. The FOCI client is fixed to 14d82eec per ADR-0006 and guardrail G-3.
 
 Every invocation writes a replay-log entry under the v0.5 schema with
 kind="graph_call". A tenant with no delegated grants configured is not an error:

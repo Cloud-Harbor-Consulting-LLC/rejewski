@@ -1,13 +1,21 @@
 # Project Harbor Sonar — Threat Model
 
-- Version: v1.0
-- Last updated: 2026-07-21
+- Version: v1.1
+- Last updated: 2026-07-28
 - Status: Living document
 - Authors: Derek Morgan
 - Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/, docs/attck-coverage.md
 
 ## Change log
 
+- v1.1 (2026-07-28) — Sprint 3 W12 Tool 12. T1654 Log Enumeration gains
+  Surface B — Defender XDR security alerts via GET /security/alerts_v2
+  (scripts/tool_list_security_alerts.py), requiring SecurityAlert.Read.All scope
+  and Security Reader (minimum) directory role. §5 surface table entry for T1654
+  now distinguishes Surface A (sign-in logs, scripts/tool_signin_logs.py) from
+  Surface B. No new technique added — Surface B is an additional surface of the
+  existing implemented T1654. Total mapped techniques unchanged: 17
+  (9 implemented, 8 catalogued).
 - v1.0 (2026-07-21) — Sprint 3 W11 Tool 11. T1087.004 Account Discovery:
   Cloud Account gains Surface E — OAuth2 delegated permission grant enumeration
   via GET /oauth2PermissionGrants (scripts/tool_list_oauth_grants.py), requiring
@@ -174,7 +182,7 @@ grants only.
 | T1213.002 Data from Information Repositories: Sharepoint | Collection | Catalogued — Sprint 2 (2026-06-05) | GET /sites, GET /sites/{id}/drives, GET /sites/{id}/lists — requires Sites.Read.All scope |
 | T1482 Domain Trust Discovery | Discovery | Catalogued — Sprint 2 (2026-06-05) | GET /domains, GET /domains/{id}/federationConfiguration — requires Domain.Read.All scope |
 | T1580 Cloud Infrastructure Discovery | Discovery | Implemented — Sprint 2 W7 (2026-06-23) | GET /security/dataSecurityAndGovernance/sensitivityLabels (active — Purview sensitivity-label inventory; SensitivityLabel.Read delegated, no Entra role required). Original surfaces GET /organization, GET /domains, GET /subscribedSkus deferred as complementary surfaces (see docs/techniques/T1580.md Limitations). |
-| T1654 Log Enumeration | Discovery | Implemented — Sprint 2 W7 (2026-06-23) | GET /auditLogs/signIns — requires AuditLog.Read.All + Reports Reader/Security Reader (or higher) Entra role on the signed-in operator. Mandatory `$filter=createdDateTime ge <window-start>` (default 7-day lookback). |
+| T1654 Log Enumeration | Discovery | Implemented — Sprint 2 W7 (2026-06-23); Surface B added Sprint 3 W12 (2026-07-28) | **Surface A** (scripts/tool_signin_logs.py): GET /auditLogs/signIns — requires AuditLog.Read.All + Reports Reader/Security Reader (or higher) Entra role on the signed-in operator. Mandatory `$filter=createdDateTime ge <window-start>` (default 7-day lookback). **Surface B** (scripts/tool_list_security_alerts.py): GET /security/alerts_v2 — requires SecurityAlert.Read.All + Security Reader (or higher) Entra role. Optional `$filter` on createdDateTime (default 30-day lookback), severity, and status. |
 | T1538 Cloud Service Dashboard | Discovery | Catalogued — Sprint 2 (2026-06-19) — programmatic surface only | GET /admin/serviceAnnouncement/healthOverviews, /admin/serviceAnnouncement/issues, /reports/getOffice365ActiveUserDetail — requires ServiceHealth.Read.All, Reports.Read.All. GUI-navigation posture remains out of scope (§7). |
 | T1213.003 Data from Information Repositories: Code Repositories | Collection | Catalogued — Sprint 2 (2026-06-19) | GET /sites?search=*, GET /sites/{id}/drives, GET /sites/{id}/lists — requires Sites.Read.All; SharePoint-surfaced code content only |
 | T1530 Data from Cloud Storage | Collection | Catalogued — Sprint 2 (2026-06-19) | GET /drives, GET /users/{id}/drive/root/children, GET /groups/{id}/drive/root/children — requires Files.Read.All; metadata only per G-7 |

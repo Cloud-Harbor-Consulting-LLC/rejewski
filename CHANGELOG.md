@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Tool 12** (`scripts/tool_list_security_alerts.py`): T1654 Log Enumeration — Surface B. Reads Defender XDR security alerts via GET /security/alerts_v2 (Graph v1.0). Scope: SecurityAlert.Read.All (delegated, admin consent). Minimum role: Security Reader. Aggregate metrics: total_alerts, by_severity, by_status, by_category. G-9 row cap applied.
+- `tests/test_tool_list_security_alerts.py`: test suite for Tool 12. Covers single-page, multi-page, empty result, HTTP 403, row cap, and $filter construction.
+- `docs/techniques/T1654.md`: restructured with explicit Surface A (Sign-In Logs) and Surface B (Security Alerts) sections. Surface B covers GET /security/alerts_v2.
+- `docs/attck-coverage.md` v0.5: T1654 Scripts column updated to include scripts/tool_list_security_alerts.py.
+- `docs/threat-model.md` v1.1: T1654 §5 entry updated to note Surface A and Surface B scripts.
 - `docs/adr/0006-foci-client-allowlist.md`: ADR-0006 formalises the approved FOCI client allowlist (14d82eec only), selection criteria, and the process for future additions.
 - `docs/replay-report-r011.html` — canonical human-readable HTML report for run
   R011, rendered from `samples/replay-log/R011.json` by

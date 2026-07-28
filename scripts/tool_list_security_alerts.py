@@ -108,16 +108,14 @@ ERROR_TYPE_URN = "urn:rejewski:error:tool-invocation-failed"
 # Severity buckets pre-seeded in the evidence aggregate so a zero count is
 # reported explicitly rather than being absent from the JSON.
 SEVERITY_BUCKETS = ("informational", "low", "medium", "high")
-# Status buckets pre-seeded likewise.
-#
-# NOTE (verify on first sandbox run): the documented v1.0 alertStatus enum for
+# Status buckets pre-seeded likewise. The v1.0 alertStatus enum for
 # /security/alerts_v2 is unknown | new | inProgress | resolved |
-# unknownFutureValue — "active" does not appear in it ("active" is a legacy
-# /security/alerts value). `--status active` may therefore return zero rows or
-# HTTP 400 against v1.0. Both spellings are seeded below and any status the API
-# actually returns is counted dynamically, so no data is lost either way. This
-# mirrors the Tool 10 signInEventType beta-only issue caught on run R009.
-STATUS_BUCKETS = ("active", "inProgress", "resolved")
+# unknownFutureValue — "new" is the value for a freshly-raised alert. "active"
+# is a legacy /security/alerts (v1) value and is NOT valid on v1.0; it was
+# corrected to "new" after the PR #76 delivery review. Any status the API
+# returns outside these buckets is still counted dynamically, so no alert is
+# dropped if Microsoft extends the enum.
+STATUS_BUCKETS = ("new", "inProgress", "resolved")
 
 
 def graph_get(
@@ -284,7 +282,7 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--status",
-        choices=["active", "inProgress", "resolved"],
+        choices=["new", "inProgress", "resolved"],
         default=None,
         help="optional status filter; omit to return all statuses",
     )

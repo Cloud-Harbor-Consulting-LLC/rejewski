@@ -94,7 +94,7 @@ class TestSuccessfulList:
                 _alert(
                     2,
                     severity="high",
-                    status="active",
+                    status="new",
                     category="Execution",
                     assignedTo="soc@cloudharbor-demo.com",
                 ),
@@ -123,7 +123,7 @@ class TestSuccessfulList:
         assert out["by_severity"]["high"] == 1
         assert out["by_severity"]["low"] == 0  # bucket pre-seeded
         assert out["by_status"]["resolved"] == 1
-        assert out["by_status"]["active"] == 1
+        assert out["by_status"]["new"] == 1
         assert out["by_category"]["InitialAccess"] == 1
         assert out["by_category"]["Execution"] == 1
 

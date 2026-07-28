@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `tests/test_tool_list_security_alerts.py::TestStatusEnum` — regression guard pinning
+  the v1.0 `alertStatus` enum for /security/alerts_v2. Asserts the legacy
+  `--status active` value is rejected by argparse (exit 2) and that `new`,
+  `inProgress`, and `resolved` are accepted. Closes the coverage gap left by the
+  PR #78 fix, which was verified inline but had no durable guard: a future edit
+  re-adding `active` to `choices` would otherwise have passed CI silently.
+  Exercises `parse_args()` directly, not `main()`, so no live Graph call is
+  reachable. Suite 86 -> 88.
 - **Tool 12** (`scripts/tool_list_security_alerts.py`): T1654 Log Enumeration — Surface B. Reads Defender XDR security alerts via GET /security/alerts_v2 (Graph v1.0). Scope: SecurityAlert.Read.All (delegated, admin consent). Minimum role: Security Reader. Aggregate metrics: total_alerts, by_severity, by_status, by_category. G-9 row cap applied.
 - `tests/test_tool_list_security_alerts.py`: test suite for Tool 12. Covers single-page, multi-page, empty result, HTTP 403, row cap, and $filter construction.
 - `docs/techniques/T1654.md`: restructured with explicit Surface A (Sign-In Logs) and Surface B (Security Alerts) sections. Surface B covers GET /security/alerts_v2.

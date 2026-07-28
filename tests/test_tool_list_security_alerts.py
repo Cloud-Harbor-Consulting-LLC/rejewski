@@ -280,3 +280,31 @@ class TestFilterConstruction:
         url = _read_graph_calls(replay_dir)[0]["request"]["url"]
         assert "$filter" not in url
         assert json.loads(capsys.readouterr().out)["filter"] == ""
+
+
+class TestStatusEnum:
+    """Pins the v1.0 alertStatus enum for /security/alerts_v2.
+
+    `active` is a legacy /security/alerts (v1) value and is NOT valid on v1.0 —
+    passing it would return zero rows or HTTP 400. It shipped in the original
+    Tool 12 CLI and was corrected to `new` (PR #78). These cases stop the legacy
+    value being reintroduced silently.
+
+    parse_args() is exercised directly rather than main(): main() reads env from
+    .env and would proceed toward a live Graph call, which the ROE forbids here.
+    """
+
+    def test_legacy_active_status_is_rejected(self, monkeypatch):
+        monkeypatch.setattr(
+            sys, "argv", ["tool_list_security_alerts.py", "--status", "active"]
+        )
+        with pytest.raises(SystemExit) as exc:
+            tool.parse_args()
+        assert exc.value.code == 2  # argparse usage error
+
+    def test_v1_enum_status_values_are_accepted(self, monkeypatch):
+        for value in ("new", "inProgress", "resolved"):
+            monkeypatch.setattr(
+                sys, "argv", ["tool_list_security_alerts.py", "--status", value]
+            )
+            assert tool.parse_args().status == value

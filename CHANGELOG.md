@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `docs/adr/0006-foci-client-allowlist.md`: ADR-0006 formalises the approved FOCI client allowlist (14d82eec only), selection criteria, and the process for future additions.
 - `docs/replay-report-r011.html` — canonical human-readable HTML report for run
   R011, rendered from `samples/replay-log/R011.json` by
   `scripts/replay_log_viewer.py --format html` (v0.2). Self-contained (no

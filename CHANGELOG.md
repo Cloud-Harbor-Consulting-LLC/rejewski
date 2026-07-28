@@ -161,6 +161,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- fix(tool-12): replace legacy `--status 'active'` with v1.0 enum value `'new'` in
+  `scripts/tool_list_security_alerts.py`. The v1.0 `alertStatus` enum for
+  /security/alerts_v2 is `unknown | new | inProgress | resolved |
+  unknownFutureValue`; `active` is a legacy /security/alerts (v1) value and would
+  have returned zero rows or HTTP 400 on the v1.0 endpoint. `--status` choices and
+  the `by_status` aggregate bucket are both corrected to `new`; the uncertainty
+  note in the code is replaced with the confirmed enum. Flagged in the PR #76
+  delivery report before the first sandbox run.
 - **B030** — `scripts/tool_list_role_assignments.py` (Tool 5, T1087.004 Surface C)
   no longer fails with HTTP 400. Graph v1.0 rejects
   `$expand=principal,roleDefinition` ("Only one property can be expanded in a

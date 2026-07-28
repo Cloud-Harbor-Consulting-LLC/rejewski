@@ -203,6 +203,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- docs(scripts): tidy stale ADR-0004 version pointers in six tool docstrings
+  (`tool_dfi_health`, `tool_intune_devices`, `tool_list_service_principals`,
+  `tool_list_users`, `tool_purview_labels`, `tool_signin_logs`). "per ADR 0004
+  v0.2" → "per ADR 0004"; the ADR number is stable, the version pointer went
+  stale when ADR-0004 reached v0.3. **`tool_list_service_principals` also still
+  advertised the superseded fallback** ("with FOCI fallback per ADR 0004 v0.2")
+  — it escaped the PR #77 sweep because that grep keyed on "Azure CLI"/"04b07795"
+  and this phrasing named neither. Now reads "The FOCI client is fixed to
+  14d82eec per ADR-0006 and guardrail G-3", matching the five updated in #77.
+  Docstring text only — no logic, schema, or test changes.
 - docs: reconcile ADR-0006 and ADR-0004 on FOCI client selection; add Supersedes
   field to ADR-0006; update 5 tool docstrings. ADR-0006 now records
   `Supersedes: ADR-0004 §4 (Azure CLI fallback provision)` and its

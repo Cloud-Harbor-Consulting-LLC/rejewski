@@ -22,7 +22,7 @@ in-memory MSAL state.
 
 No tenant-side app registration is created in the target tenant (ADR 0001 §1,
 guardrail G-3). Borrowed first-party client defaults to Microsoft Graph Command
-Line Tools (14d82eec) per ADR 0004 v0.2.
+Line Tools (14d82eec) per ADR 0004.
 
 Every emitted invocation writes a replay-log entry under the v0.5 schema with
 kind="graph_call". An empty fleet is not an error: the tool prints a notice to

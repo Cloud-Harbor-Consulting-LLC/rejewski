@@ -10,7 +10,7 @@ persistence via msal-extensions, and silent reuse on every subsequent run.
 
 No tenant-side app registration is created in the target tenant (ADR 0001 §1,
 guardrail G-3). Borrowed first-party client defaults to Microsoft Graph Command
-Line Tools (14d82eec) per ADR 0004 v0.2.
+Line Tools (14d82eec) per ADR 0004.
 
 Every invocation writes a replay-log entry (success, error, throttled, or
 row_cap_hit) to the configured replay-log directory. Default is

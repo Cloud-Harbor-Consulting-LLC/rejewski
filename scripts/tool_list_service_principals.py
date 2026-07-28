@@ -26,8 +26,8 @@ encrypted cache, not in-memory MSAL state.
 
 No tenant-side app registration is created in the target tenant
 (ADR 0001 §1, guardrail G-3). Borrowed first-party client defaults to
-Microsoft Graph Command Line Tools (14d82eec) with FOCI fallback per
-ADR 0004 v0.2.
+Microsoft Graph Command Line Tools. The FOCI client is fixed to 14d82eec per
+ADR-0006 and guardrail G-3.
 
 Every invocation writes a replay-log entry under the v0.4 schema with
 kind="graph_call". The schema version is set from replay_log.SCHEMA_VERSION.

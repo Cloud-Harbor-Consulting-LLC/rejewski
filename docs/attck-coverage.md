@@ -1,7 +1,7 @@
 # Rejewski ATT&CK Coverage Map
 
-- Version: v0.4
-- Last updated: 2026-07-21
+- Version: v0.5
+- Last updated: 2026-07-28
 - Status: Living document — updated at each sprint checkpoint
 - Authors: Derek Morgan
 - Related: docs/threat-model.md, docs/techniques/, docs/guardrails.md
@@ -43,7 +43,7 @@ phs-kpi-dashboard-v1.0.xlsx.
 | T1530 | Data from Cloud Storage | Collection | Catalogued — Sprint 2 | docs/techniques/T1530.md | *Pending Sprint 2* |
 | T1619 | Cloud Storage Object Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1619.md | *Pending Sprint 2* |
 | T1114.002 | Email Collection: Remote Email Collection | Collection | Catalogued — Sprint 2 | docs/techniques/T1114.002.md | *Pending Sprint 2* |
-| T1654 | Log Enumeration | Discovery | Implemented — Sprint 2 | docs/techniques/T1654.md | scripts/tool_signin_logs.py |
+| T1654 | Log Enumeration | Discovery | Implemented — Sprint 2 | docs/techniques/T1654.md | scripts/tool_signin_logs.py, scripts/tool_list_security_alerts.py |
 
 **Status definitions:**
 

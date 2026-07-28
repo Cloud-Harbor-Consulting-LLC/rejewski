@@ -10,8 +10,8 @@ PersistedTokenCache helper — this tool only consumes the resulting token via
 a token_getter callable.
 
 No tenant-side app registration is created (ADR 0001 §1, guardrail G-3). The
-borrowed first-party client defaults to Microsoft Graph Command Line Tools
-(14d82eec) and falls back to Azure CLI (04b07795) via FOCI per ADR 0004 v0.2.
+borrowed first-party client is Microsoft Graph Command Line Tools. The FOCI
+client is fixed to 14d82eec per ADR-0006 and guardrail G-3.
 
 Every invocation writes a replay-log entry (success, error, throttled, or
 row_cap_hit) to the configured replay-log directory under the v0.3 schema

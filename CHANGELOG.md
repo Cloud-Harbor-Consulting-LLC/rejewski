@@ -187,6 +187,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- docs: reconcile ADR-0006 and ADR-0004 on FOCI client selection; add Supersedes
+  field to ADR-0006; update 5 tool docstrings. ADR-0006 now records
+  `Supersedes: ADR-0004 §4 (Azure CLI fallback provision)` and its
+  FOCI-membership assertions are softened to governance-designation language
+  (ADR-0004 §4 records 14d82eec as *not* a confirmed FOCI member; ADR-0006 no
+  longer contradicts that). ADR-0004 carries supersession notes at §4, §5.2, and
+  §7 — original mandate text retained, not rewritten. The 5 tool docstrings that
+  advertised the Azure CLI (04b07795) FOCI fallback "per ADR 0004 v0.2"
+  (`tool_list_applications`, `tool_list_ca_policies`, `tool_list_groups`,
+  `tool_list_oauth_grants`, `tool_list_role_assignments`) now state the client is
+  fixed to 14d82eec per ADR-0006 and G-3. No code logic, schema, or test changes.
 - `scripts/replay_log_viewer.py` — v0.1 → v0.2. Adds a `--format {text,html}`
   flag; text (default, stdout) is unchanged. `--format html --output FILE`
   writes a self-contained HTML report (no external resources, no JavaScript,

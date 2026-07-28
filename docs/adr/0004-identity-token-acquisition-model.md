@@ -35,6 +35,17 @@ Rejewski acquires delegated Microsoft Graph tokens by borrowing a first-party Mi
 - **Token type:** delegated.
 - **Client ID source:** borrowed first-party.
 - **Specific client ID(s):** Microsoft Graph Command Line Tools `14d82eec-204b-4c2f-b7e8-296a70dab67e` (default). Sprint 2+ FOCI-confirmed fallback: Azure CLI `04b07795-8ddb-461a-bbee-02f9e1bf7b46` (confirmed FOCI member per secureworks); use when a refresh-token-theft technique requires verified FOCI membership. The default client is NOT a confirmed FOCI member — that distinction matters for any technique module that depends on cross-client refresh-token reuse.
+
+  > **SUPERSEDED BY ADR-0006 (2026-07-28) — Azure CLI fallback provision only.**
+  > ADR-0006 establishes a formal client allowlist containing
+  > `14d82eec-204b-4c2f-b7e8-296a70dab67e` **only**, per guardrail G-3. Azure CLI
+  > `04b07795-8ddb-461a-bbee-02f9e1bf7b46` is **no longer an approved client** and must not
+  > be used. A technique that genuinely requires verified FOCI membership needs a new ADR
+  > adding a confirmed member to the ADR-0006 §2 allowlist; it cannot rely on this
+  > provision. The factual statement above — that the default client is not a confirmed
+  > FOCI member — **stands** and is carried forward in ADR-0006 §5.3. Everything else in
+  > this ADR (borrowed-client model, ROPC default, device-code fallback, no tenant app
+  > registration) remains in force.
 - **Grant flow:** silent reuse via the encrypted `PersistedTokenCache` per ADR-0005 on cache hit; MSAL ROPC password grant against the v2.0 token endpoint on cache miss; device code flow (fallback) when the target tenant has disabled ROPC via authentication policy.
 - **Scope shape:** minimum required scopes per technique module. Static at module level, declared in the module's borrowed_client_id field per ADR-0003. No dynamic scope escalation in Sprint 1.
 - **Consent path:** pre-consented. First-party Microsoft clients carry tenant-level pre-consent for delegated Graph scopes; no admin-consent or user-consent click-through.
@@ -55,7 +66,7 @@ Rejewski acquires delegated Microsoft Graph tokens by borrowing a first-party Mi
 - ROPC is being deprecated by Microsoft for new applications. The borrowed first-party client retains ROPC capability today, but this is a depreciating surface; a Sprint 3+ ADR will need to formalize the migration to device code as default.
 - ROPC against a borrowed first-party client makes traffic look like legitimate admin tooling. Defenders cannot block the borrowed client app ID without breaking real admin workflows. The compensating signal is volumetric (MicrosoftGraphActivityLogs reads per ZT-S03) and risk-based (Identity Protection), not app-block-based.
 - No documented MCAS alert fires specifically on ROPC against a FOCI client (zt-scenarios Gap 2). Rejewski runs against the cloudharbordemo sandbox may not surface an MCAS-side detection chain; downstream demo materials (B007 device compliance demo) must rely on Entra-side signals.
-- The default borrowed client (Graph Command Line Tools) is NOT a confirmed FOCI member. Sprint 2+ techniques requiring verified FOCI behavior (refresh-token theft, cross-client reuse) MUST use Azure CLI `04b07795` instead. This is a known correction surfaced Fri May 15, 2026.
+- The default borrowed client (Graph Command Line Tools) is NOT a confirmed FOCI member. Sprint 2+ techniques requiring verified FOCI behavior (refresh-token theft, cross-client reuse) MUST use Azure CLI `04b07795` instead. This is a known correction surfaced Fri May 15, 2026. **Superseded in part by ADR-0006 (2026-07-28):** the "MUST use Azure CLI" instruction no longer applies — Azure CLI is not on the ADR-0006 allowlist. The not-a-confirmed-FOCI-member fact stands; a FOCI-dependent technique now requires a new ADR extending the allowlist.
 
 ### 5.3 Neutral
 
@@ -70,7 +81,7 @@ Rejewski acquires delegated Microsoft Graph tokens by borrowing a first-party Mi
 
 ## 7. Compliance and Verification
 
-- **Per-module declaration.** Every technique module under `techniques/` declares its `borrowed_client_id` per ADR-0003. CI check (TBD, B008+ slot) verifies the declared client ID is one of the approved values: `14d82eec-204b-4c2f-b7e8-296a70dab67e` (default) or `04b07795-8ddb-461a-bbee-02f9e1bf7b46` (Azure CLI fallback for FOCI-required cases).
+- **Per-module declaration.** Every technique module under `techniques/` declares its `borrowed_client_id` per ADR-0003. CI check (TBD, B008+ slot) verifies the declared client ID is one of the approved values: `14d82eec-204b-4c2f-b7e8-296a70dab67e` (default) or `04b07795-8ddb-461a-bbee-02f9e1bf7b46` (Azure CLI fallback for FOCI-required cases). **Superseded by ADR-0006 §2 (2026-07-28):** the approved set is now `14d82eec-204b-4c2f-b7e8-296a70dab67e` only. Any such CI check must validate against the ADR-0006 allowlist, not the two-value set above. See ADR-0006 §7 for the current verification procedure.
 - **Evidence schema.** `scripts/tool_list_users.py` and successor tool scripts emit `borrowed_client_id` in the evidence JSON. Replay-log writer middleware (PR 1 of this sequence, Sun May 17, 2026) includes this field in every entry.
 - **Persistence layer.** Token acquisition routes exclusively through `scripts/identity.acquire_token(...)` per ADR-0005 §7. Inline `msal.PublicClientApplication` / `acquire_token_by_username_password` usage in technique tools is forbidden after PR 3 (Sprint 1 W2).
 - **Grep verification.** `git grep "borrowed_client_id"` across `techniques/` and `scripts/` returns matches for every active technique module and tool script. Zero matches in `docs/` outside this ADR, ADR-0003, ADR-0005, and threat-model.md.
@@ -82,3 +93,4 @@ Rejewski acquires delegated Microsoft Graph tokens by borrowing a first-party Mi
 |------|---------|--------|--------|
 | 2026-05-16 | v0.1 | Initial decision. Borrowed first-party client (Graph Command Line Tools `14d82eec`) as default; Azure CLI `04b07795` as FOCI-confirmed fallback for Sprint 2+ refresh-token techniques. ROPC default with device-code fallback. No tenant app registration ever. | Derek Morgan |
 | 2026-05-19 | v0.2 | Persistence-layer cross-reference. ADR-0005 (Token Persistence and Reuse) refines the silent-reuse behavior, encrypted cache backend, headless-Linux plaintext refusal, CAE/CP1 handling, and `token_event` replay-log emission this ADR left implicit. §2 Decision, §4 Identity-Decision Factors, §5.3 Neutral, and §7 Compliance updated to reference ADR-0005. No reversal of v0.1 decisions. | Derek Morgan |
+| 2026-07-28 | v0.3 | Azure CLI fallback provision superseded by ADR-0006. Supersession notes added to §4 (Specific client IDs), §5.2 (the "MUST use Azure CLI" instruction), and §7 (the two-value CI check) — original text retained, not rewritten. Azure CLI `04b07795` is no longer an approved client; the ADR-0006 allowlist holds `14d82eec` only, per G-3. The factual note that `14d82eec` is not a confirmed FOCI member stands. All other v0.1/v0.2 decisions remain in force. | Derek Morgan |

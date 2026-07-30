@@ -40,6 +40,8 @@ CLIENT_CAPABILITIES = ["CP1"]  # CAE-aware per ADR-0005 §2
 
 TECHNIQUE_ID = "T1550.001"
 TECHNIQUE_NAME = "Application Access Token (refresh-token reuse)"
+TECHNIQUE_ID_INTERACTIVE = "T1078.004"
+TECHNIQUE_NAME_INTERACTIVE = "Valid Accounts: Cloud Accounts"
 TOOL_NAME = "scripts.identity"
 ERROR_TYPE_URN = "urn:rejewski:error:token-acquisition-failed"
 
@@ -278,11 +280,22 @@ def _emit_token_event(
         "cache_path": str(cache_path),
         "flow": flow,
     }
+    # B029: the technique depends on the acquisition flow. A fresh ROPC
+    # acquisition is an interactive sign-in (T1078.004 Valid Accounts); silent
+    # reuse replays an already-issued token (T1550.001 Application Access
+    # Token). Selecting here rather than at the call site keeps the mapping in
+    # one place for future callers.
+    if flow == FLOW_ROPC:
+        technique_id = TECHNIQUE_ID_INTERACTIVE
+        technique_name = TECHNIQUE_NAME_INTERACTIVE
+    else:
+        technique_id = TECHNIQUE_ID
+        technique_name = TECHNIQUE_NAME
     entry = ReplayLogEntry(
         kind="token_event",
         tool=TOOL_NAME,
-        technique_id=TECHNIQUE_ID,
-        technique_name=TECHNIQUE_NAME,
+        technique_id=technique_id,
+        technique_name=technique_name,
         tenant_id=tenant_id,
         borrowed_client_id=client_id,
         actor_upn=actor_upn,

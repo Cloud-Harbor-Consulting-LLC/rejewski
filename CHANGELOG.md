@@ -173,10 +173,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Accounts: Cloud Accounts) on FLOW_ROPC (interactive acquisition) and T1550.001
   (Application Access Token) on FLOW_SILENT (cache reuse). Previously emitted
   T1550.001 on both flows, so T1078.004 was never written to a replay log by any
-  run — cold cache included. Note the *failed* ROPC path is not covered: `flow` is
-  assigned FLOW_ROPC only after the success check, so an unsuccessful sign-in
-  attempt (e.g. AADSTS50076 MFA-required) is still recorded as FLOW_SILENT /
-  T1550.001. Tracked separately; out of B029 scope.
+  run — cold cache included.
+- **B029 follow-up** (`scripts/identity.py`): `flow` is now assigned `FLOW_ROPC`
+  *before* the `acquire_token_by_username_password` call rather than after the
+  success check, so `flow` means "ROPC was attempted" rather than "ROPC
+  succeeded". A **failed** sign-in — including the AADSTS50076 MFA-required
+  outcome ADR-0004 §4 calls a desired Rejewski signal — is now correctly recorded
+  as FLOW_ROPC / T1078.004 instead of FLOW_SILENT / T1550.001. The no-password
+  cache-miss path returns before that assignment, so it stays FLOW_SILENT /
+  T1550.001 (no sign-in was attempted); that boundary is pinned by a test. All
+  four acquisition paths are now covered: silent success, ROPC success, ROPC
+  failure, and cache-miss-without-password.
 - fix(tool-12): replace legacy `--status 'active'` with v1.0 enum value `'new'` in
   `scripts/tool_list_security_alerts.py`. The v1.0 `alertStatus` enum for
   /security/alerts_v2 is `unknown | new | inProgress | resolved |

@@ -173,6 +173,14 @@ def acquire_token(
                     f"silent reuse miss for {actor_upn} and no password supplied; "
                     f"ROPC fallback requires the seeded compromised-user password"
                 )
+            # B029 follow-up: mark the flow BEFORE the call, so `flow` means
+            # "ROPC was attempted" rather than "ROPC succeeded". Assigning it
+            # after the success check filed failed sign-ins — including the
+            # AADSTS50076 MFA-required outcome that ADR-0004 §4 calls a desired
+            # Rejewski signal — as silent token reuse (T1550.001) instead of
+            # T1078.004. The no-password path above returns before this point,
+            # so a cache miss with no fallback material stays FLOW_SILENT.
+            flow = FLOW_ROPC
             ropc = app.acquire_token_by_username_password(
                 username=actor_upn,
                 password=password,
@@ -185,7 +193,6 @@ def acquire_token(
                     f"ROPC token acquisition failed: {aadsts_code} - {desc}"
                 )
             result = ropc
-            flow = FLOW_ROPC
             outcome = "success"
 
         correlation_id = result.get("correlation_id")

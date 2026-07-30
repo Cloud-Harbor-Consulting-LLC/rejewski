@@ -208,6 +208,11 @@ class TestAcquireToken:
         assert len(events) == 1
         assert events[0]["outcome"] == "error"
         assert events[0]["error"]["type"] == identity.ERROR_TYPE_URN
+        # Boundary: with no password, ROPC is never attempted — so this stays a
+        # failed silent reuse (T1550.001), not a sign-in attempt. Guards against
+        # the B029 follow-up over-reaching into this path.
+        assert events[0]["request"]["flow"] == identity.FLOW_SILENT
+        assert events[0]["technique"]["id"] == "T1550.001"
 
     def test_ropc_aadsts_error_recorded(
         self, cache_path: Path, replay_dir: Path
@@ -234,6 +239,12 @@ class TestAcquireToken:
         events = _read_token_events(replay_dir)
         assert events[0]["outcome"] == "error"
         assert events[0]["response"]["aadsts_code"] == "invalid_grant"
+        # B029 follow-up: a FAILED sign-in attempt is still a T1078.004 event.
+        # AADSTS50076 is the ZT-S02 signal proving the defender's MFA-required
+        # CA policy fired (ADR-0004 §4) — it must not be filed as token reuse.
+        assert events[0]["request"]["flow"] == identity.FLOW_ROPC
+        assert events[0]["technique"]["id"] == "T1078.004"
+        assert events[0]["technique"]["name"] == "Valid Accounts: Cloud Accounts"
 
 
 class TestTechniqueConstants:

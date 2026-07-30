@@ -169,6 +169,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **B029** (`scripts/identity.py`): `_emit_token_event()` now emits T1078.004 (Valid
+  Accounts: Cloud Accounts) on FLOW_ROPC (interactive acquisition) and T1550.001
+  (Application Access Token) on FLOW_SILENT (cache reuse). Previously emitted
+  T1550.001 on both flows, so T1078.004 was never written to a replay log by any
+  run — cold cache included. Note the *failed* ROPC path is not covered: `flow` is
+  assigned FLOW_ROPC only after the success check, so an unsuccessful sign-in
+  attempt (e.g. AADSTS50076 MFA-required) is still recorded as FLOW_SILENT /
+  T1550.001. Tracked separately; out of B029 scope.
 - fix(tool-12): replace legacy `--status 'active'` with v1.0 enum value `'new'` in
   `scripts/tool_list_security_alerts.py`. The v1.0 `alertStatus` enum for
   /security/alerts_v2 is `unknown | new | inProgress | resolved |

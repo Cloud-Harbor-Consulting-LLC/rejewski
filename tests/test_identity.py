@@ -144,7 +144,9 @@ class TestAcquireToken:
         assert len(events) == 1
         assert events[0]["kind"] == "token_event"
         assert events[0]["outcome"] == "success"
+        # B029: silent reuse replays an already-issued token -> T1550.001.
         assert events[0]["technique"]["id"] == "T1550.001"
+        assert events[0]["technique"]["name"].startswith("Application Access Token")
         assert events[0]["request"]["flow"] == identity.FLOW_SILENT
         assert "access_token" not in json.dumps(events[0])
 
@@ -179,6 +181,11 @@ class TestAcquireToken:
         assert len(events) == 1
         assert events[0]["request"]["flow"] == identity.FLOW_ROPC
         assert events[0]["outcome"] == "success"
+        # B029: a fresh ROPC acquisition is an interactive sign-in, so the
+        # token_event must carry T1078.004 — not T1550.001, which describes
+        # reuse of an already-issued token.
+        assert events[0]["technique"]["id"] == "T1078.004"
+        assert events[0]["technique"]["name"] == "Valid Accounts: Cloud Accounts"
 
     def test_cache_miss_without_password_errors(
         self, cache_path: Path, replay_dir: Path
@@ -227,6 +234,26 @@ class TestAcquireToken:
         events = _read_token_events(replay_dir)
         assert events[0]["outcome"] == "error"
         assert events[0]["response"]["aadsts_code"] == "invalid_grant"
+
+
+class TestTechniqueConstants:
+    """B029: identity.py maps acquisition flow -> ATT&CK technique.
+
+    Pins both pairs so a future edit cannot silently collapse them back to a
+    single hardcoded technique, which is the defect B029 fixed.
+    """
+
+    def test_reuse_constants(self) -> None:
+        assert identity.TECHNIQUE_ID == "T1550.001"
+        assert identity.TECHNIQUE_NAME.startswith("Application Access Token")
+
+    def test_interactive_constants(self) -> None:
+        assert identity.TECHNIQUE_ID_INTERACTIVE == "T1078.004"
+        assert identity.TECHNIQUE_NAME_INTERACTIVE == "Valid Accounts: Cloud Accounts"
+
+    def test_the_two_techniques_are_distinct(self) -> None:
+        assert identity.TECHNIQUE_ID != identity.TECHNIQUE_ID_INTERACTIVE
+        assert identity.TECHNIQUE_NAME != identity.TECHNIQUE_NAME_INTERACTIVE
 
 
 class TestPersistenceKindPropagatesToReplayLog:

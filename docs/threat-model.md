@@ -1,13 +1,22 @@
 # Project Harbor Sonar — Threat Model
 
-- Version: v1.1
-- Last updated: 2026-07-28
+- Version: v1.2
+- Last updated: 2026-08-04
 - Status: Living document
 - Authors: Derek Morgan
 - Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/, docs/attck-coverage.md
 
 ## Change log
 
+- v1.2 (2026-08-04) — Sprint 4 W13 Tool 13. T1114.002 Email Collection: Remote
+  Email Collection promoted Catalogued → Implemented for Surface A — inbox message
+  rule enumeration via GET /users/{id}/mailFolders/inbox/messageRules
+  (scripts/tool_list_inbox_rules.py), requiring MailboxSettings.Read scope and, for
+  cross-user enumeration, Exchange Administrator or Global Reader (self-mailbox needs
+  no role). The originally-catalogued folder/message-metadata surface remains
+  deferred. No new technique added — an existing catalogued technique becomes
+  implemented. Total mapped techniques unchanged at 17; implemented/catalogued split
+  moves 9/8 → 10/7.
 - v1.1 (2026-07-28) — Sprint 3 W12 Tool 12. T1654 Log Enumeration gains
   Surface B — Defender XDR security alerts via GET /security/alerts_v2
   (scripts/tool_list_security_alerts.py), requiring SecurityAlert.Read.All scope
@@ -145,7 +154,7 @@ and path-to-target table are in docs/attck-coverage.md.
 | T1213.003 Data from Information Repositories: Code Repositories | Collection | Catalogued | 2 | docs/techniques/T1213.003.md |
 | T1530 Data from Cloud Storage | Collection | Catalogued | 2 | docs/techniques/T1530.md |
 | T1619 Cloud Storage Object Discovery | Discovery | Catalogued | 2 | docs/techniques/T1619.md |
-| T1114.002 Email Collection: Remote Email Collection | Collection | Catalogued | 2 | docs/techniques/T1114.002.md |
+| T1114.002 Email Collection: Remote Email Collection | Collection | Implemented — Sprint 4 W13 | 4 | docs/techniques/T1114.002.md |
 | T1654 Log Enumeration | Discovery | Implemented | 2 | docs/techniques/T1654.md |
 
 Each module follows the ADR 0003 format: YAML front matter, eight required sections, and cited cross-references to this threat model, the governing ADR(s), and docs/guardrails.md.
@@ -187,7 +196,7 @@ grants only.
 | T1213.003 Data from Information Repositories: Code Repositories | Collection | Catalogued — Sprint 2 (2026-06-19) | GET /sites?search=*, GET /sites/{id}/drives, GET /sites/{id}/lists — requires Sites.Read.All; SharePoint-surfaced code content only |
 | T1530 Data from Cloud Storage | Collection | Catalogued — Sprint 2 (2026-06-19) | GET /drives, GET /users/{id}/drive/root/children, GET /groups/{id}/drive/root/children — requires Files.Read.All; metadata only per G-7 |
 | T1619 Cloud Storage Object Discovery | Discovery | Catalogued — Sprint 2 (2026-06-19) | GET /drives, GET /drives/{id}/root/children, GET /sites/{id}/drives — requires Files.Read.All, Sites.Read.All; discovery phase preceding T1530 |
-| T1114.002 Email Collection: Remote Email Collection | Collection | Catalogued — Sprint 2 (2026-06-19) | GET /users/{id}/mailFolders, GET /users/{id}/messages ($select metadata projection), GET /users/{id}/mailFolders/{id}/messages — Mail.Read (delegated, self) or Mail.ReadBasic.All / Mail.Read.All (application, cross-user) |
+| T1114.002 Email Collection: Remote Email Collection | Collection | Implemented — Surface A, Sprint 4 W13 (2026-08-04) | **Surface A** (scripts/tool_list_inbox_rules.py): GET /users/{id}/mailFolders/inbox/messageRules — MailboxSettings.Read; Exchange Administrator or Global Reader for cross-user, none for self. **Deferred** folder/message-metadata surface: GET /users/{id}/mailFolders, GET /users/{id}/messages ($select metadata projection) — Mail.Read (delegated, self) or Mail.ReadBasic.All / Mail.Read.All (application, cross-user). |
 
 **T1526 Cloud Service Discovery.** An adversary with valid cloud credentials enumerates cloud services, security configurations, and tenant metadata to inventory the target environment before engaging Collection or Lateral Movement objectives. T1526 is now active in Rejewski for the Conditional Access policies surface (Sprint 2 W5 pull-forward, 2026-05-26): `GET /identity/conditionalAccess/policies` enumerates all CA policies in the tenant, revealing which users/groups are covered, what grant controls are enforced (MFA, compliant device, block), which applications are in scope, and whether any policies are in report-only mode. This surface requires the signed-in user to hold at least Security Reader — making it a post-privilege-escalation discovery step in the kill chain (see docs/techniques/T1526.md §"Required privilege" for the full operator prerequisite and attack strategy note).
 

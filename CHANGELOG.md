@@ -11,6 +11,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Tool 13** (`scripts/tool_list_inbox_rules.py`): T1114.002 Email Collection —
+  Surface A (inbox message rules). Enumerates a mailbox's inbox rules via Graph
+  GET /users/{id}/mailFolders/inbox/messageRules (v1.0), promoting T1114.002 from
+  Catalogued to Implemented. Scope: MailboxSettings.Read (delegated). Role: none for
+  self (`--user-id me`, default), Exchange Administrator or Global Reader for
+  cross-user. Projects per rule: id, displayName, isEnabled, hasError, actions
+  (forwardTo / forwardAsAttachmentTo / redirectTo / delete / moveToFolder) and
+  conditions (senderContains / subjectContains / bodyContains) — forwarding targets
+  retained as the high-signal indicator, no message body content read. G-9 row cap
+  default 500. Sandbox tenant GUID redacted from the evidence stdout. G-1: GET only.
+  CLI: --user-id / --row-cap / --output / --replay-log-dir / --run-id / --emit.
+  See docs/techniques/T1114.002.md Surface A.
+- `tests/test_tool_list_inbox_rules.py`: test suite for Tool 13 (11 cases). Covers
+  happy path, empty mailbox, forwarding-rule and deletion-rule serialization, row-cap
+  hit, 429 retry exhaustion, 401 mid-run recovery, tenant-GUID scrubbing, replay-log
+  entry validity against schemas/replay-log/v0.5.json, and --user-id endpoint
+  construction (me vs cross-user).
+- `docs/techniques/T1114.002.md`: status Catalogued → Implemented (Surface A). Adds a
+  Surface A — Inbox Message Rule Enumeration section (endpoint, scope, role, procedure,
+  detection signals, guardrails); the originally-catalogued folder/message-metadata
+  surface is retained as a deferred surface.
+- `docs/attck-coverage.md` v0.6: T1114.002 row Catalogued → Implemented — Sprint 4
+  (Surface A), script added; current count split updated 9/8 → 10/7 implemented/
+  catalogued (total unchanged at 17).
+- `docs/threat-model.md` v1.2: §5 T1114.002 promoted to Implemented — Surface A with
+  the messageRules endpoint, scope, and role; deferred folder/message surface noted.
 - `tests/test_tool_list_security_alerts.py::TestStatusEnum` — regression guard pinning
   the v1.0 `alertStatus` enum for /security/alerts_v2. Asserts the legacy
   `--status active` value is rejected by argparse (exit 2) and that `new`,

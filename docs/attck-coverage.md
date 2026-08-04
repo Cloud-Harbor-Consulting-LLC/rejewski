@@ -1,7 +1,7 @@
 # Rejewski ATT&CK Coverage Map
 
-- Version: v0.5
-- Last updated: 2026-07-28
+- Version: v0.6
+- Last updated: 2026-08-04
 - Status: Living document — updated at each sprint checkpoint
 - Authors: Derek Morgan
 - Related: docs/threat-model.md, docs/techniques/, docs/guardrails.md
@@ -15,7 +15,7 @@ maps, catalogues, or explicitly excludes. It is the authoritative source for the
 "ATT&CK techniques mapped" KPI tracked in the Sprint Checkpoint KPIs tab of
 phs-kpi-dashboard-v1.0.xlsx.
 
-**Current count:** 17 unique techniques (9 implemented, 8 catalogued, 0 excluded-and-counted)
+**Current count:** 17 unique techniques (10 implemented, 7 catalogued, 0 excluded-and-counted)
 
 **Sprint 2 checkpoint target (Thu 2026-07-02):** 10 unique techniques
 
@@ -42,7 +42,7 @@ phs-kpi-dashboard-v1.0.xlsx.
 | T1213.003 | Data from Information Repositories: Code Repositories | Collection | Catalogued — Sprint 2 | docs/techniques/T1213.003.md | *Pending Sprint 2* |
 | T1530 | Data from Cloud Storage | Collection | Catalogued — Sprint 2 | docs/techniques/T1530.md | *Pending Sprint 2* |
 | T1619 | Cloud Storage Object Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1619.md | *Pending Sprint 2* |
-| T1114.002 | Email Collection: Remote Email Collection | Collection | Catalogued — Sprint 2 | docs/techniques/T1114.002.md | *Pending Sprint 2* |
+| T1114.002 | Email Collection: Remote Email Collection | Collection | Implemented — Sprint 4 (Surface A) | docs/techniques/T1114.002.md | scripts/tool_list_inbox_rules.py |
 | T1654 | Log Enumeration | Discovery | Implemented — Sprint 2 | docs/techniques/T1654.md | scripts/tool_signin_logs.py, scripts/tool_list_security_alerts.py |
 
 **Status definitions:**

@@ -27,6 +27,8 @@ from datetime import datetime, timezone
 
 import msal
 
+from replay_log import redact_tenant_id
+
 
 BORROWED_CLIENT_ID = "14d82eec-204b-4c2f-b7e8-296a70dab67e"  # Microsoft Graph Command Line Tools
 DEFAULT_TENANT_ID = "76b87c33-6178-4ff9-94a7-164792c8e4c6"   # cloudharbordemo
@@ -77,7 +79,7 @@ def run(actor_upn: str, password: str, tenant_id: str, scopes: list[str]) -> dic
         "tool": "demo_b007_device_compliance",
         "technique": "T1078.004",
         "scenario": "ZT-S01-DeviceCompliance",
-        "tenant_id": tenant_id,
+        "tenant_id": redact_tenant_id(tenant_id),
         "borrowed_client_id": BORROWED_CLIENT_ID,
         "actor_upn": actor_upn,
         "requested_scopes": scopes,

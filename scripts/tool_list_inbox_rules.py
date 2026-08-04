@@ -65,10 +65,9 @@ from dotenv import load_dotenv
 
 import identity
 from replay_log import (
-    REDACTED,
-    SANDBOX_TENANT_ID,
     ReplayLogEntry,
     make_error,
+    redact_tenant_id,
     utc_now_iso,
     write_entry,
 )
@@ -372,16 +371,10 @@ def main() -> int:
 
     projected = [_project_rule(r) for r in rules]
 
-    # Redact the sandbox tenant GUID from the evidence stdout (brief scrub
-    # requirement; the replay-log entry retains the real tenant_id, which G-1
-    # requires write_entry to validate). replay_log.REDACTED is the same
-    # zero-GUID replay_log.py substitutes elsewhere.
-    evidence_tenant_id = REDACTED if tenant_id == SANDBOX_TENANT_ID else tenant_id
-
     evidence = {
         "tool": TOOL_NAME,
         "technique": TECHNIQUE_ID,
-        "tenant_id": evidence_tenant_id,
+        "tenant_id": redact_tenant_id(tenant_id),
         "borrowed_client_id": client_id,
         "actor_upn": upn,
         "user_id": args.user_id,

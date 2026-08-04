@@ -104,6 +104,16 @@ def make_error(
     return block
 
 
+def redact_tenant_id(tenant_id: str) -> str:
+    """Return the sandbox tenant GUID replaced with REDACTED for inclusion in a
+    tool's evidence output (stdout / --output). The replay-log entry itself keeps
+    the real tenant_id — G-1 requires write_entry to validate it — so this only
+    affects the human-facing evidence blob. Any non-sandbox value passes through
+    unchanged. Shared by every tool so the redaction is consistent across the
+    toolset."""
+    return REDACTED if tenant_id == SANDBOX_TENANT_ID else tenant_id
+
+
 @dataclass
 class ReplayLogEntry:
     kind: str

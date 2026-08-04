@@ -10,6 +10,7 @@ from replay_log import (
     SCHEMA_VERSION,
     _VALIDATOR,
     make_error,
+    redact_tenant_id,
     write_entry,
 )
 
@@ -220,3 +221,16 @@ class TestScrubbing:
         assert SANDBOX_TENANT_ID not in path.read_text().replace(
             f'"tenant_id": "{SANDBOX_TENANT_ID}"', ""
         )
+
+class TestRedactTenantId:
+    """The shared helper that tools route their evidence tenant_id through so the
+    sandbox GUID is not emitted to stdout. The replay-log ENTRY still carries the
+    real tenant_id (TestScrubbing above covers that G-1 requirement)."""
+
+    def test_sandbox_tenant_is_redacted(self):
+        assert redact_tenant_id(SANDBOX_TENANT_ID) == REDACTED
+        assert redact_tenant_id(SANDBOX_TENANT_ID) != SANDBOX_TENANT_ID
+
+    def test_other_tenant_passes_through(self):
+        other = "11111111-2222-3333-4444-555555555555"
+        assert redact_tenant_id(other) == other

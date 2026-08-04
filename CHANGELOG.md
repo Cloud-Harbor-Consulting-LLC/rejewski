@@ -244,6 +244,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Tenant-GUID redaction unified across all tool evidence.** Adds
+  `replay_log.redact_tenant_id()`, a shared helper that replaces the sandbox
+  tenant GUID with the REDACTED zero-GUID in a tool's evidence output (stdout /
+  --output). Every tool now routes its evidence `tenant_id` through it — the 12
+  numbered Graph tools (`tool_list_users`, `tool_list_groups`,
+  `tool_list_applications`, `tool_list_ca_policies`, `tool_list_role_assignments`,
+  `tool_list_service_principals`, `tool_dfi_health`, `tool_intune_devices`,
+  `tool_purview_labels`, `tool_signin_logs`, `tool_list_oauth_grants`,
+  `tool_list_security_alerts`), Tool 13 (`tool_list_inbox_rules`, refactored off
+  its own inline redaction onto the shared helper), and the
+  `demo_b007_device_compliance` demo. Previously only Tool 13 redacted; the rest
+  emitted the raw sandbox GUID in evidence. The replay-log ENTRY still carries the
+  real `tenant_id` — G-1 requires `write_entry` to validate it — so this changes
+  only the human-facing evidence blob, not the audit record. `TestRedactTenantId`
+  in tests/test_replay_log.py pins the helper. (Follow-up to the Tool 13 review;
+  the sandbox GUID is already published across the ADRs, threat-model, and
+  replay-log samples, so this is a consistency/hygiene change, not a leak fix.)
+
 - docs(scripts): tidy stale ADR-0004 version pointers in six tool docstrings
   (`tool_dfi_health`, `tool_intune_devices`, `tool_list_service_principals`,
   `tool_list_users`, `tool_purview_labels`, `tool_signin_logs`). "per ADR 0004

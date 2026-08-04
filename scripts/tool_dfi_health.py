@@ -59,6 +59,7 @@ import identity
 from replay_log import (
     ReplayLogEntry,
     make_error,
+    redact_tenant_id,
     utc_now_iso,
     write_entry,
 )
@@ -352,7 +353,7 @@ def main() -> int:
     evidence = {
         "tool": TOOL_NAME,
         "technique": TECHNIQUE_ID,
-        "tenant_id": tenant_id,
+        "tenant_id": redact_tenant_id(tenant_id),
         "borrowed_client_id": client_id,
         "actor_upn": upn,
         "started_at_utc": started_at,

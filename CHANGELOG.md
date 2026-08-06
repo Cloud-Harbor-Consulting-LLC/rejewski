@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `docs/threat-actor-playbook-v1.md` — operator manual defining five canonical
+  TTP-chain recipes (R-01 Privileged Account Discovery, R-02 OAuth Permission
+  Sprawl, R-03 Security Posture Gap Assessment, R-04 Email Forwarding Risk
+  Discovery, R-05 Device and Sign-In Correlation) run against cloudharbordemo.
+  Each recipe carries a threat-actor goal, prerequisites, exact tool sequence with
+  CLI flags, expected output indicators, ATT&CK techniques exercised, detection
+  signals, and a per-recipe guardrail block (G-1/G-3/G-5/G-6). Docs-only; no
+  script or test changes.
+
 - **Tool 13** (`scripts/tool_list_inbox_rules.py`): T1114.002 Email Collection —
   Surface A (inbox message rules). Enumerates a mailbox's inbox rules via Graph
   GET /users/{id}/mailFolders/inbox/messageRules (v1.0), promoting T1114.002 from

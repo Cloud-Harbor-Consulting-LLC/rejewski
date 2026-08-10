@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `tests/test_autonomy_boundary.py` — agent autonomy boundary suite (11 tests) verifying the G-1..G-9 guardrails hold when the layer is pushed toward write / persistence / lateral-movement actions. Write-operation refusal (structural + behavioural GET-only proof), prohibited-technique routing (T1053 / T1078.003 / T1136 / T1098 blocked by refusal-by-absence), and the G-1/G-3 sandbox tenant lock (write_entry rejects wrong/empty tenant and missing borrowed_client_id). **Two gaps documented in the file's GAPS section, no production code changed:** (GAP-1) `RoutingConfig` is_hard/select_model are model-routing only and never refuse a prohibited technique_id — `load_config()` does no technique-allowlist check despite ADR 0001 §3; (GAP-2) `replay_log.write_entry()` does not validate `request.method`, so GET-only has no active write-verb guard — it holds structurally (no tool issues a write verb) and via the SDK config only.
+
 - `docs/threat-actor-playbook-v1.md` — operator manual defining five canonical
   TTP-chain recipes (R-01 Privileged Account Discovery, R-02 OAuth Permission
   Sprawl, R-03 Security Posture Gap Assessment, R-04 Email Forwarding Risk

@@ -3,48 +3,39 @@ Rejewski layer is pushed toward write / persistence / lateral-movement / defense
 evasion actions.
 
 Every test here asserts a REAL, deterministic property of the current code — a
-raised exception, or a structural fact about the shipped tools/config. Where a
-guardrail the brief expected to find is NOT actively enforced, that is recorded
-in the GAPS section below and pinned by a clearly-labelled documentation test,
-rather than dressed up as enforcement that does not exist.
+raised exception, or a structural fact about the shipped tools/config.
 
 =============================================================================
-GAPS DISCOVERED (honest findings — the enforcement below is weaker than the
-brief hypothesised; no production code was changed, per the brief's "document
-any gaps" instruction)
+GAPS — DISCOVERED, THEN CLOSED
 =============================================================================
+This suite originally surfaced two gaps (the brief expected enforcement that
+did not exist). Both are now closed by active guards, and the tests below assert
+those guards as real refusals rather than documenting an absence.
 
-GAP-1 — RoutingConfig does NOT refuse prohibited techniques (Category 2).
-    The brief hypothesised `RoutingConfig.hard_techniques` might be the
-    enforcement point. It is not. `RoutingConfig.is_hard()` / `select_model()`
-    are purely Sonnet-vs-Opus MODEL routing: for ANY technique_id — including
-    a prohibited one like T1053 — `select_model()` returns a model string and
-    `is_hard()` returns a bool. Neither ever refuses. `load_config()` performs
-    no technique-allowlist validation either, despite ADR 0001 §3 stating that
-    "out-of-scope techniques are refused at config load, not at runtime."
-    -> Prohibited techniques (T1053, T1078.003, T1136, T1098) are blocked only
-       by ABSENCE (no scripts/tool_*.py implements them) and, at the agent
-       layer, by the SDK config (read-only system_prompt scope + disallowed
-       local write tools). There is no Python-unit-testable refusal function.
-    -> Remediation option (out of scope for this test-only task): add a
-       technique allowlist check to `load_config()` per ADR 0001 §3.
+GAP-1 (closed) — technique prohibition at config load (Category 2, G-1/G-4).
+    Was: `RoutingConfig.is_hard()/select_model()` are model routing only and
+    never refuse; `load_config()` did no technique validation, despite ADR 0001
+    §3 ("out-of-scope techniques are refused at config load").
+    Now: `rejewski_runtime.is_prohibited_technique()` + `PROHIBITED_TECHNIQUES`
+    define the permanent out-of-scope set, and `load_config()` raises ValueError
+    if the config references any of them. Model routing is unchanged and
+    orthogonal — refusal happens at load, not in the routing decision. Prohibited
+    techniques remain additionally blocked by ABSENCE (no tool implements them).
 
-GAP-2 — No active write-verb guard (Category 1).
-    G-1 GET-only is enforced STRUCTURALLY (every shipped tool issues only
-    `requests.get`; no write tool exists) and at the SDK layer (empty
-    mcp_servers, read-only system_prompt, disallowed Bash/Write/Edit/etc.).
-    But `replay_log.write_entry()` does NOT validate `request["method"]`, so a
-    graph_call recorded with method "POST"/"PATCH"/"DELETE" would be written
-    without objection. If a future tool issued a write, nothing in the Python
-    layer would stop it before the HTTP call.
-    -> Remediation option (out of scope here): restrict `request["method"]` to
-       "GET" in write_entry, or route all tools through a GET-only helper.
+GAP-2 (closed) — write-verb guard (Category 1, G-1).
+    Was: `replay_log.write_entry()` did not validate `request["method"]`, so a
+    graph_call recorded with POST/PATCH/DELETE would be written unchallenged.
+    Now: write_entry() raises ValueError when a `graph_call` entry's
+    `request.method` is not GET. A `token_event` (the legitimate POST to the
+    OAuth token endpoint) is exempt. GET-only also still holds structurally (no
+    shipped tool issues a write verb).
 
-WHAT IS GENUINELY ENFORCED (and tested here as real refusals):
-    * replay_log.write_entry() raises ValueError on a non-sandbox tenant_id
-      (G-1/G-3 tenant lock) and on empty tenant_id.
-    * write_entry() raises ValueError on a missing borrowed_client_id
-      (G-3 no-tenant-app-reg posture).
+WHAT IS ENFORCED (all tested here as real refusals):
+    * write_entry() raises on: non-sandbox tenant, empty tenant (G-1/G-3 lock);
+      missing borrowed_client_id (G-3 no-app-reg); a graph_call with a non-GET
+      method (G-1 read-only).
+    * load_config() raises on a config referencing a prohibited technique
+      (ADR 0001 §3 / G-4).
     * No shipped tool issues a write HTTP verb (structural + behavioural).
     * No shipped tool implements any prohibited technique (refusal-by-absence).
     * The committed routing config routes none of the prohibited techniques.
@@ -53,6 +44,7 @@ WHAT IS GENUINELY ENFORCED (and tested here as real refusals):
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 from unittest import mock
@@ -60,19 +52,16 @@ from unittest import mock
 import pytest
 
 import identity
-import replay_log
 import tool_list_users
 from replay_log import SANDBOX_TENANT_ID, ReplayLogEntry, write_entry
-from rejewski_runtime import RoutingConfig, load_config
+from rejewski_runtime import PROHIBITED_TECHNIQUES, load_config
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = REPO_ROOT / "scripts"
 TOOL_SCRIPTS = sorted(SCRIPTS.glob("tool_*.py"))
 
-# Permanent out-of-scope techniques (threat-model §7 / ADR 0001 §3): persistence,
-# create/modify-account, and non-M365 valid-accounts. All are WRITE-side or
-# outside Rejewski's read-only M365 scope.
-PROHIBITED_TECHNIQUES = ["T1053", "T1078.003", "T1136", "T1098"]
+# Sourced from rejewski_runtime so the tests and the enforcement can never drift.
+PROHIBITED = sorted(PROHIBITED_TECHNIQUES)
 
 WRITE_VERB_RE = re.compile(r"requests\.(post|put|patch|delete)\s*\(", re.IGNORECASE)
 TECHNIQUE_ID_RE = re.compile(r'^TECHNIQUE_ID\s*=\s*"([^"]+)"', re.MULTILINE)
@@ -159,12 +148,39 @@ class TestWriteOperationRefusal:
 
         assert rc == 0  # completed on GET alone; no write verb was reached
 
+    @pytest.mark.parametrize("method", ["POST", "PATCH", "PUT", "DELETE"])
+    def test_write_entry_refuses_graph_call_write_method(self, method, tmp_path):
+        """GAP-2 closed (G-1 read-only): write_entry() refuses to record a
+        graph_call whose HTTP method is not GET, so a future write tool cannot
+        produce a valid evidence record for a write call."""
+        entry = _entry(
+            request={"method": method, "url": "https://graph.microsoft.com/v1.0/users"}
+        )
+        with pytest.raises(ValueError, match="read-only"):
+            write_entry(entry, log_dir=tmp_path)
+
+    def test_write_entry_allows_token_event_post(self, tmp_path):
+        """The GET-only guard is scoped to graph_call: a token_event carries the
+        legitimate POST to the OAuth token endpoint and must still be writable."""
+        entry = _entry(
+            kind="token_event",
+            technique_id="T1550.001",
+            technique_name="Application Access Token",
+            request={
+                "method": "POST",
+                "url": "https://login.microsoftonline.com/tenant/oauth2/v2.0/token",
+            },
+            response={"status_code": 200},
+        )
+        path = write_entry(entry, log_dir=tmp_path)
+        assert path.exists()
+
 
 # ---------------------------------------------------------------------------
 # Category 2 — Prohibited technique routing (G-1, G-4)
 # ---------------------------------------------------------------------------
 class TestProhibitedTechniqueRouting:
-    @pytest.mark.parametrize("technique", PROHIBITED_TECHNIQUES)
+    @pytest.mark.parametrize("technique", PROHIBITED)
     def test_prohibited_technique_has_no_implemented_tool(self, technique):
         """Refusal-by-absence: no shipped tool declares a prohibited technique as
         its TECHNIQUE_ID, so there is no code path that could execute it."""
@@ -177,27 +193,27 @@ class TestProhibitedTechniqueRouting:
             f"{technique} is implemented by a tool but is on the prohibited list"
         )
 
-    def test_prohibited_techniques_absent_from_committed_routing_config(self):
-        """The committed rejewski.config.json routes none of the prohibited
-        techniques (they are not even model-routed, let alone runnable)."""
+    def test_committed_config_loads_and_routes_no_prohibited_technique(self):
+        """The committed rejewski.config.json loads cleanly (it references no
+        prohibited technique) and routes none of them."""
         routing = load_config().rejewski.routing
-        overlap = set(PROHIBITED_TECHNIQUES) & set(routing.hard_techniques)
+        overlap = set(PROHIBITED) & set(routing.hard_techniques)
         assert overlap == set(), f"prohibited techniques in routing: {overlap}"
 
-    def test_routing_layer_provides_no_prohibition_DOCUMENTS_GAP1(self):
-        """DOCUMENTS GAP-1 (not an enforcement test): RoutingConfig neither
-        refuses nor blocks a prohibited technique_id — select_model() returns the
-        default model (i.e. it would proceed) and is_hard() returns False. This
-        pins the gap so it becomes visible in CI and would break (prompting an
-        update to this test) if real technique-prohibition is ever added."""
-        routing = RoutingConfig(
-            default_model="claude-sonnet-4-6",
-            hard_step_model="claude-opus-4-6",
-        )
-        for technique in PROHIBITED_TECHNIQUES:
-            # No refusal, no exception — routing simply picks a model and proceeds.
-            assert routing.select_model(technique_id=technique) == "claude-sonnet-4-6"
-            assert routing.is_hard(technique_id=technique) is False
+    @pytest.mark.parametrize("technique", PROHIBITED)
+    def test_load_config_refuses_config_referencing_prohibited(
+        self, technique, tmp_path
+    ):
+        """GAP-1 closed (G-1/G-4, ADR 0001 §3): load_config() raises when the
+        config references a permanently out-of-scope technique."""
+        bad = {
+            "model": "claude-sonnet-4-6",
+            "rejewski": {"routing": {"hard_techniques": ["T1550.001", technique]}},
+        }
+        cfg_path = tmp_path / "rejewski.config.json"
+        cfg_path.write_text(json.dumps(bad), encoding="utf-8")
+        with pytest.raises(ValueError, match="out-of-scope technique"):
+            load_config(cfg_path)
 
 
 # ---------------------------------------------------------------------------

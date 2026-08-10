@@ -251,6 +251,20 @@ def write_entry(entry: ReplayLogEntry, *, log_dir: Path | None = None) -> Path:
             f"tenant lock (G-1): tenant_id must be {SANDBOX_TENANT_ID}, "
             f"got {entry.tenant_id!r}"
         )
+    # G-1 read-only enforcement: a graph_call must be a GET. A token_event carries
+    # the legitimate POST to the OAuth token endpoint and is exempt. This is the
+    # active write-verb guard — a graph_call recorded with POST/PATCH/PUT/DELETE is
+    # refused before the entry is written, so a future tool that issued a write
+    # cannot silently produce a valid evidence record for it.
+    if entry.kind == "graph_call":
+        method = ""
+        if isinstance(entry.request, dict):
+            method = str(entry.request.get("method", "")).upper()
+        if method != "GET":
+            raise ValueError(
+                "G-1 read-only enforcement: graph_call request.method must be "
+                f"'GET', got {method!r}"
+            )
 
     shaped_response = _shape_response(entry.kind, entry.response)
     payload = asdict(entry)

@@ -167,10 +167,13 @@ class TestScrubbing:
         assert "Authorization" not in raw
 
     def test_request_body_credentials_scrubbed(self, tmp_path):
+        # GET method: a graph_call is read-only (write_entry now enforces GET),
+        # and the scrubber under test is method-agnostic — it drops nested
+        # credentials wherever they appear in the request dict.
         secret = "hunter2-nested-password"
         entry = _valid_entry(
             request={
-                "method": "POST",
+                "method": "GET",
                 "url": "https://graph.microsoft.com/v1.0/users",
                 "body": {"credentials": {"password": secret}},
             },

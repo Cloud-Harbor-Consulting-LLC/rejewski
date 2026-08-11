@@ -1,7 +1,7 @@
 # Rejewski ATT&CK Coverage Map
 
-- Version: v0.7
-- Last updated: 2026-08-11
+- Version: v0.8
+- Last updated: 2026-08-15
 - Status: Living document — updated at each sprint checkpoint
 - Authors: Derek Morgan
 - Related: docs/threat-model.md, docs/techniques/, docs/guardrails.md
@@ -15,7 +15,7 @@ maps, catalogues, or explicitly excludes. It is the authoritative source for the
 "ATT&CK techniques mapped" KPI tracked in the Sprint Checkpoint KPIs tab of
 phs-kpi-dashboard-v1.0.xlsx.
 
-**Current count:** 17 unique techniques (11 implemented, 6 catalogued, 0 excluded-and-counted)
+**Current count:** 20 unique techniques (13 implemented, 7 catalogued, 0 excluded-and-counted)
 
 **Sprint 2 checkpoint target (Thu 2026-07-02):** 10 unique techniques
 
@@ -44,6 +44,9 @@ phs-kpi-dashboard-v1.0.xlsx.
 | T1619 | Cloud Storage Object Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1619.md | *Pending Sprint 2* |
 | T1114.002 | Email Collection: Remote Email Collection | Collection | Implemented — Sprint 4 (Surface A) | docs/techniques/T1114.002.md | scripts/tool_list_inbox_rules.py |
 | T1654 | Log Enumeration | Discovery | Implemented — Sprint 2 | docs/techniques/T1654.md | scripts/tool_signin_logs.py, scripts/tool_list_security_alerts.py |
+| T1114.003 | Email Collection: Email Forwarding Rule | Collection | Implemented — Sprint 4 W14 | docs/techniques/T1114.003.md | scripts/tool_list_inbox_rules.py |
+| T1033 | System Owner/User Discovery | Discovery | Implemented — Sprint 4 W14 | docs/techniques/T1033.md | scripts/identity.py, scripts/step4-token-smoke.py, scripts/tool_list_role_assignments.py |
+| T1528 | Steal Application Access Token | Credential Access | Catalogued — Sprint 4 | docs/techniques/T1528.md | scripts/tool_list_oauth_grants.py, scripts/tool_list_service_principals.py (recon surface; token theft not emulated) |
 
 **Status definitions:**
 
@@ -68,8 +71,9 @@ points to it. No gap remains.
 | Tactic | Techniques | IDs |
 |--------|-----------|-----|
 | Initial Access | 1 | T1078.004 |
-| Discovery | 11 | T1087.004, T1069.003, T1526, T1087.003, T1518.001, T1082, T1482, T1580, T1538, T1619, T1654 |
-| Collection | 4 | T1213.002, T1213.003, T1530, T1114.002 |
+| Discovery | 12 | T1087.004, T1069.003, T1526, T1087.003, T1518.001, T1082, T1482, T1580, T1538, T1619, T1654, T1033 |
+| Collection | 5 | T1213.002, T1213.003, T1530, T1114.002, T1114.003 |
+| Credential Access | 1 | T1528 |
 | Defense Evasion / Lateral Movement | 1 | T1550.001 |
 
 Discovery dominates the current coverage, consistent with Rejewski's Sprint 1–2
@@ -119,6 +123,7 @@ targets and avoid detection. T1550.001 operationalises the token that T1078.004 
 | S1 W4b (2026-06-05) | T1082, T1213.002, T1482 | **10** |
 | S2 catalogue expansion (2026-06-19) | T1580, T1538, T1213.003, T1530, T1619, T1114.002 | **16** |
 | S2 W7 implementation (2026-06-23) | T1580 implemented (Tool 9); T1654 added as implemented (Tool 10) | **17** |
+| S4 W14 ATT&CK expansion (2026-08-15) | T1114.003 + T1033 implemented; T1528 catalogued | **20** |
 
 Sprint 2 checkpoint target of 10 techniques reached and exceeded (16 catalogued/implemented
 ahead of the Thu 2026-07-02 checkpoint). Technique selection for the Sprint 3

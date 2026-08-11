@@ -1,13 +1,30 @@
 # Project Harbor Sonar — Threat Model
 
-- Version: v1.3
-- Last updated: 2026-08-11
+- Version: v1.4
+- Last updated: 2026-08-15
 - Status: Living document
 - Authors: Derek Morgan
 - Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/, docs/attck-coverage.md
 
 ## Change log
 
+- v1.4 (2026-08-15) — Sprint 4 W14 ATT&CK expansion (docs-only, no new script).
+  Three techniques added to close the Sprint 4 ATT&CK-coverage KPI gap.
+  **T1114.003 Email Collection: Email Forwarding Rule** (Collection, Implemented) —
+  the forwarding-rule view of the existing inbox-rule inventory
+  (scripts/tool_list_inbox_rules.py, GET /users/{id}/mailFolders/inbox/messageRules);
+  forwardTo/forwardAsAttachmentTo/redirectTo actions are the T1114.003 artifacts,
+  read-only (existing rules enumerated, never created), sharing Tool 13's
+  implementation with T1114.002 Surface A. **T1033 System Owner/User Discovery**
+  (Discovery, Implemented) — Surface A operator identity resolution via
+  scripts/identity.py (identity context) with the GET /me profile read in
+  scripts/step4-token-smoke.py; Surface B tenant owner/admin identification via
+  scripts/tool_list_role_assignments.py. **T1528 Steal Application Access Token**
+  (Credential Access, Catalogued) — reconnaissance surface only
+  (scripts/tool_list_oauth_grants.py + scripts/tool_list_service_principals.py map
+  which app holds which delegated token); the token-theft action is prohibited by
+  G-1/G-2 and not emulated. First Credential Access tactic entry. Total mapped
+  techniques 17 → 20; implemented/catalogued split moves 11/6 → 13/7.
 - v1.3 (2026-08-11) — Sprint 4 W14 Tool 14. T1213.002 Data from Information
   Repositories: SharePoint promoted Catalogued → Implemented for Surface A —
   SharePoint site enumeration with external sharing policy read via
@@ -142,9 +159,11 @@ kill-chain order. Sprint 1 shipped T1078.004, T1087.004, T1069.003, T1550.001, a
 T1087.003 and T1518.001 were catalogued Sprint 1 W4 (2026-06-03). T1082, T1213.002,
 and T1482 were catalogued Sprint 1 W4 (2026-06-05). T1580, T1538, T1213.003, T1530,
 T1619, and T1114.002 were catalogued in the Sprint 2 catalogue expansion (2026-06-19).
-T1580 was implemented and T1654 added as implemented in Sprint 2 W7 (2026-06-23),
-bringing the total to 17 mapped techniques. The authoritative coverage count
-and path-to-target table are in docs/attck-coverage.md.
+T1580 was implemented and T1654 added as implemented in Sprint 2 W7 (2026-06-23).
+The Sprint 4 W14 ATT&CK expansion (2026-08-15) added T1114.003 and T1033
+(implemented) and T1528 (catalogued), bringing the total to 20 mapped techniques.
+The authoritative coverage count and path-to-target table are in
+docs/attck-coverage.md.
 
 | Technique | Tactic | Status | Sprint | Module |
 |-----------|--------|--------|--------|--------|
@@ -165,6 +184,9 @@ and path-to-target table are in docs/attck-coverage.md.
 | T1619 Cloud Storage Object Discovery | Discovery | Catalogued | 2 | docs/techniques/T1619.md |
 | T1114.002 Email Collection: Remote Email Collection | Collection | Implemented — Sprint 4 W13 | 4 | docs/techniques/T1114.002.md |
 | T1654 Log Enumeration | Discovery | Implemented | 2 | docs/techniques/T1654.md |
+| T1114.003 Email Collection: Email Forwarding Rule | Collection | Implemented — Sprint 4 W14 | 4 | docs/techniques/T1114.003.md |
+| T1033 System Owner/User Discovery | Discovery | Implemented — Sprint 4 W14 | 4 | docs/techniques/T1033.md |
+| T1528 Steal Application Access Token | Credential Access | Catalogued — Sprint 4 (recon surface only) | 4 | docs/techniques/T1528.md |
 
 Each module follows the ADR 0003 format: YAML front matter, eight required sections, and cited cross-references to this threat model, the governing ADR(s), and docs/guardrails.md.
 
@@ -275,5 +297,5 @@ The following are explicitly out of scope for Sprint 1 and are tracked for later
 - ADR 0005 — Token Persistence and Reuse (T1550.001 implementation basis)
 - docs/guardrails.md — G-1 through G-9
 - docs/attck-coverage.md — authoritative technique count and path-to-target table
-- docs/techniques/T1078.004.md, T1087.004.md, T1069.003.md, T1526.md, T1087.003.md, T1518.001.md, T1082.md, T1213.002.md, T1482.md, T1580.md, T1538.md, T1213.003.md, T1530.md, T1619.md, T1114.002.md, T1654.md
+- docs/techniques/T1078.004.md, T1087.004.md, T1069.003.md, T1526.md, T1087.003.md, T1518.001.md, T1082.md, T1213.002.md, T1482.md, T1580.md, T1538.md, T1213.003.md, T1530.md, T1619.md, T1114.002.md, T1654.md, T1114.003.md, T1033.md, T1528.md
 - MITRE ATT&CK Enterprise — <https://attack.mitre.org/matrices/enterprise/>

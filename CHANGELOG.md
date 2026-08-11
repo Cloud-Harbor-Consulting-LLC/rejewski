@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `docs/phs-security-roi-model-v0.1.md` — Pillar 2 business case model (B011).
+  Applies the ROI baseline (docs/phs-security-roi-baseline-v0.1.md) to a
+  representative 750-employee mid-market M365 E5 scenario. Covers: credential
+  attack exposure ($728K expected credential breach cost), control effectiveness
+  (99.2% MFA block rate), Rejewski positioning (residual 0.8% post-MFA attack
+  surface), findings-to-ROI bridge table (R011 9 findings mapped to risk
+  categories), and honest limitations. All figures source-cited with confidence
+  bands; vendor bias disclosed inline. Sprint 4 W14 Pillar 2 build.
+
 - **Tool 14** (`scripts/tool_list_sharepoint_sites.py`): T1213.002 Data from
   Information Repositories: SharePoint — Surface A (SharePoint site enumeration
   with external sharing policy read). Enumerates all SharePoint Online site

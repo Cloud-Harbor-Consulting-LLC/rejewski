@@ -11,6 +11,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Tool 14** (`scripts/tool_list_sharepoint_sites.py`): T1213.002 Data from
+  Information Repositories: SharePoint — Surface A (SharePoint site enumeration
+  with external sharing policy read). Enumerates all SharePoint Online site
+  collections accessible to the operator account via GET /sites?search=* (Graph
+  v1.0). Scope: Sites.Read.All (delegated). No Entra directory role required.
+  Projects per site: id, displayName, webUrl, sharingCapability (classified as
+  high/medium/low/none sharing risk), createdDateTime, lastModifiedDateTime.
+  High and medium sharing-risk sites optionally proceed to drives enumeration
+  (GET /sites/{id}/drives: id, name, driveType, quota) and lists enumeration
+  (GET /sites/{id}/lists: id, displayName, list.template, itemCount) when
+  --include-drives / --include-lists flags are set. G-9 row cap default 1 000
+  sites. webUrl tenant GUID redacted in evidence output. Promotes T1213.002
+  from Catalogued to Implemented — Sprint 4 W14.
+- `tests/test_tool_list_sharepoint_sites.py`: test suite for Tool 14 (12 cases).
+  Covers happy path, sharingCapability classification (all 4 enum values), drive
+  enumeration gating, row-cap truncation, empty site list, 429 retry, 401
+  mid-pagination recovery, webUrl redaction, replay-log entry shape, include-drives/
+  include-lists default-off, and Sites.Read.All 403 error path.
+- `docs/techniques/T1213.002.md`: status Catalogued → Implemented (Surface A).
+  Adds Surface A implementation note and script reference; procedure updated from
+  pending to implemented; evidence section added.
+- `docs/attck-coverage.md` v0.7: T1213.002 row Implemented (Surface A); script
+  column updated; implemented/catalogued split 10/7 → 11/6.
+- `docs/threat-model.md` v1.3: T1213.002 promoted to Implemented in §5 table
+  and Sprint 2+ subsection.
+
 - `tests/test_autonomy_boundary.py` — agent autonomy boundary suite (11 tests) verifying the G-1..G-9 guardrails hold when the layer is pushed toward write / persistence / lateral-movement actions. Write-operation refusal (structural + behavioural GET-only proof), prohibited-technique routing (T1053 / T1078.003 / T1136 / T1098 blocked by refusal-by-absence), and the G-1/G-3 sandbox tenant lock (write_entry rejects wrong/empty tenant and missing borrowed_client_id). **Two gaps found (both since CLOSED — see Fixed below):** (GAP-1) `RoutingConfig` is_hard/select_model are model-routing only and never refuse a prohibited technique_id — `load_config()` does no technique-allowlist check despite ADR 0001 §3; (GAP-2) `replay_log.write_entry()` does not validate `request.method`, so GET-only has no active write-verb guard — it holds structurally (no tool issues a write verb) and via the SDK config only.
 
 - `docs/threat-actor-playbook-v1.md` — operator manual defining five canonical

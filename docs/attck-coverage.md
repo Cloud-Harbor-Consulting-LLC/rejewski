@@ -1,7 +1,7 @@
 # Rejewski ATT&CK Coverage Map
 
-- Version: v0.6
-- Last updated: 2026-08-04
+- Version: v0.7
+- Last updated: 2026-08-11
 - Status: Living document — updated at each sprint checkpoint
 - Authors: Derek Morgan
 - Related: docs/threat-model.md, docs/techniques/, docs/guardrails.md
@@ -15,7 +15,7 @@ maps, catalogues, or explicitly excludes. It is the authoritative source for the
 "ATT&CK techniques mapped" KPI tracked in the Sprint Checkpoint KPIs tab of
 phs-kpi-dashboard-v1.0.xlsx.
 
-**Current count:** 17 unique techniques (10 implemented, 7 catalogued, 0 excluded-and-counted)
+**Current count:** 17 unique techniques (11 implemented, 6 catalogued, 0 excluded-and-counted)
 
 **Sprint 2 checkpoint target (Thu 2026-07-02):** 10 unique techniques
 
@@ -35,7 +35,7 @@ phs-kpi-dashboard-v1.0.xlsx.
 | T1087.003 | Account Discovery: Email Account | Discovery | Catalogued — Sprint 2 | docs/techniques/T1087.003.md | *Pending Sprint 2* |
 | T1518.001 | Software Discovery: Security Software Discovery | Discovery | Implemented — Sprint 2 | docs/techniques/T1518.001.md | scripts/tool_dfi_health.py |
 | T1082 | System Information Discovery | Discovery | Implemented — Sprint 2 | docs/techniques/T1082.md | scripts/tool_intune_devices.py |
-| T1213.002 | Data from Information Repositories: Sharepoint | Collection | Catalogued — Sprint 2 | docs/techniques/T1213.002.md | *Pending Sprint 2* |
+| T1213.002 | Data from Information Repositories: Sharepoint | Collection | Implemented — Sprint 4 (Surface A) | docs/techniques/T1213.002.md | scripts/tool_list_sharepoint_sites.py |
 | T1482 | Domain Trust Discovery | Discovery | Catalogued — Sprint 2 | docs/techniques/T1482.md | *Pending Sprint 2* |
 | T1580 | Cloud Infrastructure Discovery | Discovery | Implemented — Sprint 2 | docs/techniques/T1580.md | scripts/tool_purview_labels.py |
 | T1538 | Cloud Service Dashboard | Discovery | Catalogued — Sprint 2 | docs/techniques/T1538.md | *Pending Sprint 2* |

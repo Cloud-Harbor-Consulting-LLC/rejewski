@@ -1,13 +1,22 @@
 # Project Harbor Sonar — Threat Model
 
-- Version: v1.2
-- Last updated: 2026-08-04
+- Version: v1.3
+- Last updated: 2026-08-11
 - Status: Living document
 - Authors: Derek Morgan
 - Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/, docs/attck-coverage.md
 
 ## Change log
 
+- v1.3 (2026-08-11) — Sprint 4 W14 Tool 14. T1213.002 Data from Information
+  Repositories: SharePoint promoted Catalogued → Implemented for Surface A —
+  SharePoint site enumeration with external sharing policy read via
+  GET /sites?search=* (scripts/tool_list_sharepoint_sites.py), requiring
+  Sites.Read.All scope. No Entra directory role required. sharingCapability field
+  flags sites with external sharing enabled as high/medium risk for follow-on
+  enumeration. Optional drives (GET /sites/{id}/drives) and lists
+  (GET /sites/{id}/lists) enumeration for flagged sites. Total mapped techniques
+  unchanged at 17; implemented/catalogued split moves 10/7 → 11/6.
 - v1.2 (2026-08-04) — Sprint 4 W13 Tool 13. T1114.002 Email Collection: Remote
   Email Collection promoted Catalogued → Implemented for Surface A — inbox message
   rule enumeration via GET /users/{id}/mailFolders/inbox/messageRules
@@ -147,7 +156,7 @@ and path-to-target table are in docs/attck-coverage.md.
 | T1087.003 Account Discovery: Email Account | Discovery | Catalogued | 2 | docs/techniques/T1087.003.md |
 | T1518.001 Software Discovery: Security Software Discovery | Discovery | Implemented — Sprint 2 | 2 | docs/techniques/T1518.001.md |
 | T1082 System Information Discovery | Discovery | Implemented — Sprint 2 | 2 | docs/techniques/T1082.md |
-| T1213.002 Data from Information Repositories: Sharepoint | Collection | Catalogued | 2 | docs/techniques/T1213.002.md |
+| T1213.002 Data from Information Repositories: Sharepoint | Collection | Implemented — Sprint 4 W14 | 4 | docs/techniques/T1213.002.md |
 | T1482 Domain Trust Discovery | Discovery | Catalogued | 2 | docs/techniques/T1482.md |
 | T1580 Cloud Infrastructure Discovery | Discovery | Implemented | 2 | docs/techniques/T1580.md |
 | T1538 Cloud Service Dashboard | Discovery | Catalogued | 2 | docs/techniques/T1538.md |
@@ -188,7 +197,7 @@ grants only.
 | T1087.003 Account Discovery: Email Account | Discovery | Catalogued — Sprint 2 (2026-06-03) | GET /users with mail, proxyAddresses, mailEnabled, mailNickname, userType $select projection |
 | T1518.001 Software Discovery: Security Software Discovery | Discovery | Implemented — Sprint 2 W6 (2026-06-16) | GET /subscribedSkus (service plan enumeration to identify active Microsoft security products) |
 | T1082 System Information Discovery | Discovery | Implemented — Sprint 2 W6 (2026-06-16) | GET /organization (tenant name, hybrid status, provisioned plans, verified domains, security contacts) |
-| T1213.002 Data from Information Repositories: Sharepoint | Collection | Catalogued — Sprint 2 (2026-06-05) | GET /sites, GET /sites/{id}/drives, GET /sites/{id}/lists — requires Sites.Read.All scope |
+| T1213.002 Data from Information Repositories: Sharepoint | Collection | Implemented — Surface A, Sprint 4 W14 (2026-08-11) | **Surface A** (scripts/tool_list_sharepoint_sites.py): GET /sites?search=* — Sites.Read.All scope, no Entra role; sharingCapability flags external-sharing risk. Optional GET /sites/{id}/drives, GET /sites/{id}/lists for flagged sites. |
 | T1482 Domain Trust Discovery | Discovery | Catalogued — Sprint 2 (2026-06-05) | GET /domains, GET /domains/{id}/federationConfiguration — requires Domain.Read.All scope |
 | T1580 Cloud Infrastructure Discovery | Discovery | Implemented — Sprint 2 W7 (2026-06-23) | GET /security/dataSecurityAndGovernance/sensitivityLabels (active — Purview sensitivity-label inventory; SensitivityLabel.Read delegated, no Entra role required). Original surfaces GET /organization, GET /domains, GET /subscribedSkus deferred as complementary surfaces (see docs/techniques/T1580.md Limitations). |
 | T1654 Log Enumeration | Discovery | Implemented — Sprint 2 W7 (2026-06-23); Surface B added Sprint 3 W12 (2026-07-28) | **Surface A** (scripts/tool_signin_logs.py): GET /auditLogs/signIns — requires AuditLog.Read.All + Reports Reader/Security Reader (or higher) Entra role on the signed-in operator. Mandatory `$filter=createdDateTime ge <window-start>` (default 7-day lookback). **Surface B** (scripts/tool_list_security_alerts.py): GET /security/alerts_v2 — requires SecurityAlert.Read.All + Security Reader (or higher) Entra role. Optional `$filter` on createdDateTime (default 30-day lookback), severity, and status. |

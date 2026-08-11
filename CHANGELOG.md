@@ -11,6 +11,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **ATT&CK Sprint 4 expansion** (docs-only, no new script) — three technique
+  modules added to close the Sprint 4 ATT&CK-coverage KPI gap, taking the mapped
+  count 17 → 20 (implemented/catalogued 11/6 → 13/7):
+  - `docs/techniques/T1114.003.md` — Email Collection: Email Forwarding Rule
+    (Collection, Implemented). The forwarding-rule view of the existing inbox-rule
+    inventory (scripts/tool_list_inbox_rules.py, shared with T1114.002 Surface A);
+    forwardTo/forwardAsAttachmentTo/redirectTo actions are the technique artifacts.
+    Read-only — enumerates existing rules, does not create them. Evidence pending
+    first sandbox run (Tool 13 shipped after R011).
+  - `docs/techniques/T1033.md` — System Owner/User Discovery (Discovery,
+    Implemented). Surface A operator identity resolution via scripts/identity.py
+    (identity context) with the GET /me profile read in
+    scripts/step4-token-smoke.py; Surface B tenant owner/admin identification via
+    scripts/tool_list_role_assignments.py. Surface A evidenced in R011; Surface B
+    evidence pending a post-B030 run (R011 role-assignments call returned HTTP 400).
+  - `docs/techniques/T1528.md` — Steal Application Access Token (Credential Access,
+    Catalogued) — first Credential Access tactic entry. Reconnaissance surface only
+    (scripts/tool_list_oauth_grants.py + scripts/tool_list_service_principals.py);
+    the token-theft action is prohibited by G-1/G-2 and not emulated.
+  - `docs/attck-coverage.md` v0.7 → v0.8 and `docs/threat-model.md` v1.3 → v1.4
+    updated for the three techniques (counts, tactic distribution, §5/§8, change logs).
+
 - `docs/phs-security-roi-model-v0.1.md` — Pillar 2 business case model (B011).
   Applies the ROI baseline (docs/phs-security-roi-baseline-v0.1.md) to a
   representative 750-employee mid-market M365 E5 scenario. Covers: credential

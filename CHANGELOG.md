@@ -11,6 +11,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scripts/finding_dedup.py` — finding deduplication classifier. Reads all finding-triage
+  records from `samples/finding-triage/`, groups by `technique_id`, and classifies each
+  finding in the target run as `new_technique`, `recurring`, or `variant` relative to prior
+  runs. Read-only; does not modify any finding records. CLI: --finding-dir / --run-id /
+  --output. Output: JSON summary with per-finding classification and severity diffs.
+- `scripts/finding_coverage_report.py` — control-mapping coverage report. Reads implemented
+  techniques from docs/attck-coverage.md and finding-to-control records from
+  samples/finding-to-control/; emits docs/finding-coverage-report.md with covered/gap
+  tables and running coverage history. CLI: --attck-coverage / --mapping-dir / --output.
+  Read-only; does not modify any finding or mapping records.
+- `docs/finding-coverage-report.md` — generated coverage report (first run): 13 implemented
+  techniques, 9 covered (69.2%), 4 gap (T1213.002, T1114.002, T1114.003, T1033).
+- `tests/test_finding_dedup.py`: test suite for finding_dedup.py (8 cases). Covers
+  new_technique / recurring / variant classification, severity-diff detection, prior-run-only
+  tracking, missing run-id, empty directory, invalid JSON skip, and summary count
+  correctness.
+- `tests/test_finding_coverage_report.py`: test suite for finding_coverage_report.py
+  (8 cases). Covers full coverage, gap detection, Implemented-only parsing, multi-mapping
+  dedup, missing-dir error, missing-file error, history-row append, and version extraction.
+
 - **ATT&CK Sprint 4 expansion** (docs-only, no new script) — three technique
   modules added to close the Sprint 4 ATT&CK-coverage KPI gap, taking the mapped
   count 17 → 20 (implemented/catalogued 11/6 → 13/7):

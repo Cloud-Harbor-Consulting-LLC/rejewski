@@ -14,7 +14,7 @@ borrowed first-party client is Microsoft Graph Command Line Tools. The FOCI
 client is fixed to 14d82eec per ADR-0006 and guardrail G-3.
 
 Every invocation writes a replay-log entry (success, error, throttled, or
-row_cap_hit) to the configured replay-log directory under the v0.3 schema
+row_cap_hit) to the configured replay-log directory under the v0.5 schema
 with kind="graph_call". 401 mid-pagination recovers via the encrypted cache,
 not in-memory MSAL state.
 

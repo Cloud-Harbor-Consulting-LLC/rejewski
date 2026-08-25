@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Bug bash (Sprint 4 W16) — docstring-accuracy fixes across the 14 tool scripts.**
+  Documentation-only; no CLI or Graph-call behavior changed, suite unchanged at 151.
+  - Corrected the stale replay-log schema version in five tool docstrings that predated
+    schema bumps: `tool_list_groups.py`, `tool_list_applications.py`,
+    `tool_list_ca_policies.py`, `tool_list_role_assignments.py` (were "v0.3") and
+    `tool_list_service_principals.py` (was "v0.4") → all now "v0.5", matching the
+    runtime `replay_log.SCHEMA_VERSION`.
+  - Rewrote the stale `$expand` description in `tool_list_role_assignments.py`: it
+    described the pre-B030 single-call `$expand=principal,roleDefinition`; the tool now
+    uses the two-call merge (B030 fix, PR #71) and accepts-but-ignores `--expand`.
+  - Full review recorded in `docs/bug-bash-report-w16.md`, including three behavioral
+    inconsistencies flagged for sign-off (not fixed): Tool 14's `logs/` default
+    replay-log dir vs `replay-logs/` fleet-wide; Tool 14's required `--run-id` vs
+    optional elsewhere; and `--emit/--no-emit` present on only 7 of 14 tools.
+
 ### Added
 
 - `scripts/finding_dedup.py` — finding deduplication classifier. Reads all finding-triage

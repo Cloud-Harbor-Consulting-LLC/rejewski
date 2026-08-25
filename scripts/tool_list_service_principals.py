@@ -29,7 +29,7 @@ No tenant-side app registration is created in the target tenant
 Microsoft Graph Command Line Tools. The FOCI client is fixed to 14d82eec per
 ADR-0006 and guardrail G-3.
 
-Every invocation writes a replay-log entry under the v0.4 schema with
+Every invocation writes a replay-log entry under the v0.5 schema with
 kind="graph_call". The schema version is set from replay_log.SCHEMA_VERSION.
 
 REQUIRED PRIVILEGE — SCOPE AND DIRECTORY ROLE:
@@ -215,7 +215,7 @@ def _compute_sp_summary(
 ) -> dict[str, Any]:
     """Compute SP-specific aggregate metrics for the evidence JSON envelope.
 
-    Not written to the replay-log entry (v0.4 schema enforces
+    Not written to the replay-log entry (v0.5 schema enforces
     additionalProperties: false on the response branch).
     """
     enabled = sum(1 for sp in sps if sp.get("accountEnabled") is True)

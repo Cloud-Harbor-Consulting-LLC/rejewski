@@ -80,6 +80,9 @@ so nothing is committed either way. **Why not fixed:** changing the default outp
 changes what the script does (where files are written). Recommend aligning Tool 14 to
 `replay-logs/` in a follow-up, pending confirmation that `logs/` was not intentional.
 
+> **RESOLVED (signed off, follow-up PR):** Tool 14's default changed to `replay-logs/`,
+> matching the fleet.
+
 **N2 — Tool 14 (sharepoint_sites) requires `--run-id`; the other 13 make it optional.**
 Tool 14 declares `--run-id ... required=True`; all other tools use `default=None` (optional).
 Impact: an inconsistent CLI contract — Tool 14 aborts with an argparse error if `--run-id` is
@@ -87,6 +90,9 @@ omitted, whereas every other tool runs without it. **Why not fixed:** changing r
 status changes input validation behavior. Recommend a fleet decision on whether `--run-id`
 should be mandatory everywhere (arguably more correct for evidence binding) or optional
 everywhere, then align — rather than silently changing one tool.
+
+> **RESOLVED (signed off, follow-up PR):** Tool 14's `--run-id` changed to optional
+> (`default=None`), matching the fleet convention.
 
 **N3 — `--emit / --no-emit` dry-run toggle is present on only 7 of 14 tools.**
 Present: Tools 7, 8, 9, 10, 12, 13, 14. Absent: Tools 1–6 and 11. The flag (perform the Graph
@@ -113,4 +119,5 @@ dry-run affordance should be fleet-wide.
 - Scripts reviewed: **14 / 14**
 - Trivial fixes applied: **2** (F1 schema-version drift in 5 tools; F2 `$expand` docstring in Tool 5) — documentation only
 - Behavioral/feature issues flagged for sign-off: **3** (N1 default log dir, N2 `--run-id` required, N3 `--emit` coverage)
-- Test suite: **151 → 151** (green; no behavior changed)
+  - **N1 and N2 subsequently signed off and fixed** in the follow-up Tool 14 alignment PR (suite → 153); **N3 remains open.**
+- Test suite: **151 → 151** at bug-bash close (docstring-only, no behavior changed); **153** after the N1/N2 follow-up.

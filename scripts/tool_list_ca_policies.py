@@ -21,7 +21,7 @@ No tenant-side app registration is created in the target tenant
 Microsoft Graph Command Line Tools. The FOCI client is fixed to 14d82eec per
 ADR-0006 and guardrail G-3.
 
-Every invocation writes a replay-log entry under the v0.3 schema with
+Every invocation writes a replay-log entry under the v0.5 schema with
 kind="graph_call".
 
 REQUIRED PRIVILEGE — SECURITY READER OR ABOVE:
@@ -199,7 +199,7 @@ def _compute_ca_summary(policies: list[dict[str, Any]]) -> dict[str, Any]:
 
     These metrics are written into the evidence JSON output for
     detection-engineering consumers. They are NOT added to the replay log
-    entry — the v0.3 schema enforces additionalProperties: false on the
+    entry — the v0.5 schema enforces additionalProperties: false on the
     response branch, and CA-specific counts would fail schema validation.
     """
     def _built_in_controls(p: dict[str, Any]) -> list[str]:

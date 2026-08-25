@@ -13,9 +13,12 @@ highest blast-radius roles is prerequisite to targeting those accounts in
 later-stage lateral movement or persistence operations. This module maps to
 T1087.004 Account Discovery: Cloud Account (ADR 0001 §3, threat-model.md §5).
 
-The tool uses $expand=principal,roleDefinition to resolve human-readable
-principal display names and role definition names in a single paginated
-call, avoiding a separate roleDefinitions pre-fetch.
+The tool resolves human-readable principal display names and role definition
+names via a two-call merge — $expand=principal on the first pass and
+$expand=roleDefinition on the second — because Graph v1.0 rejects expanding
+both properties in a single query (HTTP 400); the passes are merged by
+assignment id. (The --expand flag is accepted but ignored, kept for backward
+compatibility. See the B030 fix.)
 
 Token acquisition, silent reuse, and CAE/CP1 handling are owned by
 ADR 0005's encrypted PersistedTokenCache helper. This tool consumes the
@@ -27,7 +30,7 @@ No tenant-side app registration is created in the target tenant
 Microsoft Graph Command Line Tools. The FOCI client is fixed to 14d82eec per
 ADR-0006 and guardrail G-3.
 
-Every invocation writes a replay-log entry under the v0.3 schema with
+Every invocation writes a replay-log entry under the v0.5 schema with
 kind="graph_call".
 
 REQUIRED PRIVILEGE — SCOPE AND DIRECTORY ROLE:
@@ -239,7 +242,7 @@ def _compute_ra_summary(assignments: list[dict[str, Any]]) -> dict[str, Any]:
 
     These metrics are written into the evidence JSON output for
     detection-engineering consumers. They are NOT added to the replay log
-    entry — the v0.3 schema enforces additionalProperties: false on the
+    entry — the v0.5 schema enforces additionalProperties: false on the
     response branch, and RA-specific counts would fail schema validation.
     """
     principal_ids: set[str] = set()

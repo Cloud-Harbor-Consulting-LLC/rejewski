@@ -29,7 +29,7 @@ No tenant-side app registration is created in the target tenant
 Microsoft Graph Command Line Tools. The FOCI client is fixed to 14d82eec per
 ADR-0006 and guardrail G-3.
 
-Every invocation writes a replay-log entry under the v0.5 schema with
+Every emitted invocation writes a replay-log entry under the v0.5 schema with
 kind="graph_call". The schema version is set from replay_log.SCHEMA_VERSION.
 
 REQUIRED PRIVILEGE — SCOPE AND DIRECTORY ROLE:
@@ -275,6 +275,16 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     p.add_argument(
+        "--emit",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "write the replay-log entry for this run (default: on, honoring the "
+            "G-5 evidence-capture rule). Pass --no-emit for a local dry run that "
+            "performs the Graph read but writes no entry."
+        ),
+    )
+    p.add_argument(
         "--run-id",
         default=None,
         help="run binding key (e.g. R006); propagated to replay-log entry",
@@ -376,7 +386,9 @@ def main() -> int:
         run_id=args.run_id,
     )
 
-    replay_path = write_entry(replay_entry, log_dir=replay_log_dir)
+    replay_path: Path | None = None
+    if args.emit:
+        replay_path = write_entry(replay_entry, log_dir=replay_log_dir)
 
     sp_summary = _compute_sp_summary(sps, tenant_id) if outcome != "error" else {}
 
@@ -396,7 +408,7 @@ def main() -> int:
         "page_count": stats["page_count"],
         "retry_count": stats["retry_count"],
         "outcome": outcome,
-        "replay_log_entry": str(replay_path),
+        "replay_log_entry": str(replay_path) if replay_path else None,
         **sp_summary,
         "service_principals": sps,
     }

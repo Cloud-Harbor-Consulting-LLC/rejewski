@@ -103,6 +103,10 @@ it. Impact: the earlier tools always write a replay-log entry with no dry-run es
 a feature, not a typo. Recommend backporting as a small dedicated task (7 scripts + tests) if the
 dry-run affordance should be fleet-wide.
 
+> **RESOLVED (signed off, follow-up PR):** `--emit/--no-emit` backported to all 7 tools
+> (Tools 1–6 and 11), matching the fleet contract (token_event unaffected). Covered by the
+> new shared `tests/test_tool_emit_flag.py` (14 cases). All 14 tools now have the toggle.
+
 ## Notes (reviewed, no action)
 
 - **`--help` em-dash rendering.** Some help strings render `—` as `�` under the default Windows
@@ -119,5 +123,8 @@ dry-run affordance should be fleet-wide.
 - Scripts reviewed: **14 / 14**
 - Trivial fixes applied: **2** (F1 schema-version drift in 5 tools; F2 `$expand` docstring in Tool 5) — documentation only
 - Behavioral/feature issues flagged for sign-off: **3** (N1 default log dir, N2 `--run-id` required, N3 `--emit` coverage)
-  - **N1 and N2 subsequently signed off and fixed** in the follow-up Tool 14 alignment PR (suite → 153); **N3 remains open.**
-- Test suite: **151 → 151** at bug-bash close (docstring-only, no behavior changed); **153** after the N1/N2 follow-up.
+  - **All three subsequently signed off and fixed** in follow-up PRs: N1 + N2 in the Tool 14
+    alignment PR (suite → 153), and **N3** (`--emit/--no-emit` backported to all 7 tools) in a
+    further PR (suite → 167). No W16 findings remain open.
+- Test suite: **151 → 151** at bug-bash close (docstring-only, no behavior changed); **153** after
+  the N1/N2 follow-up; **167** after the N3 backport.

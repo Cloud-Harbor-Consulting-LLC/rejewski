@@ -94,7 +94,7 @@ USER_AGENT = (
 )
 REQ_TIMEOUT = (5, 30)
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_REPLAY_LOG_DIR = REPO_ROOT / "logs"
+DEFAULT_REPLAY_LOG_DIR = REPO_ROOT / "replay-logs"
 TECHNIQUE_ID = "T1213.002"
 TECHNIQUE_NAME = "Data from Information Repositories: Sharepoint"
 TOOL_NAME = "tool_list_sharepoint_sites"
@@ -268,7 +268,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--replay-log-dir",
         default=str(DEFAULT_REPLAY_LOG_DIR),
-        help="directory for the replay-log entries (default: logs/ - gitignored)",
+        help=(
+            "directory for the replay-log entries "
+            "(default: replay-logs/ - gitignored; "
+            "use samples/replay-log for canonical runs)"
+        ),
     )
     p.add_argument(
         "--emit",
@@ -292,7 +296,7 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--run-id",
-        required=True,
+        default=None,
         help="run binding key (e.g. R012); propagated to replay-log entries",
     )
     return p.parse_args()

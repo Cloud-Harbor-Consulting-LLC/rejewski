@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Tool 14 (sharepoint_sites) fleet alignment (W16 N1 + N2, signed off).**
+  Resolves two of the three behavioral inconsistencies flagged in the W16 bug bash:
+  - **N1:** default replay-log directory `logs/` → `replay-logs/`, matching the other
+    13 tools, so canonical Tool 14 runs land evidence in the conventional directory.
+  - **N2:** `--run-id` changed from `required=True` to optional (`default=None`),
+    matching every other tool's CLI contract; a null run binding is propagated exactly
+    as the fleet does.
+  Two tests added (`TestFleetConventions`): default-dir assertion and a run without
+  `--run-id`. Suite 151 → 153. (N3 — `--emit/--no-emit` coverage — remains open.)
+
 - **Bug bash (Sprint 4 W16) — docstring-accuracy fixes across the 14 tool scripts.**
   Documentation-only; no CLI or Graph-call behavior changed, suite unchanged at 151.
   - Corrected the stale replay-log schema version in five tool docstrings that predated

@@ -78,8 +78,10 @@ def _run(monkeypatch, env, tmp_path, responses, extra_args=None, run_id="R012", 
     argv = [
         "tool_list_sharepoint_sites.py",
         "--replay-log-dir", str(replay_dir),
-        "--run-id", run_id,
-    ] + list(extra_args or [])
+    ]
+    if run_id is not None:  # run_id=None omits the flag (now optional, matching the fleet)
+        argv += ["--run-id", run_id]
+    argv += list(extra_args or [])
     monkeypatch.setattr(sys, "argv", argv)
     getmock = mock.MagicMock(side_effect=responses)
     with mock.patch(
@@ -271,3 +273,23 @@ class TestForbidden:
         entry = _read_graph_calls(replay_dir)[0]
         assert entry["outcome"] == "error"
         assert entry["response"]["row_count"] == 0
+
+
+class TestFleetConventions:
+    """Tool 14 aligned to the fleet CLI/output conventions (W16 N1 + N2)."""
+
+    def test_default_replay_log_dir_is_replay_logs(self):
+        # N1: default replay-log dir matches the other 13 tools, not the old 'logs/'.
+        assert tool.DEFAULT_REPLAY_LOG_DIR.name == "replay-logs"
+
+    def test_runs_without_run_id(self, monkeypatch, env, tmp_path, capsys):
+        # N2: --run-id is now optional (default None), consistent with the fleet.
+        body = {"value": [_site(1, CAP_NONE)]}
+        rc, replay_dir, _, out, err = _run(
+            monkeypatch, env, tmp_path, [FakeResp(200, body)], run_id=None, capsys=capsys
+        )
+        assert rc == 0
+        assert out["total_sites"] == 1
+        # the emitted entry carries a null run binding rather than aborting on a missing flag
+        entry = _read_graph_calls(replay_dir)[0]
+        assert entry.get("run_id") is None

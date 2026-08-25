@@ -13,7 +13,7 @@ No tenant-side app registration is created (ADR 0001 §1, guardrail G-3). The
 borrowed first-party client is Microsoft Graph Command Line Tools. The FOCI
 client is fixed to 14d82eec per ADR-0006 and guardrail G-3.
 
-Every invocation writes a replay-log entry (success, error, throttled, or
+Every emitted invocation writes a replay-log entry (success, error, throttled, or
 row_cap_hit) to the configured replay-log directory under the v0.5 schema
 with kind="graph_call". 401 mid-pagination recovers via the encrypted cache,
 not in-memory MSAL state.
@@ -163,6 +163,16 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     p.add_argument(
+        "--emit",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "write the replay-log entry for this run (default: on, honoring the "
+            "G-5 evidence-capture rule). Pass --no-emit for a local dry run that "
+            "performs the Graph read but writes no entry."
+        ),
+    )
+    p.add_argument(
         "--run-id",
         default=None,
         help="run binding key (e.g. R003); propagated to replay-log entry",
@@ -262,7 +272,9 @@ def main() -> int:
         run_id=args.run_id,
     )
 
-    replay_path = write_entry(replay_entry, log_dir=replay_log_dir)
+    replay_path: Path | None = None
+    if args.emit:
+        replay_path = write_entry(replay_entry, log_dir=replay_log_dir)
 
     evidence = {
         "tool": TOOL_NAME,
@@ -280,7 +292,7 @@ def main() -> int:
         "page_count": stats["page_count"],
         "retry_count": stats["retry_count"],
         "outcome": outcome,
-        "replay_log_entry": str(replay_path),
+        "replay_log_entry": str(replay_path) if replay_path else None,
         "groups": groups,
     }
     if error_block is not None:

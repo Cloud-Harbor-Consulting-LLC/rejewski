@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`--emit/--no-emit` backported to the 7 tools that lacked it (W16 N3, signed off).**
+  Closes the last of the three W16 bug-bash inconsistencies: the dry-run toggle
+  (perform the Graph read, skip the replay-log write) is now on all 14 tools. Added to
+  `tool_list_users`, `tool_list_groups`, `tool_list_applications`, `tool_list_ca_policies`,
+  `tool_list_role_assignments`, `tool_list_service_principals`, and `tool_list_oauth_grants`,
+  matching the existing tools exactly: `--emit` defaults on (G-5), `--no-emit` skips the
+  `graph_call` entry and reports `replay_log_entry: null`; the token acquisition's
+  `token_event` is unaffected, as in the rest of the fleet. Docstrings updated
+  ("Every emitted invocation writes …"). New shared parametrized suite
+  `tests/test_tool_emit_flag.py` (14 cases) covers `--no-emit` and default-emit for all
+  seven — the first dedicated coverage for the five Sprint 1 core tools. Suite 153 → 167.
+
 - **Tool 14 (sharepoint_sites) fleet alignment (W16 N1 + N2, signed off).**
   Resolves two of the three behavioral inconsistencies flagged in the W16 bug bash:
   - **N1:** default replay-log directory `logs/` → `replay-logs/`, matching the other

@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Re-triaged `samples/finding-triage/t1580-r011-purview-labels` from `low` to `medium`**
+  (triage_status `open` → `reviewed`), acting on the divergence flagged in
+  `docs/finding-severity-rubric-v0.1.md` §5.2: the Purview label taxonomy is a
+  Collection-targeting map (B=2 tenant-wide, D=2), not infra-only metadata. Rubric §5.2/§6
+  and the worked-example table updated to reflect the resolution (agreement now 5/5).
+  Note: `docs/findings-report-r011.md` and `docs/phs-security-roi-model-v0.1.md` still cite
+  T1580 as `low` and are intentionally left as authored (dated point-in-time artifacts).
+
 ### Fixed
 
 - **`--emit/--no-emit` backported to the 7 tools that lacked it (W16 N3, signed off).**

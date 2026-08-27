@@ -3,14 +3,14 @@
   "technique_id": "T1580",
   "technique_name": "Cloud Infrastructure Discovery",
   "run_id": "R011",
-  "severity": "low",
+  "severity": "medium",
   "confidence": "high",
   "control_mapping_id": "ft1580-conditional-access-purview-require-compliant-app-001",
   "evidence": [
     "samples/replay-log/R011.json"
   ],
-  "triage_status": "open",
-  "notes": "4 Purview sensitivity labels enumerated via GET /security/dataSecurityAndGovernance/sensitivityLabels in cloudharbordemo sandbox; outcome=success. Cross-references CA-PUR-001-RequireCompliantApp preventive control.",
+  "triage_status": "reviewed",
+  "notes": "4 Purview sensitivity labels enumerated via GET /security/dataSecurityAndGovernance/sensitivityLabels in cloudharbordemo sandbox; outcome=success. Cross-references CA-PUR-001-RequireCompliantApp preventive control. Re-triaged low -> medium per docs/finding-severity-rubric-v0.1.md: the label taxonomy is a Collection-targeting map (B=2 tenant-wide, D=2), not infra-only metadata.",
   "triage_metadata": {
     "created_utc": "2026-07-18T00:00:00Z",
     "author": "rejewski",

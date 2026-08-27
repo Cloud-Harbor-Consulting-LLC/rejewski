@@ -95,7 +95,7 @@ differ, it is called out — not reconciled by fudging the scores.**
 | Finding (record) | P | B | D | Table → base | Gate | **Rubric** | **Assigned** | Match |
 |---|---|---|---|---|---|---|---|---|
 | T1078.004 valid-accounts (R011) | 0 | 0 | — | — | unconfirmed | **informational** | informational | ✓ *(via gate — see 5.1)* |
-| T1580 purview-labels (R011) | 1 | 2 | 2 | medium | — | **medium** | low | ✗ *(see 5.2)* |
+| T1580 purview-labels (R011) | 1 | 2 | 2 | medium | — | **medium** | medium | ✓ *(re-triaged low→medium — see 5.2)* |
 | T1087.004 account-discovery (R011) | 1 | 2 | 2 | medium | — | **medium** | medium | ✓ |
 | T1526 ca-policy-discovery (R011) | 2 | 2 | 2 | medium | — | **medium** | medium | ✓ *(boundary — see 5.4)* |
 | T1550.001 token-reuse (R011) | 1 | 2 | 3 | high (row 2) | — | **high** | high | ✓ |
@@ -112,21 +112,26 @@ log. **This is the corpus's clearest case where the technique's inherent risk an
 assigned label diverge, reconciled solely by the confidence gate.** Action: if the
 evidence gap is closed on a later run, this finding must be re-scored upward (≥ low).
 
-### 5.2 T1580 — rubric says **medium**, record says **low** (genuine divergence)
+### 5.2 T1580 — rubric said **medium**, record said **low** → re-triaged to **medium** (resolved)
 
 Purview sensitivity-label enumeration returned the tenant's **data-classification
-taxonomy** (label names, enabled state, scope). The record rates this `low` (treating the
-taxonomy as infrastructure metadata, `D = 1`). The rubric scores it `D = 2`: the label
-scheme is a **Collection-targeting map** — it tells an adversary which data classes exist
-(e.g. *Confidential*, *Highly Confidential – Legal*) so they can steer later exfiltration
-toward the highest-value labels and around label-gapped channels. With `B = 2` (tenant-wide)
-and `D = 2`, decision row 3 yields **medium**.
+taxonomy** (label names, enabled state, scope). The record originally rated this `low`
+(treating the taxonomy as infrastructure metadata, `D = 1`). The rubric scores it `D = 2`:
+the label scheme is a **Collection-targeting map** — it tells an adversary which data
+classes exist (e.g. *Confidential*, *Highly Confidential – Legal*) so they can steer later
+exfiltration toward the highest-value labels and around label-gapped channels. With
+`B = 2` (tenant-wide) and `D = 2`, decision row 3 yields **medium**.
 
-This is a real disagreement, surfaced rather than forced to agree. The `D = 1` vs `D = 2`
-call is the **softest boundary in the rubric** (§6). **Recommendation for the PM:** either
-re-triage T1580 to `medium`, or, if `low` is intended (rationale: taxonomy without the
-underlying data is low-actionability), tighten the `D` anchor in v0.2 so
-"classification taxonomy" is explicitly `D = 1`.
+**Resolution.** This divergence was surfaced rather than forced, and then acted on:
+`samples/finding-triage/t1580-r011-purview-labels.json` has been **re-triaged from `low`
+to `medium`** (triage_status `open` → `reviewed`), so the rubric and the record now agree.
+The `D = 1` vs `D = 2` call remains the **softest boundary in the rubric** (§6); v0.2 should
+add an explicit `D` anchor for "classification taxonomy" so this decision is codified rather
+than case-by-case.
+
+> Downstream note: `docs/findings-report-r011.md` and `docs/phs-security-roi-model-v0.1.md`
+> are versioned point-in-time artifacts that still cite T1580 as `low`; they are left as
+> authored unless separately revised, since they record the assessment as of their own dates.
 
 ### 5.3 T1087.004 — medium (agrees)
 
@@ -158,12 +163,12 @@ finding that touches credential/token material, and the only current `high`.
 
 ## 6. Notes, limitations, and calibration
 
-- **v0.1 is calibrated against the current 10-record corpus.** On the five worked
-  examples the rubric's **final label matches 4 of 5**; the one divergence (T1580, §5.2) is
-  surfaced with a recommendation, and T1078.004 (§5.1) matches only through the confidence
-  gate. Calibrating to the corpus means the rubric will need re-checking as new,
-  higher-severity findings (post-B030 role-assignment reads, future write-scope emulation)
-  enter the set.
+- **v0.1 is calibrated against the current 10-record corpus.** The one worked-example
+  divergence (T1580, §5.2) has since been resolved by re-triaging that record from `low`
+  to `medium`, so the rubric's **final label now matches all five** worked examples;
+  T1078.004 (§5.1) matches only through the confidence gate. Calibrating to the corpus
+  means the rubric will need re-checking as new, higher-severity findings (post-B030
+  role-assignment reads, future write-scope emulation) enter the set.
 - **The `D` (data value) dimension is the softest to score** — the `D = 1` vs `D = 2`
   boundary (infra/taxonomy metadata vs directory/defensive-map value) is where reviewers
   will most often disagree, as T1580 shows. v0.2 should add worked anchors for each `D`
@@ -187,3 +192,4 @@ finding that touches credential/token material, and the only current `high`.
 | Version | Date | Change |
 |---|---|---|
 | v0.1 | 2026-08-27 | Initial rubric. Five severity levels with objective tests; P/B/D scoring dimensions; decision table + confidence/evidence gate; five retroactive worked examples against `samples/finding-triage/` (one genuine divergence flagged: T1580 low → rubric medium). Calibrated against the S4 W16 finding corpus. |
+| v0.1 | 2026-08-27 | Acted on the §5.2 divergence: re-triaged `t1580-r011-purview-labels` from `low` to `medium` (triage_status `open` → `reviewed`). Worked-example agreement now 5/5; §5.2/§6 and the worked-example table updated to reflect the resolution. |

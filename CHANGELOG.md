@@ -50,6 +50,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `docs/finding-severity-rubric-v0.1.md` — severity scoring rubric. Documents objective
+  tests for each of the five `severity` levels in `schemas/finding-triage/v0.1.json`
+  (informational/low/medium/high/critical), three scored dimensions (privilege,
+  blast radius, data value), a decision table combining them, and a confidence/evidence
+  gate. Applied retroactively to five `samples/finding-triage/` records as worked
+  examples; one genuine divergence flagged (T1580 assigned `low`, rubric scores `medium`).
+  Docs-only; no schema, script, or test changes.
+
 - `scripts/finding_dedup.py` — finding deduplication classifier. Reads all finding-triage
   records from `samples/finding-triage/`, groups by `technique_id`, and classifies each
   finding in the target run as `new_technique`, `recurring`, or `variant` relative to prior

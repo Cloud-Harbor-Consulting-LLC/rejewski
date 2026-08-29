@@ -60,6 +60,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `samples/replay-log/R012.json` — Sprint 4 checkpoint demo consented run sample: threat
+  actor playbook v1 Recipe R-01 (Privileged Account Discovery), run R012, cloudharbordemo
+  sandbox (2026-08-29). JSON array: 3 token_event entries (T1550.001, silent cache reuse)
+  + 3 graph_call entries (T1087.004 Account Discovery: Cloud Account — `tool_list_users`
+  9 users, `tool_list_role_assignments` 14 assignments/2 pages, `tool_list_service_principals`
+  419 principals/5 pages); `cache_path` redacted per B023/G-6; all outcomes success.
+
 - `docs/finding-severity-rubric-v0.1.md` — severity scoring rubric. Documents objective
   tests for each of the five `severity` levels in `schemas/finding-triage/v0.1.json`
   (informational/low/medium/high/critical), three scored dimensions (privilege,

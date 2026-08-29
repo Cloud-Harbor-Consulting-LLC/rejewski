@@ -1,0 +1,24 @@
+{
+  "mapping_id": "ft1114-002-rbac-exchange-administrator-001",
+  "finding": {
+    "technique_id": "T1114.002",
+    "technique_name": "Email Collection: Remote Email Collection",
+    "observed_in": [],
+    "severity": "medium",
+    "rationale": "Cross-user inbox-rule and message reads (GET /users/{id}/mailFolders/inbox/messageRules and /messages) require the operator to hold Exchange Administrator or Global Reader; without such a role the surface is limited to the operator's own mailbox. Removing standing assignment of Exchange Administrator / Global Reader and issuing it only just-in-time via Privileged Identity Management denies an adversary the cross-mailbox reach the technique depends on. Recommended-but-not-yet-observed: no committed replay-log sample exercises Tool 13 yet (it shipped after the last committed run)."
+  },
+  "control": {
+    "control_family": "rbac",
+    "control_id": "Exchange Administrator (least-privilege / PIM-eligible)",
+    "control_type": "preventive",
+    "microsoft_pillar": "Identities",
+    "nist_800_207_tenets": ["T4", "T6"],
+    "reference_url": "https://learn.microsoft.com/en-us/exchange/permissions-exo/permissions-exo"
+  },
+  "mapping_metadata": {
+    "created_utc": "2026-08-29T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1",
+    "status": "draft"
+  }
+}

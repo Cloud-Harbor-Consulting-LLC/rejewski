@@ -60,6 +60,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Finding-to-control mappings for the four previously-uncovered implemented techniques,
+  taking control-mapping coverage **9/13 (69.2%) → 13/13 (100%)**:
+  `samples/finding-to-control/t1033-rbac-pim-eligible-roles.json` (status `active`,
+  observed in R012), `t1213.002-conditional_access-ca-spo-requirecompliantapp.json`,
+  `t1114.002-rbac-exchange-administrator.json`, and
+  `t1114.003-conditional_access-ca-exo-requirecompliantapp.json` (the last three status
+  `draft` with empty `observed_in` — recommended controls for techniques whose tools have
+  no committed run yet). `docs/finding-coverage-report.md` regenerated (history row appended:
+  69.2% → 100%). Controls constrained to the schema's `conditional_access`/`rbac` families.
+
 - `samples/finding-triage/t1087.004-r012-account-discovery.json` and
   `samples/finding-triage/t1550.001-r012-token-reuse.json` — triage records for the two R012
   checkpoint findings, severities set per `docs/finding-severity-rubric-v0.1.md` (T1087.004

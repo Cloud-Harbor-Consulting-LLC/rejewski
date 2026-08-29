@@ -1,10 +1,10 @@
 # Rejewski Finding-to-Control Coverage Report
 
-- Generated: 2026-08-14T18:57:56Z
+- Generated: 2026-08-29T21:51:58Z
 - ATT&CK coverage source: docs/attck-coverage.md (v0.8)
 - Implemented techniques: 13
-- Covered: 9 (69.2%)
-- Gap: 4 (30.8%)
+- Covered: 13 (100.0%)
+- Gap: 0 (0.0%)
 
 ## Covered techniques
 
@@ -17,20 +17,21 @@
 | T1526 | Cloud Service Discovery | t1526-rbac-reports-reader.json |
 | T1518.001 | Software Discovery: Security Software Discovery | t1518.001-rbac-security-reader.json |
 | T1082 | System Information Discovery | t1082-rbac-intune-service-admin.json |
+| T1213.002 | Data from Information Repositories: Sharepoint | t1213.002-conditional_access-ca-spo-requirecompliantapp.json |
 | T1580 | Cloud Infrastructure Discovery | t1580-conditional-access-purview-require-compliant-app.json |
+| T1114.002 | Email Collection: Remote Email Collection | t1114.002-rbac-exchange-administrator.json |
 | T1654 | Log Enumeration | t1654-rbac-reports-reader.json |
+| T1114.003 | Email Collection: Email Forwarding Rule | t1114.003-conditional_access-ca-exo-requirecompliantapp.json |
+| T1033 | System Owner/User Discovery | t1033-rbac-pim-eligible-roles.json |
 
 ## Gap techniques (no control mapping)
 
 | Technique | Name | Status | Notes |
 |---|---|---|---|
-| T1213.002 | Data from Information Repositories: Sharepoint | Implemented — Sprint 4 (Surface A) | No finding-to-control mapping record |
-| T1114.002 | Email Collection: Remote Email Collection | Implemented — Sprint 4 (Surface A) | No finding-to-control mapping record |
-| T1114.003 | Email Collection: Email Forwarding Rule | Implemented — Sprint 4 W14 | No finding-to-control mapping record |
-| T1033 | System Owner/User Discovery | Implemented — Sprint 4 W14 | No finding-to-control mapping record |
 
 ## Coverage history
 
 | Report date | Implemented | Covered | Coverage % |
 |---|---|---|---|
 | 2026-08-14 | 13 | 9 | 69.2% |
+| 2026-08-29 | 13 | 13 | 100.0% |

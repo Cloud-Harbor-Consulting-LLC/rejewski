@@ -60,6 +60,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `samples/finding-triage/t1087.004-r012-account-discovery.json` and
+  `samples/finding-triage/t1550.001-r012-token-reuse.json` — triage records for the two R012
+  checkpoint findings, severities set per `docs/finding-severity-rubric-v0.1.md` (T1087.004
+  medium; T1550.001 high). `finding_dedup.py --run-id R012` classifies both as **recurring**.
+  Technique-module evidence updated to cite R012: `docs/techniques/T1033.md` Surface B is now
+  **evidenced** (the R011 role-assignments HTTP 400 was the B030 defect fixed in #71; R012 is
+  the post-B030 successful run), plus R012 citations added to `docs/techniques/T1550.001.md`
+  and `docs/techniques/T1087.004.md`.
+
 - `samples/replay-log/R012.json` — Sprint 4 checkpoint demo consented run sample: threat
   actor playbook v1 Recipe R-01 (Privileged Account Discovery), run R012, cloudharbordemo
   sandbox (2026-08-29). JSON array: 3 token_event entries (T1550.001, silent cache reuse)

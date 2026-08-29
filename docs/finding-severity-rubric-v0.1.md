@@ -1,8 +1,9 @@
 # Rejewski Finding Severity Scoring Rubric
 
-- Version: v0.1
-- Last updated: 2026-08-27
-- Status: Living document — calibrated against the current finding-triage corpus
+- Version: v0.2
+- Last updated: 2026-08-29
+- Status: Living document — calibrated against the current finding-triage corpus. Filename slug
+  kept at `-v0.1` for link stability across the records and docs that cite it.
 - Authors: Derek Morgan
 - Related: schemas/finding-triage/v0.1.json, docs/threat-model.md, docs/attck-coverage.md, samples/finding-triage/
 
@@ -48,11 +49,30 @@ reviewers score the same finding the same way.
 |---|---|---|---|---|
 | **P — Privilege observed/required** | No directory role (any authenticated user; self-scope, e.g. `GET /me`) | Basic tenant read (Directory Readers / Global Reader) | Privileged read role (Security Reader, Reports Reader, Intune/role-scoped admin read) | Admin write / privilege escalation *(out of current scope)* |
 | **B — Blast radius** | Self only (operator's own objects) | A single other principal/object | Tenant-wide **read** (all of a class: all users, all sites, all policies) | Tenant-wide **control** (write/persistence, or a token that unlocks tenant-wide action) |
-| **D — Data sensitivity / attacker value** | Negligible (generic health/config) | Recon metadata (classification taxonomy, infra config) | Directory/identity **or** defensive-map value (users, groups, roles, CA policy, detection state, audit telemetry) | Credential/token material, **or** Confidential-or-higher data content |
+| **D — Data sensitivity / attacker value** | Negligible (generic health/config) | Recon metadata — environmental/infrastructure config only (service health, verified domains, SKU counts, topology) | Directory/identity, defensive-map, **or data-targeting** value (users, groups, roles, CA policy, detection state, audit telemetry, **or a data-classification taxonomy that steers Collection**) | Credential/token material, **or** Confidential-or-higher data content |
 
 Scoring is about what the finding **demonstrated**, not what the technique could do in
 the worst case. A read that *could* have returned tenant secrets but returned an empty
 set scores on what it actually surfaced.
+
+### D = 1 vs D = 2 — the boundary anchor (added in v0.2)
+
+The `D = 1` / `D = 2` line is the rubric's most-contested call — it drove the T1580
+re-triage. Apply this concrete test:
+
+- **D = 1** — the output only describes the environment's *shape* and names no principal,
+  role, policy, detection component, data class, or credential. Examples: service-health /
+  announcement status, verified domains, subscribed-SKU counts, tenant topology.
+- **D = 2** — the output gives the adversary at least one of:
+  - **(a) a target list** — specific accounts, groups, roles, or service principals;
+  - **(b) a defensive-evasion map** — CA policy posture, detection-sensor health, or
+    sign-in/alert telemetry;
+  - **(c) a data-targeting taxonomy** — a data-classification scheme (sensitivity-label
+    names/scope) that steers later Collection toward specific data classes.
+
+Worked anchor: **T1580** sensitivity-label enumeration is **D = 2 under (c)** — the label
+scheme tells an adversary which data classes to target — which is why it was re-triaged from
+`low` to `medium` (§5.2). A pure `GET /organization` domain/SKU read, by contrast, is **D = 1**.
 
 ---
 
@@ -151,7 +171,8 @@ Row 3 → **medium**, matching the record. It is called out because it — with 
 (detection-sensor health) and T1654 (sign-in/alert telemetry) — sits at the **medium/high
 boundary**: all three expose the *defender's own map*, which has outsized evasion value. A
 future rubric version may add a "defensive-evasion escalator" that would move this class to
-`high`. Left at `medium` for v0.1, but flagged so the calibration choice is explicit.
+`high`. Left at `medium` (v0.2 evaluated the escalator and did not adopt it — §6), flagged so
+the calibration choice is explicit.
 
 ### 5.5 T1550.001 — high (agrees)
 
@@ -165,24 +186,29 @@ finding that touches credential/token material, and the only current `high`.
 
 ## 6. Notes, limitations, and calibration
 
-- **v0.1 is calibrated against the current 10-record corpus.** The one worked-example
+- **The rubric is calibrated against the current 10-record corpus.** The one worked-example
   divergence (T1580, §5.2) has since been resolved by re-triaging that record from `low`
   to `medium`, so the rubric's **final label now matches all five** worked examples;
   T1078.004 (§5.1) matches only through the confidence gate. Calibrating to the corpus
   means the rubric will need re-checking as new, higher-severity findings (post-B030
   role-assignment reads, future write-scope emulation) enter the set.
 - **The `D` (data value) dimension is the softest to score** — the `D = 1` vs `D = 2`
-  boundary (infra/taxonomy metadata vs directory/defensive-map value) is where reviewers
-  will most often disagree, as T1580 shows. v0.2 should add worked anchors for each `D`
-  level drawn from real findings.
+  boundary is where reviewers most often disagree, as T1580 showed. **v0.2 codifies this
+  boundary** with an explicit test and worked anchors (§3, "D = 1 vs D = 2 — the boundary
+  anchor"): a data-classification taxonomy that steers Collection is now unambiguously `D = 2`,
+  while pure environmental/infra config is `D = 1`.
 - **`critical` is reserved.** Rejewski's read-only posture (G-1) and no-write posture (G-2)
   mean no finding demonstrates admin escalation, persistence, or tenant-scale capture. The
   level exists so the rubric is complete and so a future write-scope emulation (if ever
   authorized under a superseding ADR) has a home for it.
-- **A "defensive-evasion escalator" is deferred to v0.2** (see §5.4): findings that expose
-  the tenant's control/detection map (T1526, T1518.001, T1654) are arguably worth more than
-  plain directory recon. v0.1 keeps them at `medium` to avoid re-rating half the corpus on
-  a single unvalidated heuristic.
+- **A "defensive-evasion escalator" was evaluated for v0.2 and NOT adopted — deferred to a
+  PM decision** (see §5.4): findings that expose the tenant's control/detection map (T1526,
+  T1518.001, T1654) are arguably worth more than plain directory recon and could be escalated
+  `medium` → `high`. It is held back deliberately because adopting it **cascades**: it re-triages
+  those three finding records, bumps their finding-to-control severities, and updates the R011
+  findings report and the ROI model — a coordinated re-rating wave (≈3× the single-finding T1580
+  reconciliation). v0.2 keeps them at `medium`; whether to adopt the escalator is a scoping call
+  left to the PM, not a silent rubric change.
 - **Severity is not confidence.** Keep them independent in the record; the gate (§4) is the
   only coupling. Do not lower `severity` to express doubt — lower `confidence` and let the
   gate act.
@@ -195,3 +221,4 @@ finding that touches credential/token material, and the only current `high`.
 |---|---|---|
 | v0.1 | 2026-08-27 | Initial rubric. Five severity levels with objective tests; P/B/D scoring dimensions; decision table + confidence/evidence gate; five retroactive worked examples against `samples/finding-triage/` (one genuine divergence flagged: T1580 low → rubric medium). Calibrated against the S4 W16 finding corpus. |
 | v0.1 | 2026-08-27 | Acted on the §5.2 divergence: re-triaged `t1580-r011-purview-labels` from `low` to `medium` (triage_status `open` → `reviewed`). Worked-example agreement now 5/5; §5.2/§6 and the worked-example table updated to reflect the resolution. |
+| v0.2 | 2026-08-29 | Codified the `D = 1` vs `D = 2` boundary (§3 anchor: a Collection-steering data-classification taxonomy is `D = 2`; pure environmental/infra config is `D = 1`), resolving the ambiguity that produced the T1580 case and moving "classification taxonomy" out of the `D = 1` cell. Evaluated the defensive-evasion escalator (T1526/T1518.001/T1654 → high) and **did not adopt it** — deferred to a PM decision because it cascades into a multi-finding re-triage (§6). Filename slug kept at `-v0.1` for link stability. |

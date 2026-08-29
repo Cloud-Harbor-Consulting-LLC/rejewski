@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Severity rubric → v0.2** (`docs/finding-severity-rubric-v0.1.md`, filename slug kept stable
+  for link stability). Codifies the `D = 1` vs `D = 2` boundary with an explicit test and worked
+  anchors — a Collection-steering data-classification taxonomy is now unambiguously `D = 2`
+  (moving "classification taxonomy" out of the old `D = 1` cell), resolving the ambiguity that
+  produced the T1580 case. The defensive-evasion escalator (T1526/T1518.001/T1654 → high) was
+  evaluated and **deliberately not adopted** — deferred to a PM decision because it cascades into
+  a multi-finding re-triage.
+
 - **Reconciled T1580 severity to `medium` across the remaining downstream artifacts** (following
   the re-triage of the authoritative record). Updated `docs/findings-report-r011.md`,
   `docs/phs-security-roi-model-v0.1.md` (§6 bridge + §9 change log), and the

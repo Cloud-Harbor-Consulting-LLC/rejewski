@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Reconciled T1580 severity to `medium` across the remaining downstream artifacts** (following
+  the re-triage of the authoritative record). Updated `docs/findings-report-r011.md`,
+  `docs/phs-security-roi-model-v0.1.md` (§6 bridge + §9 change log), and the
+  `t1580-conditional-access-purview-require-compliant-app` finding-to-control mapping from `low`
+  → `medium`, each with a dated footnote preserving the original point-in-time assessment. The
+  rubric §5.2 downstream note updated to record the reconciliation.
+
 - **Re-triaged `samples/finding-triage/t1580-r011-purview-labels` from `low` to `medium`**
   (triage_status `open` → `reviewed`), acting on the divergence flagged in
   `docs/finding-severity-rubric-v0.1.md` §5.2: the Purview label taxonomy is a

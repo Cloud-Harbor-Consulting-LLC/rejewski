@@ -1,0 +1,26 @@
+{
+  "mapping_id": "ft1033-rbac-pim-eligible-roles-001",
+  "finding": {
+    "technique_id": "T1033",
+    "technique_name": "System Owner/User Discovery",
+    "observed_in": [
+      "samples/replay-log/R012.json"
+    ],
+    "severity": "medium",
+    "rationale": "Operator identity resolution plus directory role-assignment enumeration (GET /roleManagement/directory/roleAssignments) answers 'who owns and administers this tenant', producing the shortlist of Global Administrator / Privileged Role Administrator holders an adversary would target for escalation or impersonation. Moving privileged directory roles to Privileged Identity Management eligible (just-in-time) assignments minimizes standing privileged accounts, so the set an adversary can discover as always-on high-value targets is small and time-bound, and each privileged activation becomes an auditable event rather than a static assignment."
+  },
+  "control": {
+    "control_family": "rbac",
+    "control_id": "PIM-EligibleRoleAssignments",
+    "control_type": "preventive",
+    "microsoft_pillar": "Identities",
+    "nist_800_207_tenets": ["T3", "T6", "T7"],
+    "reference_url": "https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure"
+  },
+  "mapping_metadata": {
+    "created_utc": "2026-08-29T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1",
+    "status": "active"
+  }
+}

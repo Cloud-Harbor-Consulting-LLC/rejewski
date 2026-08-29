@@ -1,0 +1,24 @@
+{
+  "mapping_id": "ft1114-003-ca-exo-001-requirecompliantapp-001",
+  "finding": {
+    "technique_id": "T1114.003",
+    "technique_name": "Email Collection: Email Forwarding Rule",
+    "observed_in": [],
+    "severity": "medium",
+    "rationale": "Enumeration of inbox message rules surfaces the forwardTo / forwardAsAttachmentTo / redirectTo actions that constitute auto-forwarding collection-and-exfiltration plumbing. A Conditional Access policy requiring a compliant/managed app or device for Exchange Online blocks the borrowed first-party FOCI client (14d82eec) from the mailbox-rules surface; paired with the Exchange Online outbound anti-spam policy that disables automatic external forwarding, this closes both the discovery and the exfiltration path. Recommended-but-not-yet-observed: shares Tool 13's implementation with T1114.002, which has no committed run yet."
+  },
+  "control": {
+    "control_family": "conditional_access",
+    "control_id": "CA-EXO-001-RequireCompliantApp",
+    "control_type": "preventive",
+    "microsoft_pillar": "Data",
+    "nist_800_207_tenets": ["T4", "T6"],
+    "reference_url": "https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-filter-for-applications"
+  },
+  "mapping_metadata": {
+    "created_utc": "2026-08-29T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1",
+    "status": "draft"
+  }
+}

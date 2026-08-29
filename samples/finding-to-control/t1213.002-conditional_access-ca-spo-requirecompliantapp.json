@@ -1,0 +1,24 @@
+{
+  "mapping_id": "ft1213-002-ca-spo-001-requirecompliantapp-001",
+  "finding": {
+    "technique_id": "T1213.002",
+    "technique_name": "Data from Information Repositories: SharePoint",
+    "observed_in": [],
+    "severity": "medium",
+    "rationale": "Site enumeration via GET /sites?search=* maps every SharePoint Online site collection and its external-sharing posture (sharingCapability), giving an adversary a ranked target list of repositories to collect from — especially those with external sharing enabled. A Conditional Access policy requiring a compliant/managed app or device for SharePoint Online blocks the borrowed first-party FOCI client (14d82eec) running on an unmanaged host from reaching site data, cutting the technique off at the authorization boundary. Recommended-but-not-yet-observed: Tool 14 shipped after the last committed run, so no replay-log sample exercises it yet."
+  },
+  "control": {
+    "control_family": "conditional_access",
+    "control_id": "CA-SPO-001-RequireCompliantApp",
+    "control_type": "preventive",
+    "microsoft_pillar": "Data",
+    "nist_800_207_tenets": ["T4", "T6"],
+    "reference_url": "https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-filter-for-applications"
+  },
+  "mapping_metadata": {
+    "created_utc": "2026-08-29T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1",
+    "status": "draft"
+  }
+}

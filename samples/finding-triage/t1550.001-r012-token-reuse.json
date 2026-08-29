@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1550-001-r012-token-reuse-001",
+  "technique_id": "T1550.001",
+  "technique_name": "Use Alternate Authentication Material: Application Access Token",
+  "run_id": "R012",
+  "severity": "high",
+  "confidence": "high",
+  "control_mapping_id": "ft1550-001-rbac-directory-readers-001",
+  "evidence": [
+    "samples/replay-log/R012.json"
+  ],
+  "triage_status": "open",
+  "notes": "One delegated token silently reused across all three account-discovery reads in the Sprint 4 checkpoint run (Playbook Recipe R-01) — 3 token_event entries, flow=silent, persistence_kind=encrypted, cache_path redacted — in the cloudharbordemo sandbox. Severity high per docs/finding-severity-rubric-v0.1.md (D=3 token/credential material, and the technique operates through the authentication control: a cached token needs no fresh MFA challenge). Recurring: silent T1550.001 reuse also observed in prior committed runs (R007, R011). Cross-references Directory Readers RBAC preventive control.",
+  "triage_metadata": {
+    "created_utc": "2026-08-29T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

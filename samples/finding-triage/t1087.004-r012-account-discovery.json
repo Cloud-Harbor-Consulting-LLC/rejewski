@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1087-004-r012-account-discovery-001",
+  "technique_id": "T1087.004",
+  "technique_name": "Account Discovery: Cloud Account",
+  "run_id": "R012",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1087-004-ca-cov008-blockbylocation-001",
+  "evidence": [
+    "samples/replay-log/R012.json"
+  ],
+  "triage_status": "open",
+  "notes": "Account discovery exercised across three surfaces in the Sprint 4 checkpoint run (Playbook Recipe R-01, Privileged Account Discovery), all outcome=success: tool_list_users (9 users, 1 page), tool_list_role_assignments (14 assignments, 2 pages), tool_list_service_principals (419 principals, 5 pages). Severity medium per docs/finding-severity-rubric-v0.1.md (B=2 tenant-wide read, D=2 directory/identity target map; no credential or data content captured). Recurring: T1087.004 also observed in R010 and R011. Cross-references CA-COV008-BlockByLocation preventive control.",
+  "triage_metadata": {
+    "created_utc": "2026-08-29T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

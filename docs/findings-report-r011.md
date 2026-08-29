@@ -42,8 +42,13 @@ authoritative technique count and tactic distribution are in docs/attck-coverage
 | T1526 | Discovery | `scripts/tool_list_ca_policies.py` | `GET /identity/conditionalAccess/policies` | 25 | medium | Reports Reader (RBAC) |
 | T1518.001 | Discovery | `scripts/tool_dfi_health.py` | `GET /security/identities/sensors` | 3 | medium | Security Reader (RBAC) |
 | T1082 | Discovery | `scripts/tool_intune_devices.py` | `GET /deviceManagement/managedDevices` | 1 | medium | Intune Service Administrator (RBAC) |
-| T1580 | Discovery | `scripts/tool_purview_labels.py` | `GET /security/dataSecurityAndGovernance/sensitivityLabels` | 4 | low | CA-PUR-001-RequireCompliantApp |
+| T1580 | Discovery | `scripts/tool_purview_labels.py` | `GET /security/dataSecurityAndGovernance/sensitivityLabels` | 4 | medium [†] | CA-PUR-001-RequireCompliantApp |
 | T1654 | Discovery | `scripts/tool_signin_logs.py` | `GET /auditLogs/signIns` | 30 | medium | Reports Reader (RBAC) |
+
+> **[†] Note (2026-08-29):** T1580 severity updated `low` → `medium` per
+> `docs/finding-severity-rubric-v0.1.md` — the Purview label taxonomy is a Collection-targeting
+> map (D=2 in the rubric), not infra-only metadata. This R011 report originally assessed it as
+> `low`; the value is refined here while the finding itself is unchanged.
 
 ---
 

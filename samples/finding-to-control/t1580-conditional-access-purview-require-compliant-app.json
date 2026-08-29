@@ -8,7 +8,7 @@
       "samples/replay-log/R010.json",
       "samples/replay-log/R011.json"
     ],
-    "severity": "low",
+    "severity": "medium",
     "rationale": "Enumeration of Purview sensitivity labels via GET /security/dataSecurityAndGovernance/sensitivityLabels reveals the tenant's data classification taxonomy, including label names, enabled state, applicability scope (email, file, teamwork), and whether endpoint protection is active per label. An adversary with label names can direct later Collection techniques toward data classified as Confidential or higher, and route exfiltration through channels or file types that lack label coverage. SensitivityLabel.Read carries no Entra role gate — any user account with the scope consented on the client can call this endpoint. A Conditional Access policy restricting Microsoft Purview Compliance Portal access to approved client applications or compliant devices reduces the surface to organization-managed clients and blocks borrowed FOCI clients."
   },
   "control": {

@@ -129,9 +129,11 @@ The `D = 1` vs `D = 2` call remains the **softest boundary in the rubric** (§6)
 add an explicit `D` anchor for "classification taxonomy" so this decision is codified rather
 than case-by-case.
 
-> Downstream note: `docs/findings-report-r011.md` and `docs/phs-security-roi-model-v0.1.md`
-> are versioned point-in-time artifacts that still cite T1580 as `low`; they are left as
-> authored unless separately revised, since they record the assessment as of their own dates.
+> Downstream note (updated 2026-08-29): the two versioned artifacts that embedded T1580's
+> severity — `docs/findings-report-r011.md` and `docs/phs-security-roi-model-v0.1.md` — plus
+> the `t1580-conditional-access-purview-require-compliant-app` finding-to-control mapping have
+> since been reconciled to `medium`, each carrying a dated footnote that records the re-triage
+> while preserving the original assessment context.
 
 ### 5.3 T1087.004 — medium (agrees)
 

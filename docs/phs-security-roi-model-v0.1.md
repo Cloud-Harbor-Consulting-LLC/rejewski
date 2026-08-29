@@ -138,13 +138,18 @@ specific dollar avoided per finding would fabricate precision the data does not 
 | T1526 | medium | Reports Reader (RBAC) | CA-policy exposure | Least-privilege on policy reads limits an adversary's map of where MFA/CA coverage is thin |
 | T1518.001 | medium | Security Reader (RBAC) | Detection-coverage gap | Restricts who can read DfI sensor health — the map of where detection is degraded |
 | T1082 | medium | Intune Service Administrator (RBAC) | Endpoint targeting | Limits enumeration of non-compliant/unencrypted devices — the soft lateral-movement targets |
-| T1580 | low | CA-PUR-001-RequireCompliantApp | Data-classification exposure | Restricts label-inventory reads that would steer later Collection toward Confidential data |
+| T1580 | medium [†] | CA-PUR-001-RequireCompliantApp | Data-classification exposure | Restricts label-inventory reads that would steer later Collection toward Confidential data |
 | T1654 | medium | Reports Reader (RBAC) | Security-log exposure | Least-privilege on sign-in/alert logs denies the adversary the defender's own detection baseline |
 
 Reading the bridge: the **T1550.001 (High)** finding is the one that ties most directly to
 the §3 dollar figure — token reuse is precisely the residual-0.8% credential-theft path
 that survives MFA — and its control (least-privilege on Directory Readers) reduces the
 blast radius of a replayed token. The rest map to *direction of risk*, not dollars.
+
+> **[†] Note (2026-08-29):** T1580 severity updated `low` → `medium` per
+> `docs/finding-severity-rubric-v0.1.md` (the label taxonomy is a Collection-targeting map,
+> D=2). The bridge's *direction of risk* for T1580 is unchanged; only the severity level is
+> refined. See §9.
 
 ---
 
@@ -187,3 +192,4 @@ vendor-commissioned** (baseline §7). Both are used above with those flags attac
 | Version | Date | Change |
 |---|---|---|
 | v0.1 | 2026-08-15 | Initial model. Scenario: 750-employee mid-market M365 E5. Sources: IBM CODB 2024/2025, Verizon DBIR 2025, M-Trends 2025, Microsoft MFA research. |
+| v0.1 | 2026-08-29 | §6 findings-to-ROI bridge: T1580 severity `low` → `medium` per `docs/finding-severity-rubric-v0.1.md` (re-triage). Direction of risk unchanged; no figures affected. |

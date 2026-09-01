@@ -75,6 +75,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scripts/rotate_replay_logs.py` + `docs/replay-archive.md` + `tests/test_rotate_replay_logs.py`
+  — replay-log rotation/compression and the archive policy. Compresses `replay-logs/` working-
+  directory entries strictly older than 30 days (age from the entry's `<YYYYMMDDThhmmssZ>`
+  filename prefix) into `replay-logs/archive/<YYYY-MM>/<name>.json.gz` (gzip, per-entry,
+  lossless round-trip) and removes the uncompressed originals. `--dry-run` previews without
+  moving anything. **Hard path guard** refuses to operate on `samples/replay-log/` (committed
+  evidence) or any path containing/contained by it — an explicit `is_protected_path` check.
+  Local-filesystem only (no Graph calls; G-1/G-3 N/A to its execution path); G-6 respected in
+  output (basenames + repo-relative archive paths only). Tests (5) cover the age boundary, gzip
+  validity/round-trip, dry-run no-op, and the guard. Master Plan S5 W17 acceptance.
+
 - Finding-to-control mappings for the four previously-uncovered implemented techniques,
   taking control-mapping coverage **9/13 (69.2%) → 13/13 (100%)**:
   `samples/finding-to-control/t1033-rbac-pim-eligible-roles.json` (status `active`,

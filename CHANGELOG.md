@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **W17 PM decisions (R013 wrap) — docs-only.** (R2) `docs/roe-consent-flow.md` v0.1 → v0.2:
+  added a prominent §1 operator-safety callout requiring `-TenantId` to be pinned on every admin /
+  Graph-PowerShell action against the sandbox, after the R013-setup incident where WAM silently
+  authenticated to a production tenant and grants/roles landed there. (R3) `docs/techniques/T1114.002.md`
+  and `T1114.003.md` cross-user Evidence reworded from "successful evidence awaits … an ADR relaxing
+  G-2/G-3" to a **permanent scope boundary** (self-mailbox only; cross-user needs a tenant app
+  registration, out of scope under ADR 0001 §1 / G-2/G-3, PM-confirmed not planned) — no longer
+  framed as pending/future work. (R1 periodic live-smoke run and R5 SharePoint admin-API surface are
+  PM backlog items, no repo change; R4 `security.alert` `category` deprecation parked.)
+
 - **Severity rubric → v0.2** (`docs/finding-severity-rubric-v0.1.md`, filename slug kept stable
   for link stability). Codifies the `D = 1` vs `D = 2` boundary with an explicit test and worked
   anchors — a Collection-steering data-classification taxonomy is now unambiguously `D = 2`

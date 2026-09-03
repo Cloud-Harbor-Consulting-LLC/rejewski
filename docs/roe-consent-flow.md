@@ -1,13 +1,14 @@
 # Project Harbor Sonar — Rejewski ROE Consent Flow
 
-- Version: v0.1
-- Last updated: 2026-05-22
+- Version: v0.2
+- Last updated: 2026-09-03
 - Status: Baseline (Sprint 1 W3 deliverable)
 - Authors: Derek Morgan
 - Related: ADR 0001 (Rules of Engagement) §2 Consent floor, §5 Replay-log immutability, §7 Credential handling, §8 Operator identity; docs/threat-model.md v0.3; docs/guardrails.md G-1, G-3, G-5, G-8
 
 ## Change log
 
+- v0.2 (2026-09-03) — Added the §1 operator-safety callout requiring `-TenantId` to be pinned on every admin / Graph-PowerShell action against the sandbox (W17 R2; prompted by the R013-setup production-tenant incident).
 - v0.1 (2026-05-22) — Initial baseline. Codifies the per-run consent prompt, operator confirmation mechanic, consent-record schema, replay-log binding, refusal behaviors, and Sprint 1 exit floor of 5 consented runs.
 
 ---
@@ -23,6 +24,16 @@ Scope:
 - All Sprint 1 technique runs against the cloudharbordemo sandbox tenant (76b87c33-6178-4ff9-94a7-164792c8e4c6).
 - Single-operator runs only. Multi-operator handoffs are out of scope for v0.1.
 - Interactive operator at a terminal session. Headless/CI-driven runs are out of scope until ADR-amended (Sprint 3+ candidate).
+
+> ⚠️ **Operator safety — pin the tenant on every admin / Graph-PowerShell action.**
+> Every interactive Microsoft Graph PowerShell session used to set up or manage the sandbox
+> (`Connect-MgGraph`, admin-consent grants, role assignments, `Invoke-MgGraphRequest`, etc.)
+> **must pass `-TenantId 76b87c33-6178-4ff9-94a7-164792c8e4c6` explicitly** — do **not** rely on
+> the default or cached auth context. WAM / cached sign-ins can silently authenticate to a
+> *different* tenant (e.g. a production tenant) despite the org picker, causing admin-consent
+> grants and role assignments to land in the wrong tenant. This happened during the W17 R013
+> setup and cost real time; pinning `-TenantId` prevents it. Confirm with `(Get-MgContext).TenantId`
+> before running any grant.
 
 ## 2. Pre-run consent prompt
 

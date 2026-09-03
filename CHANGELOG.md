@@ -36,6 +36,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`tool_list_security_alerts` (T1654 Surface B) — invalid `$select` field.** Removed
+  `alertType` from `DEFAULT_SELECT`: it is not a property of `microsoft.graph.security.alert`,
+  so `GET /security/alerts_v2` returned HTTP 400 BadRequest on the first real-tenant run (R013).
+  The field was requested but never projected (dead). Added a regression test. Surfaced by the
+  W17 end-to-end run — the mocked unit tests could not catch it because they fabricate the
+  response schema.
+
 - **`--emit/--no-emit` backported to the 7 tools that lacked it (W16 N3, signed off).**
   Closes the last of the three W16 bug-bash inconsistencies: the dry-run toggle
   (perform the Graph read, skip the replay-log write) is now on all 14 tools. Added to

@@ -88,7 +88,7 @@ ENDPOINT_PATH = "/security/alerts_v2"
 # deliberately out of scope for this surface (see T1654.md Surface B Limitations).
 DEFAULT_SELECT = (
     "id,title,severity,status,classification,determination,category,"
-    "alertType,createdDateTime,lastModifiedDateTime,assignedTo"
+    "createdDateTime,lastModifiedDateTime,assignedTo"
 )
 DEFAULT_TOP = 100
 DEFAULT_ROW_CAP = 1000

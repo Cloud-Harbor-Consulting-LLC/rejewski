@@ -250,6 +250,11 @@ class TestFilterConstruction:
         assert "$filter" not in url
         assert "$top=100" in url
 
+    def test_default_select_omits_invalid_alerttype(self):
+        # Regression: 'alertType' is NOT a property of microsoft.graph.security.alert;
+        # the live R013 run returned HTTP 400 BadRequest for it. Guard against reintroduction.
+        assert "alertType" not in tool.DEFAULT_SELECT
+
     def test_filters_reach_the_request_url(
         self, monkeypatch, env, tmp_path, capsys
     ):

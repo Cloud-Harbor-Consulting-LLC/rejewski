@@ -120,6 +120,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **W17 R013 end-to-end evidence run (2026-09-03) — the canonical full-fleet sweep.**
+  `samples/replay-log/R013.json` (Playbook full sweep, cloudharbordemo): 28 entries —
+  14 `graph_call` (13 success + the documented `inbox_rules` cross-user block) + 14
+  `token_event` (T1550.001 silent reuse); `cache_path` redacted per B023/G-6; sandbox tenant
+  only. `docs/reports/replay-report-R013.html` — the run rendered by `generate_html_report.py`
+  (now populating the Findings + Control-mappings sections). Nine `samples/finding-triage/*-r013-*`
+  records for the observed techniques (T1087.004, T1069.003, T1526, T1518.001, T1082, T1580,
+  T1654, T1213.002 medium; T1550.001 high), severities per `docs/finding-severity-rubric-v0.1.md`
+  v0.2. **T1213.002 now genuinely evidenced** (first real Tool 14 success after the W17 re-scope) —
+  its finding-to-control mapping promoted `draft → active` with `observed_in: [R013]`; **T1654
+  Surface B** (`security_alerts`) evidenced for the first time after the `$select` fixes.
+  `T1213.002.md` and `T1654.md` Evidence sections updated. T1114.002/003 remain the documented
+  block (no success). Closes the W17 end-to-end.
+
 - `scripts/generate_html_report.py` + `tests/test_generate_html_report.py` +
   `docs/reports/replay-report-R012.html` (generated sample) — HTML run-report template v1.
   Formalizes the hand-built one-off `docs/replay-report-r011.html` into a reusable,

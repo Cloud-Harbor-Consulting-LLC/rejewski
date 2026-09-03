@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1526-r013-ca-policy-discovery-001",
+  "technique_id": "T1526",
+  "technique_name": "Cloud Service Discovery",
+  "run_id": "R013",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1526-rbac-reports-reader-001",
+  "evidence": [
+    "samples/replay-log/R013.json"
+  ],
+  "triage_status": "open",
+  "notes": "Cloud service discovery: tool_list_ca_policies enumerated 27 Conditional Access policies (R013), success. Medium per rubric (B=2, D=2 defensive-control map; P=2 Security Reader). The defensive-evasion escalator that would move this to high was evaluated and NOT adopted (rubric v0.2 section 6). Recurring. Cross-references Reports Reader (RBAC).",
+  "triage_metadata": {
+    "created_utc": "2026-09-03T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

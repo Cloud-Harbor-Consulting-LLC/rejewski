@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1082-r013-intune-devices-001",
+  "technique_id": "T1082",
+  "technique_name": "System Information Discovery",
+  "run_id": "R013",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1082-rbac-intune-service-admin-001",
+  "evidence": [
+    "samples/replay-log/R013.json"
+  ],
+  "triage_status": "open",
+  "notes": "System information discovery: tool_intune_devices enumerated 3 Intune-managed devices (R013), success. Medium per rubric (B=2, D=2 endpoint targeting). Recurring. Cross-references Intune Service Administrator (RBAC).",
+  "triage_metadata": {
+    "created_utc": "2026-09-03T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

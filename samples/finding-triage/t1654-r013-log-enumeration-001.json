@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1654-r013-log-enumeration-001",
+  "technique_id": "T1654",
+  "technique_name": "Log Enumeration",
+  "run_id": "R013",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1654-rbac-reports-reader-001",
+  "evidence": [
+    "samples/replay-log/R013.json"
+  ],
+  "triage_status": "open",
+  "notes": "Log enumeration across two surfaces in R013, both success: tool_signin_logs (107 sign-ins, Surface A) and tool_list_security_alerts (4 Defender XDR alerts, Surface B, the FIRST successful Surface B evidence after the W17 fixes removed the invalid alertType and lastModifiedDateTime select fields). Medium per rubric (B=2, D=2 defender-telemetry map). Recurring. Cross-references Reports Reader (RBAC).",
+  "triage_metadata": {
+    "created_utc": "2026-09-03T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

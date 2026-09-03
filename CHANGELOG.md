@@ -36,6 +36,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`tool_list_sharepoint_sites` (T1213.002) — removed the non-existent `sharingCapability`
+  field; re-scoped Tool 14 to site enumeration (W17 R013 finding).** `sharingCapability` is
+  **not a property of `microsoft.graph.site`** in Graph v1.0, so `GET /sites?search=*` returned
+  HTTP 400 BadRequest on the first real-tenant run (R013) — the tool had never worked against a
+  live tenant (its tests fabricated the field). Dropped `sharingCapability` from `$select` and
+  removed the external-sharing-risk classification (high/medium/low/none) and flagged-site
+  gating. The tool now enumerates the site inventory (id, displayName, webUrl, description,
+  timestamps); `--include-drives` / `--include-lists` apply to **every** enumerated site rather
+  than "flagged" ones. Per-site external-sharing posture is only available via the SharePoint
+  admin surface (Get-SPOSite), out of Graph scope — noted as a candidate future surface.
+  Reconciled `docs/techniques/T1213.002.md`, the T1213.002 finding-to-control mapping rationale,
+  and the test suite (dropped the classification tests; added a `SITES_SELECT` regression guard).
+  Evidence for T1213.002 awaits a post-fix re-run.
+
 - **`tool_list_inbox_rules` (T1114.002/003) — corrected scope docs and documented the
   cross-user block (W17 R013 finding).** The tool's docstring/`--help`/403-hint claimed
   `MailboxSettings.Read` and that a directory role enables cross-user reads; the R013 real-tenant

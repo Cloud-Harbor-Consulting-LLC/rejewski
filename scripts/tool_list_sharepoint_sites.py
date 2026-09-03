@@ -4,13 +4,18 @@ Rejewski Sprint 4 W14 Tool 14 — list_sharepoint_sites
 ATT&CK T1213.002 Data from Information Repositories: SharePoint (Surface A)
 
 Enumerates SharePoint Online site collections via Microsoft Graph
-GET /sites?search=*, reads each site's external-sharing policy (sharingCapability),
-and — for sites whose sharing policy is high or medium risk — optionally enumerates
-document libraries (GET /sites/{id}/drives) and lists (GET /sites/{id}/lists). Site
-names alone (e.g. "HR-Compensation", "Finance-FY2026", "Legal-Contracts") expose
-business function without reading a single file; a site set to
-externalUserAndGuestSharing is a data-exfiltration-friendly target. This is repository
-mapping — a precursor to Collection — and reads metadata only, never file content.
+GET /sites?search=*, and optionally enumerates each site's document libraries
+(GET /sites/{id}/drives) and lists (GET /sites/{id}/lists). Site names alone (e.g.
+"HR-Compensation", "Finance-FY2026", "Legal-Contracts") expose business function without
+reading a single file. This is repository mapping — a precursor to Collection — and reads
+metadata only, never file content.
+
+Note (W17): an earlier revision projected each site's `sharingCapability` (external-sharing
+policy) and flagged high/medium-risk sites. `sharingCapability` is **not a property of
+`microsoft.graph.site`** in Graph v1.0 — the R013 real-tenant run returned HTTP 400
+BadRequest for it — so that field and the sharing-risk classification were removed. External
+sharing posture per site is only available via the SharePoint admin surface (Get-SPOSite),
+which is out of scope for this Graph-only tool; enumerating it would be a future surface.
 
 Token acquisition, silent reuse, and CAE/CP1 handling are owned by ADR 0005's encrypted
 PersistedTokenCache helper. The token is consumed via a token_getter callable; 401
@@ -21,9 +26,9 @@ G-3). Borrowed first-party client is Microsoft Graph Command Line Tools; the FOC
 is fixed to 14d82eec per ADR-0006 and guardrail G-3.
 
 Every emitted invocation writes one replay-log entry (kind="graph_call", v0.5 schema) per
-distinct Graph request issued: the /sites search, and each /drives and /lists call for a
-flagged site. A tenant with no SharePoint sites is not an error: the tool prints a notice
-to stderr and still writes a graph_call entry with row_count 0.
+distinct Graph request issued: the /sites search, and each /drives and /lists call when
+--include-drives/--include-lists are set. A tenant with no SharePoint sites is not an error:
+the tool prints a notice to stderr and still writes a graph_call entry with row_count 0.
 
 REQUIRED PRIVILEGE — SCOPE:
     GET /sites?search=* requires the Sites.Read.All delegated scope, admin-consented on
@@ -80,7 +85,7 @@ def _scrub_url(url: Any) -> str:
 GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 GRAPH_SCOPE = ["https://graph.microsoft.com/.default"]
 SITES_SELECT = (
-    "id,displayName,webUrl,description,sharingCapability,"
+    "id,displayName,webUrl,description,"
     "createdDateTime,lastModifiedDateTime"
 )
 DRIVE_SELECT = "id,name,driveType,createdDateTime,lastModifiedDateTime,quota"
@@ -99,22 +104,6 @@ TECHNIQUE_ID = "T1213.002"
 TECHNIQUE_NAME = "Data from Information Repositories: Sharepoint"
 TOOL_NAME = "tool_list_sharepoint_sites"
 ERROR_TYPE_URN = "urn:rejewski:error:tool-invocation-failed"
-
-# sharingCapability enum -> external-sharing risk. high/medium sites are "flagged"
-# and proceed to drives/lists enumeration when --include-drives/--include-lists are set.
-SHARING_RISK = {
-    "externaluserandguestsharing": "high",
-    "externalusersharingonly": "medium",
-    "existingexternalusersharingonly": "low",
-    "disabled": "none",
-}
-FLAGGED_RISKS = {"high", "medium"}
-RISK_BUCKETS = ("high", "medium", "low", "none")
-
-
-def _sharing_risk(capability: Any) -> str:
-    return SHARING_RISK.get(str(capability or "").strip().lower(), "none")
-
 
 def graph_get(
     url: str,
@@ -218,8 +207,6 @@ def _project_site(site: dict[str, Any]) -> dict[str, Any]:
         "id": site.get("id"),
         "displayName": site.get("displayName"),
         "webUrl": _scrub_url(site.get("webUrl")) or None,
-        "sharingCapability": site.get("sharingCapability"),
-        "sharing_risk": _sharing_risk(site.get("sharingCapability")),
         "createdDateTime": site.get("createdDateTime"),
         "lastModifiedDateTime": site.get("lastModifiedDateTime"),
         "drives": [],
@@ -287,12 +274,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--include-drives",
         action="store_true",
-        help="enumerate drives (document libraries) for flagged (high/medium) sites",
+        help="enumerate drives (document libraries) for each enumerated site",
     )
     p.add_argument(
         "--include-lists",
         action="store_true",
-        help="enumerate lists for flagged (high/medium) sites",
+        help="enumerate lists for each enumerated site",
     )
     p.add_argument(
         "--run-id",
@@ -406,20 +393,14 @@ def main() -> int:
     emit(_req(sites_url), _resp(stats, len(sites), outcome), started, completed,
          outcome, error_block)
 
-    # --- per-flagged-site drives / lists --------------------------------------
+    # --- per-site drives / lists (all sites, when requested) -------------------
     projected: list[dict[str, Any]] = []
-    risk_summary = {k: 0 for k in RISK_BUCKETS}
-    flagged_count = 0
 
     for site in sites:
         proj = _project_site(site)
-        risk_summary[proj["sharing_risk"]] = risk_summary.get(proj["sharing_risk"], 0) + 1
-        flagged = proj["sharing_risk"] in FLAGGED_RISKS
-        if flagged:
-            flagged_count += 1
         site_id = site.get("id")
 
-        if flagged and args.include_drives and site_id and outcome != "error":
+        if args.include_drives and site_id and outcome != "error":
             d_stats = {"page_count": 0, "retry_count": 0, "last_status": 0}
             d_started = utc_now_iso()
             endpoint = f"{GRAPH_BASE}/sites/{site_id}/drives"
@@ -436,7 +417,7 @@ def main() -> int:
                  _resp(d_stats, len(proj["drives"]), d_outcome),
                  d_started, utc_now_iso(), d_outcome, d_err)
 
-        if flagged and args.include_lists and site_id and outcome != "error":
+        if args.include_lists and site_id and outcome != "error":
             l_stats = {"page_count": 0, "retry_count": 0, "last_status": 0}
             l_started = utc_now_iso()
             endpoint = f"{GRAPH_BASE}/sites/{site_id}/lists"
@@ -468,9 +449,7 @@ def main() -> int:
         "row_cap_hit": len(sites) >= args.row_cap,
         "outcome": outcome,
         "total_sites": len(sites),
-        "flagged_sites": flagged_count,
         "sites": projected,
-        "sharing_risk_summary": risk_summary,
     }
     if error_block is not None:
         evidence["error"] = error_block

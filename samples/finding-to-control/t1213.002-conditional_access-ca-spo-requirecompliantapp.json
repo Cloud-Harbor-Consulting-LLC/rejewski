@@ -5,7 +5,7 @@
     "technique_name": "Data from Information Repositories: SharePoint",
     "observed_in": [],
     "severity": "medium",
-    "rationale": "Site enumeration via GET /sites?search=* maps every SharePoint Online site collection and its external-sharing posture (sharingCapability), giving an adversary a ranked target list of repositories to collect from — especially those with external sharing enabled. A Conditional Access policy requiring a compliant/managed app or device for SharePoint Online blocks the borrowed first-party FOCI client (14d82eec) running on an unmanaged host from reaching site data, cutting the technique off at the authorization boundary. Recommended-but-not-yet-observed: Tool 14 shipped after the last committed run, so no replay-log sample exercises it yet."
+    "rationale": "Site enumeration via GET /sites?search=* maps every SharePoint Online site collection (id, displayName, webUrl), giving an adversary a target list of repositories to collect from — site names alone (e.g. HR-Compensation, Legal-Contracts) expose business function. A Conditional Access policy requiring a compliant/managed app or device for SharePoint Online blocks the borrowed first-party FOCI client (14d82eec) running on an unmanaged host from reaching site data, cutting the technique off at the authorization boundary. Recommended-but-not-yet-observed: the first R013 attempt returned HTTP 400 (the sharingCapability $select defect, fixed in W17); successful evidence awaits a post-fix re-run. Note: per-site external-sharing posture is not available via the Graph site object, so it is not part of this surface."
   },
   "control": {
     "control_family": "conditional_access",

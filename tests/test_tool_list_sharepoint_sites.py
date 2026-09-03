@@ -1,11 +1,15 @@
 """Tests for scripts/tool_list_sharepoint_sites.py (Tool 14, T1213.002 Surface A).
 
-Mocks the Graph HTTP layer (requests.get) and the token helper
-(identity.acquire_token) so the tool runs offline. Covers the happy path,
-sharingCapability classification, drive-enumeration gating, row-cap truncation,
-empty result, 429 retry, 401 mid-pagination recovery, webUrl tenant-GUID
-scrubbing, replay-log entry shape, include-drives/include-lists default-off, and
-the Sites.Read.All 403 error path.
+Mocks the Graph HTTP layer (requests.get) and the token helper (identity.acquire_token)
+so the tool runs offline. Covers site enumeration (happy path), optional per-site
+drives/lists enumeration and their default-off behavior, row-cap truncation, empty result,
+429 retry, 401 mid-pagination recovery, webUrl tenant-GUID scrubbing, replay-log entry
+shape, the Sites.Read.All 403 error path, and the fleet CLI conventions.
+
+Note (W17): the `sharingCapability` external-sharing-risk classification was removed —
+`sharingCapability` is not a property of `microsoft.graph.site` in Graph v1.0 (the R013
+real-tenant run returned HTTP 400 for it). The tool now enumerates the site inventory; the
+`--include-drives` / `--include-lists` flags apply to every enumerated site.
 """
 
 from __future__ import annotations
@@ -26,11 +30,6 @@ from replay_log import SANDBOX_TENANT_ID  # noqa: E402
 
 ACTOR_UPN = "meganb@cloudharbor-demo.com"
 
-CAP_HIGH = "externalUserAndGuestSharing"
-CAP_MEDIUM = "externalUserSharingOnly"
-CAP_LOW = "existingExternalUserSharingOnly"
-CAP_NONE = "disabled"
-
 
 class FakeResp:
     def __init__(self, status_code: int, body: dict, headers: dict | None = None):
@@ -43,13 +42,12 @@ class FakeResp:
         return self._body
 
 
-def _site(idx: int, cap: str = CAP_NONE, **ov) -> dict:
+def _site(idx: int, **ov) -> dict:
     base = {
         "id": f"site-{idx}",
         "displayName": f"Site {idx}",
         "webUrl": f"https://cloudharbordemo.sharepoint.com/sites/site{idx}",
         "description": "",
-        "sharingCapability": cap,
         "createdDateTime": "2026-01-01T00:00:00Z",
         "lastModifiedDateTime": "2026-08-01T00:00:00Z",
     }
@@ -79,7 +77,7 @@ def _run(monkeypatch, env, tmp_path, responses, extra_args=None, run_id="R012", 
         "tool_list_sharepoint_sites.py",
         "--replay-log-dir", str(replay_dir),
     ]
-    if run_id is not None:  # run_id=None omits the flag (now optional, matching the fleet)
+    if run_id is not None:  # run_id=None omits the flag (optional, matching the fleet)
         argv += ["--run-id", run_id]
     argv += list(extra_args or [])
     monkeypatch.setattr(sys, "argv", argv)
@@ -95,51 +93,46 @@ def _run(monkeypatch, env, tmp_path, responses, extra_args=None, run_id="R012", 
 
 
 class TestHappyPath:
-    def test_three_sites_mixed_risk(self, monkeypatch, env, tmp_path, capsys):
-        body = {"value": [_site(1, CAP_HIGH), _site(2, CAP_MEDIUM), _site(3, CAP_NONE)]}
+    def test_enumerates_sites(self, monkeypatch, env, tmp_path, capsys):
+        body = {"value": [_site(1), _site(2), _site(3)]}
         rc, replay_dir, getmock, out, err = _run(
             monkeypatch, env, tmp_path, [FakeResp(200, body)], capsys=capsys
         )
         assert rc == 0
         assert out["total_sites"] == 3
-        assert out["flagged_sites"] == 2  # high + medium
-        assert out["sharing_risk_summary"] == {"high": 1, "medium": 1, "low": 0, "none": 1}
-        assert [s["sharing_risk"] for s in out["sites"]] == ["high", "medium", "none"]
+        assert [s["displayName"] for s in out["sites"]] == ["Site 1", "Site 2", "Site 3"]
         assert getmock.call_count == 1  # only the sites call (no include flags)
+        # the removed sharing-risk classification must not reappear
+        assert "sharing_risk" not in out["sites"][0]
+        assert "sharingCapability" not in out["sites"][0]
+        assert "sharing_risk_summary" not in out
+        assert "flagged_sites" not in out
 
-
-class TestClassification:
-    def test_all_four_enum_values(self, monkeypatch, env, tmp_path, capsys):
-        body = {"value": [
-            _site(1, CAP_HIGH), _site(2, CAP_MEDIUM), _site(3, CAP_LOW), _site(4, CAP_NONE),
-        ]}
-        rc, _, _, out, err = _run(monkeypatch, env, tmp_path, [FakeResp(200, body)], capsys=capsys)
-        assert rc == 0
-        risks = {s["displayName"]: s["sharing_risk"] for s in out["sites"]}
-        assert risks == {"Site 1": "high", "Site 2": "medium", "Site 3": "low", "Site 4": "none"}
-        assert out["sharing_risk_summary"] == {"high": 1, "medium": 1, "low": 1, "none": 1}
+    def test_select_omits_sharingcapability(self):
+        # Regression: sharingCapability is not a microsoft.graph.site property (R013 -> HTTP 400).
+        assert "sharingCapability" not in tool.SITES_SELECT
 
 
 class TestDriveEnumeration:
-    def test_high_risk_site_enumerates_drives(self, monkeypatch, env, tmp_path, capsys):
-        sites = {"value": [_site(1, CAP_HIGH)]}
-        drives = {"value": [
+    def test_include_drives_enumerates_every_site(self, monkeypatch, env, tmp_path, capsys):
+        sites = {"value": [_site(1), _site(2)]}
+        drives1 = {"value": [
             {"id": "d1", "name": "Documents", "driveType": "documentLibrary",
              "quota": {"total": 100, "used": 40}},
         ]}
+        drives2 = {"value": [{"id": "d2", "name": "Shared", "driveType": "documentLibrary"}]}
         rc, replay_dir, getmock, out, err = _run(
             monkeypatch, env, tmp_path,
-            [FakeResp(200, sites), FakeResp(200, drives)],
+            [FakeResp(200, sites), FakeResp(200, drives1), FakeResp(200, drives2)],
             extra_args=["--include-drives"], capsys=capsys,
         )
         assert rc == 0
-        assert getmock.call_count == 2  # sites + drives
-        # second call was the drives endpoint for the flagged site
+        assert getmock.call_count == 3  # sites + a drives call for EACH site
         assert "/sites/site-1/drives" in getmock.call_args_list[1].args[0]
+        assert "/sites/site-2/drives" in getmock.call_args_list[2].args[0]
         assert out["sites"][0]["drives"][0]["name"] == "Documents"
-        assert out["sites"][0]["drives"][0]["driveType"] == "documentLibrary"
-        # two graph_call entries: sites + drives
-        assert len(_read_graph_calls(replay_dir)) == 2
+        assert out["sites"][1]["drives"][0]["name"] == "Shared"
+        assert len(_read_graph_calls(replay_dir)) == 3
 
 
 class TestRowCap:
@@ -173,7 +166,7 @@ class TestEmpty:
 class TestRetry:
     def test_429_then_success(self, monkeypatch, env, tmp_path, capsys):
         throttled = FakeResp(429, {"error": "throttled"}, headers={"Retry-After": "0"})
-        ok = FakeResp(200, {"value": [_site(1, CAP_HIGH)]})
+        ok = FakeResp(200, {"value": [_site(1)]})
         rc, replay_dir, getmock, out, err = _run(
             monkeypatch, env, tmp_path, [throttled, ok], capsys=capsys
         )
@@ -199,8 +192,7 @@ class TestUnauthorizedRecovery:
 class TestRedaction:
     def test_weburl_tenant_guid_scrubbed(self, monkeypatch, env, tmp_path, capsys):
         # A webUrl that embeds the sandbox tenant GUID must be scrubbed in output.
-        leaky = _site(1, CAP_HIGH,
-                      webUrl=f"https://cloudharbordemo.sharepoint.com/sites/{SANDBOX_TENANT_ID}/x")
+        leaky = _site(1, webUrl=f"https://cloudharbordemo.sharepoint.com/sites/{SANDBOX_TENANT_ID}/x")
         rc, _, _, out, err = _run(
             monkeypatch, env, tmp_path, [FakeResp(200, {"value": [leaky]})], capsys=capsys
         )
@@ -229,20 +221,19 @@ class TestReplayLogShape:
 
 class TestIncludeFlagsDefaultOff:
     def test_no_drives_calls_by_default(self, monkeypatch, env, tmp_path, capsys):
-        # Flagged (high) site present, but --include-drives NOT passed -> no drives call.
+        # --include-drives NOT passed -> no drives call, even with sites present.
         rc, replay_dir, getmock, out, err = _run(
             monkeypatch, env, tmp_path,
-            [FakeResp(200, {"value": [_site(1, CAP_HIGH)]})], capsys=capsys,
+            [FakeResp(200, {"value": [_site(1)]})], capsys=capsys,
         )
         assert rc == 0
         assert getmock.call_count == 1  # sites only
         assert out["sites"][0]["drives"] == []
         assert len(_read_graph_calls(replay_dir)) == 1
 
-    def test_no_lists_calls_by_default(self, monkeypatch, env, tmp_path, capsys):
-        # --include-drives on, --include-lists OFF: a flagged site enumerates
-        # drives but NOT lists. Responses = sites + drives (no lists response).
-        sites = {"value": [_site(1, CAP_HIGH)]}
+    def test_include_drives_only_no_lists(self, monkeypatch, env, tmp_path, capsys):
+        # --include-drives on, --include-lists OFF: drives enumerated, lists not.
+        sites = {"value": [_site(1)]}
         drives = {"value": [{"id": "d1", "name": "Documents", "driveType": "documentLibrary"}]}
         rc, replay_dir, getmock, out, err = _run(
             monkeypatch, env, tmp_path,
@@ -254,7 +245,6 @@ class TestIncludeFlagsDefaultOff:
         assert getmock.call_count == 2  # sites + drives only; no lists call
         assert out["sites"][0]["drives"][0]["name"] == "Documents"
         assert out["sites"][0]["lists"] == []
-        # no request URL ends in /lists
         assert not any("/lists" in c.args[0] for c in getmock.call_args_list)
 
 
@@ -283,13 +273,12 @@ class TestFleetConventions:
         assert tool.DEFAULT_REPLAY_LOG_DIR.name == "replay-logs"
 
     def test_runs_without_run_id(self, monkeypatch, env, tmp_path, capsys):
-        # N2: --run-id is now optional (default None), consistent with the fleet.
-        body = {"value": [_site(1, CAP_NONE)]}
+        # N2: --run-id is optional (default None), consistent with the fleet.
+        body = {"value": [_site(1)]}
         rc, replay_dir, _, out, err = _run(
             monkeypatch, env, tmp_path, [FakeResp(200, body)], run_id=None, capsys=capsys
         )
         assert rc == 0
         assert out["total_sites"] == 1
-        # the emitted entry carries a null run binding rather than aborting on a missing flag
         entry = _read_graph_calls(replay_dir)[0]
         assert entry.get("run_id") is None

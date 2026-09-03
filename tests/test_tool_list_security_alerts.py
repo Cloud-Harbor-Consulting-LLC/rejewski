@@ -46,9 +46,8 @@ def _alert(idx: int, **overrides) -> dict:
         "classification": "truePositive",
         "determination": "multiStagedAttack",
         "category": "InitialAccess",
-        "alertType": "builtIn",
         "createdDateTime": f"2026-07-2{idx}T10:00:00Z",
-        "lastModifiedDateTime": f"2026-07-2{idx}T11:00:00Z",
+        "lastUpdateDateTime": f"2026-07-2{idx}T11:00:00Z",
         "assignedTo": None,
     }
     base.update(overrides)
@@ -250,10 +249,25 @@ class TestFilterConstruction:
         assert "$filter" not in url
         assert "$top=100" in url
 
-    def test_default_select_omits_invalid_alerttype(self):
-        # Regression: 'alertType' is NOT a property of microsoft.graph.security.alert;
-        # the live R013 run returned HTTP 400 BadRequest for it. Guard against reintroduction.
+    def test_default_select_only_valid_alert_properties(self):
+        # Regression: the live R013 runs returned HTTP 400 for two invalid $select fields on
+        # microsoft.graph.security.alert — 'alertType' (no such property) and
+        # 'lastModifiedDateTime' (the real property is 'lastUpdateDateTime'). Guard both, and
+        # assert every field is a real property per the Graph v1.0 schema.
         assert "alertType" not in tool.DEFAULT_SELECT
+        assert "lastModifiedDateTime" not in tool.DEFAULT_SELECT
+        assert "lastUpdateDateTime" in tool.DEFAULT_SELECT
+        # authoritative property set (learn.microsoft.com security-alert resource, v1.0)
+        valid = {
+            "id", "title", "severity", "status", "classification", "determination",
+            "category", "categories", "createdDateTime", "lastUpdateDateTime",
+            "firstActivityDateTime", "lastActivityDateTime", "resolvedDateTime",
+            "assignedTo", "serviceSource", "detectionSource", "productName",
+            "actorDisplayName", "incidentId", "providerAlertId", "tenantId",
+            "description", "recommendedActions", "threatDisplayName", "threatFamilyName",
+        }
+        for field in tool.DEFAULT_SELECT.split(","):
+            assert field in valid, f"{field} is not a microsoft.graph.security.alert property"
 
     def test_filters_reach_the_request_url(
         self, monkeypatch, env, tmp_path, capsys

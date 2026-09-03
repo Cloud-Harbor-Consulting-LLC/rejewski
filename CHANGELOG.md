@@ -36,6 +36,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`tool_list_security_alerts` (T1654 Surface B) — second invalid `$select` field
+  (`lastModifiedDateTime` → `lastUpdateDateTime`).** After the `alertType` removal, the clean
+  R013 re-run returned a further HTTP 400: `lastModifiedDateTime` is not a property of
+  `microsoft.graph.security.alert` either — the correct field is **`lastUpdateDateTime`**
+  (confirmed against the authoritative Graph v1.0 `security-alert` resource docs; the whole
+  `$select` was validated against the schema, so this is the complete fix). The date is only
+  requested, not projected/aggregated. Strengthened the regression test to validate every
+  `$select` field against the documented property set. (`category` is accepted but marked
+  deprecated in favor of `categories`; left as-is since it still functions and changing it
+  alters the `by_category` aggregation — noted for a future pass.)
+
 - **`tool_list_sharepoint_sites` (T1213.002) — removed the non-existent `sharingCapability`
   field; re-scoped Tool 14 to site enumeration (W17 R013 finding).** `sharingCapability` is
   **not a property of `microsoft.graph.site`** in Graph v1.0, so `GET /sites?search=*` returned

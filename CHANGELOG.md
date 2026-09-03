@@ -36,6 +36,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`tool_list_inbox_rules` (T1114.002/003) — corrected scope docs and documented the
+  cross-user block (W17 R013 finding).** The tool's docstring/`--help`/403-hint claimed
+  `MailboxSettings.Read` and that a directory role enables cross-user reads; the R013 real-tenant
+  run showed (a) the `mailFolders/messageRules` path is gated on **`Mail.Read`**, and (b) a
+  **cross-user read returns HTTP 403 `ErrorAccessDenied` even with `Mail.Read` + Exchange
+  Administrator** — delegated `Mail.*` only reaches the signed-in user's own mailbox. Corrected
+  the tool text and reconciled `docs/techniques/T1114.002.md` / `T1114.003.md` (scope → Mail.Read;
+  Evidence records the block). **T1114.002/003 remain evidence-blocked**: the only guardrail-
+  compatible posture is self-mailbox, unavailable in the sandbox (operator identity has no
+  mailbox); cross-user needs app-only permissions, out of scope per G-2/G-3. The finding-to-control
+  mappings stay `draft` (no success evidence). Docs-only; no code-path change (tool already uses
+  `.default`, inheriting whatever is consented).
+
 - **`tool_list_security_alerts` (T1654 Surface B) — invalid `$select` field.** Removed
   `alertType` from `DEFAULT_SELECT`: it is not a property of `microsoft.graph.security.alert`,
   so `GET /security/alerts_v2` returned HTTP 400 BadRequest on the first real-tenant run (R013).

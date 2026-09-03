@@ -30,16 +30,21 @@ Every emitted invocation writes a replay-log entry under the v0.5 schema with
 kind="graph_call". A mailbox with no inbox rules is not an error: the tool prints a
 notice to stderr and still writes a graph_call entry with row_count (rule_count) 0.
 
-REQUIRED PRIVILEGE — SCOPE AND DIRECTORY ROLE:
-    GET /users/{id}/mailFolders/inbox/messageRules requires the MailboxSettings.Read
-    delegated scope, admin-consented on the borrowed client in cloudharbordemo.
-    - Self (--user-id me): no Entra directory role required — any authenticated
-      member can read their own inbox rules.
-    - Cross-user (--user-id <object-id>): requires Exchange Administrator or Global
-      Reader on the signed-in user. Without a qualifying role, reading another
-      user's mailbox returns HTTP 403.
-    In cloudharbordemo, meganb@cloudharbor-demo.com reads her own rules with no role;
-    cross-user enumeration is a post-privilege step.
+REQUIRED PRIVILEGE — SCOPE (delegated), and the cross-user constraint:
+    GET /{me|users/{id}}/mailFolders/inbox/messageRules is gated on a delegated Mail.Read
+    (or Mail.ReadBasic / Mail.ReadWrite) scope, admin-consented on the borrowed client in
+    cloudharbordemo. (An earlier revision documented MailboxSettings.Read; the R013 real-
+    tenant run showed the mailFolders/messageRules path requires Mail.Read.)
+    - Self (--user-id me): reads the signed-in operator's OWN inbox rules. No directory role.
+    - Cross-user (--user-id <other>): NOT supported. Delegated Mail.* only ever reaches the
+      signed-in user's own mailbox; an admin directory role (Exchange Administrator, Global
+      Reader) does NOT extend delegated Graph access to another user's mailbox — the R013 run
+      returned HTTP 403 ErrorAccessDenied for a cross-user read even with Exchange
+      Administrator assigned. Cross-user mailbox reads require an APPLICATION permission
+      (app-only Mail.Read), which the borrowed public FOCI client cannot use and which would
+      require a tenant app registration — out of scope per G-2/G-3.
+    Net: this surface is evidenceable only for a mailbox-enabled operator identity reading
+    its own mailbox (--user-id me).
 
 See docs/techniques/T1114.002.md Surface A for the full module.
 
@@ -225,8 +230,8 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_USER,
         help=(
             "target mailbox: 'me' (default, operator's own inbox — no role "
-            "required) or an Entra user object ID (cross-user — requires "
-            "Exchange Administrator or Global Reader)"
+            "required). A cross-user id is NOT supported under the delegated flow "
+            "(needs app-only Mail.Read, out of scope per G-2/G-3); use 'me'."
         ),
     )
     p.add_argument(
@@ -323,10 +328,11 @@ def main() -> int:
         if "HTTP 403" in str(exc):
             print(
                 "HTTP 403 — access denied reading inbox message rules.\n"
-                "  Self-mailbox (--user-id me) needs only MailboxSettings.Read on\n"
-                f"  the borrowed client {client_id}. Cross-user enumeration also\n"
-                "  requires Exchange Administrator or Global Reader on the signed-in\n"
-                "  account. See docs/techniques/T1114.002.md Surface A.",
+                "  Self-mailbox (--user-id me) needs delegated Mail.Read on the borrowed\n"
+                f"  client {client_id}. Cross-user reads are NOT supported: delegated Mail.*\n"
+                "  only reaches the signed-in user's own mailbox, an admin role does not\n"
+                "  extend it (R013: 403 even with Exchange Administrator), and app-only is\n"
+                "  out of scope per G-2/G-3. See docs/techniques/T1114.002.md Surface A.",
                 file=sys.stderr,
             )
         else:

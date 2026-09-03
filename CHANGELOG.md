@@ -75,6 +75,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scripts/generate_html_report.py` + `tests/test_generate_html_report.py` +
+  `docs/reports/replay-report-R012.html` (generated sample) — HTML run-report template v1.
+  Formalizes the hand-built one-off `docs/replay-report-r011.html` into a reusable,
+  script-driven generator: reads a replay-log sample plus its finding-triage and
+  finding-to-control records and renders a complete HTML report to `--output` (read-only,
+  no Graph calls; CLI shape mirrors `finding_coverage_report.py`; output convention
+  `docs/reports/replay-report-<run-id>.html`). Sections: header/meta, consent summary (when
+  the run carries a consent record), graph-calls and token-events tables, findings summary
+  with a per-finding severity badge (informational/low/medium/high/critical per
+  `docs/finding-severity-rubric-v0.1.md` v0.2), and control mappings per finding. **The ROI
+  section is an explicit placeholder ("ROI scoring — Sprint 5 Week 18") — not computed; ROI
+  scoring is S5 W18 scope.** CSS is centralized in one stylesheet in the script (reusing the
+  badge/table/`.consent` style of the historical report), which is never modified. G-6: the
+  report reuses only already-scrubbed source fields — tenant shown truncated, operator object
+  id from consent records not rendered. Tests (5): fixture render (incl. consent) asserting
+  technique IDs / severity badges / control refs / ROI placeholder, the real R012 sample, the
+  G-6 checks, and a guard that the historical report is never touched.
+
 - `scripts/rotate_replay_logs.py` + `docs/replay-archive.md` + `tests/test_rotate_replay_logs.py`
   — replay-log rotation/compression and the archive policy. Compresses `replay-logs/` working-
   directory entries strictly older than 30 days (age from the entry's `<YYYYMMDDThhmmssZ>`

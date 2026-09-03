@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1087-004-r013-account-discovery-001",
+  "technique_id": "T1087.004",
+  "technique_name": "Account Discovery: Cloud Account",
+  "run_id": "R013",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1087-004-ca-cov008-blockbylocation-001",
+  "evidence": [
+    "samples/replay-log/R013.json"
+  ],
+  "triage_status": "open",
+  "notes": "Account discovery across five surfaces in the W17 R013 full sweep, all success: tool_list_users (9), tool_list_applications (10), tool_list_role_assignments (14), tool_list_service_principals (430), tool_list_oauth_grants (22). Severity medium per docs/finding-severity-rubric-v0.1.md (B=2 tenant-wide read, D=2 directory/identity target map). Recurring: also observed in R010/R011/R012. Cross-references CA-COV008-BlockByLocation.",
+  "triage_metadata": {
+    "created_utc": "2026-09-03T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

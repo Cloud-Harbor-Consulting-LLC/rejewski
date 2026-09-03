@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1213-002-r013-sharepoint-sites-001",
+  "technique_id": "T1213.002",
+  "technique_name": "Data from Information Repositories: SharePoint",
+  "run_id": "R013",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1213-002-ca-spo-001-requirecompliantapp-001",
+  "evidence": [
+    "samples/replay-log/R013.json"
+  ],
+  "triage_status": "open",
+  "notes": "SharePoint site enumeration: tool_list_sharepoint_sites enumerated 2 site collections (R013), success, the FIRST real-tenant success for Tool 14 after the W17 re-scope removed the non-existent sharingCapability field (prior attempts returned HTTP 400). Medium per rubric (B=2 tenant-wide, D=2 repository-targeting map; site names expose business function). Cross-references CA-SPO-001-RequireCompliantApp.",
+  "triage_metadata": {
+    "created_utc": "2026-09-03T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

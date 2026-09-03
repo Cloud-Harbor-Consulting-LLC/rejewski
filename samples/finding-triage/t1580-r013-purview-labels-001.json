@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1580-r013-purview-labels-001",
+  "technique_id": "T1580",
+  "technique_name": "Cloud Infrastructure Discovery",
+  "run_id": "R013",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1580-conditional-access-purview-require-compliant-app-001",
+  "evidence": [
+    "samples/replay-log/R013.json"
+  ],
+  "triage_status": "open",
+  "notes": "Cloud infrastructure discovery: tool_purview_labels enumerated 4 sensitivity labels (R013), success. Medium per rubric (B=2, D=2 the label taxonomy is a Collection-targeting map; re-triaged low to medium in W16). Recurring. Cross-references CA-PUR-001-RequireCompliantApp.",
+  "triage_metadata": {
+    "created_utc": "2026-09-03T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

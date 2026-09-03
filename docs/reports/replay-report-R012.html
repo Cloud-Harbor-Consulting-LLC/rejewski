@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rejewski Run Report — R012</title>
+<style>
+body       { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+             font-size: 14px; color: #212529; margin: 2em auto; max-width: 960px;
+             padding: 0 1em; }
+table      { border-collapse: collapse; width: 100%; margin-bottom: 1.5em; }
+th         { background: #f8f9fa; text-align: left; padding: 8px 10px;
+             border-bottom: 2px solid #dee2e6; font-weight: 600; }
+td         { padding: 7px 10px; border-bottom: 1px solid #dee2e6; vertical-align: top; }
+tr:nth-child(even) td { background: #f8f9fa; }
+code       { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.88em; }
+h1         { font-size: 1.3em; margin-bottom: 0.25em; }
+h2         { font-size: 1em; font-weight: 600; margin: 1.5em 0 0.5em;
+             text-transform: uppercase; letter-spacing: 0.05em; color: #6c757d; }
+.meta      { color: #6c757d; font-size: 0.9em; margin-bottom: 1em; }
+.consent   { padding: 0.75em 1em; border-left: 4px solid #ccc;
+             margin-bottom: 0.75em; background: #f8f9fa; }
+.consent.granted { border-left-color: #28a745; }
+.consent.declined { border-left-color: #dc3545; }
+footer     { margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;
+             color: #6c757d; font-size: 0.9em; }
+.badge-success, .badge-error, .badge-other,
+.badge-informational, .badge-low, .badge-medium, .badge-high, .badge-critical {
+             padding: 2px 8px; border-radius: 3px; font-size: 0.85em; white-space: nowrap; }
+.badge-success  { background: #d4edda; color: #155724; }
+.badge-error    { background: #f8d7da; color: #721c24; }
+.badge-other    { background: #e2e3e5; color: #383d41; }
+.badge-informational { background: #e2e3e5; color: #383d41; }
+.badge-low      { background: #d1ecf1; color: #0c5460; }
+.badge-medium   { background: #fff3cd; color: #856404; }
+.badge-high     { background: #f8d7da; color: #721c24; }
+.badge-critical { background: #dc3545; color: #ffffff; }
+.placeholder { padding: 0.75em 1em; border: 1px dashed #adb5bd; color: #6c757d;
+             background: #f8f9fa; border-radius: 3px; }
+.notes     { color: #495057; }
+</style>
+</head>
+<body>
+<header>
+<h1>Rejewski Run Report</h1>
+<p class="meta">Run: R012 · Tenant: 76b87c33 · Operator: meganb@cloudharbor-demo.com · Date: 2026-08-29</p>
+<p class="meta">6 entries</p>
+</header>
+<section>
+<h2>Graph calls</h2>
+<table>
+<thead><tr><th>Time</th><th>Technique</th><th>Tool</th><th>Endpoint</th><th>Rows</th><th>Outcome</th></tr></thead>
+<tbody>
+<tr>
+<td><code>21:21:19 UTC</code></td>
+<td>T1087.004 Account Discovery: Cloud Account</td>
+<td>tool_list_users</td>
+<td><code>/v1.0/users</code></td>
+<td>9</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>21:21:31 UTC</code></td>
+<td>T1087.004 Account Discovery: Cloud Account</td>
+<td>tool_list_role_assignments</td>
+<td><code>/v1.0/roleManagement/directory/roleAssignments</code></td>
+<td>14</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>21:21:48 UTC</code></td>
+<td>T1087.004 Account Discovery: Cloud Account</td>
+<td>tool_list_service_principals</td>
+<td><code>/v1.0/servicePrincipals</code></td>
+<td>419</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section>
+<h2>Token events</h2>
+<table>
+<thead><tr><th>Time</th><th>Technique</th><th>Outcome</th></tr></thead>
+<tbody>
+<tr>
+<td><code>21:21:19 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>21:21:31 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>21:21:48 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section>
+<h2>Findings</h2>
+<table>
+<thead><tr><th>Technique</th><th>Severity</th><th>Confidence</th><th>Triage</th><th>Notes</th></tr></thead>
+<tbody>
+<tr>
+<td>T1087.004 Account Discovery: Cloud Account</td>
+<td><span class="badge-medium">medium</span></td>
+<td>high</td>
+<td>open</td>
+<td class="notes">Account discovery exercised across three surfaces in the Sprint 4 checkpoint run (Playbook Recipe R-01, Privileged Account Discovery), all outcome=success: tool_list_users (9 users, 1 page), tool_list_role_assignments (14 assignments, 2 pages), tool_list_service_principals (419 principals, 5 pages). Severity medium per docs/finding-severity-rubric-v0.1.md (B=2 tenant-wide read, D=2 directory/identity target map; no credential or data content captured). Recurring: T1087.004 also observed in R010 and R011. Cross-references CA-COV008-BlockByLocation preventive control.</td>
+</tr>
+<tr>
+<td>T1550.001 Use Alternate Authentication Material: Application Access Token</td>
+<td><span class="badge-high">high</span></td>
+<td>high</td>
+<td>open</td>
+<td class="notes">One delegated token silently reused across all three account-discovery reads in the Sprint 4 checkpoint run (Playbook Recipe R-01) — 3 token_event entries, flow=silent, persistence_kind=encrypted, cache_path redacted — in the cloudharbordemo sandbox. Severity high per docs/finding-severity-rubric-v0.1.md (D=3 token/credential material, and the technique operates through the authentication control: a cached token needs no fresh MFA challenge). Recurring: silent T1550.001 reuse also observed in prior committed runs (R007, R011). Cross-references Directory Readers RBAC preventive control.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section>
+<h2>Control mappings</h2>
+<table>
+<thead><tr><th>Technique</th><th>Control</th><th>Family / Type</th><th>Pillar · NIST 800-207</th><th>Ref</th></tr></thead>
+<tbody>
+<tr>
+<td>T1087.004</td>
+<td>CA-COV008-BlockByLocation</td>
+<td>conditional_access / preventive</td>
+<td>Identities · T3, T4</td>
+<td><a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-access-policy-block-access">ref</a></td>
+</tr>
+<tr>
+<td>T1550.001</td>
+<td>Directory Readers</td>
+<td>rbac / preventive</td>
+<td>Identities · T4, T6</td>
+<td><a href="https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#directory-readers">ref</a></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section>
+<h2>ROI</h2>
+<div class="placeholder"><strong>ROI scoring — Sprint 5 Week 18.</strong> This section is a scaffold; ROI is not computed in this template — ROI scoring is Sprint 5 Week 18 (S5 W18 Tue) scope.</div>
+</section>
+<footer>6 entries — 3 graph_call · 3 token_event · 0 consent · 2 triaged finding(s)</footer>
+</body>
+</html>

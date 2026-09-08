@@ -34,8 +34,6 @@ footer     { margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;
 .badge-medium   { background: #fff3cd; color: #856404; }
 .badge-high     { background: #f8d7da; color: #721c24; }
 .badge-critical { background: #dc3545; color: #ffffff; }
-.placeholder { padding: 0.75em 1em; border: 1px dashed #adb5bd; color: #6c757d;
-             background: #f8f9fa; border-radius: 3px; }
 .notes     { color: #495057; }
 </style>
 </head>
@@ -145,8 +143,23 @@ footer     { margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;
 </table>
 </section>
 <section>
-<h2>ROI</h2>
-<div class="placeholder"><strong>ROI scoring — Sprint 5 Week 18.</strong> This section is a scaffold; ROI is not computed in this template — ROI scoring is Sprint 5 Week 18 (S5 W18 Tue) scope.</div>
+<h2>ROI / business impact</h2>
+<p class="notes">Each finding is mapped to its baseline risk category and direction of risk from the §6 findings-to-ROI bridge in <code>docs/phs-security-roi-model-v0.1.md</code>. Per that model no per-finding dollar figure is assigned; the sole figure that appears (T1550.001) is the established fraction-of-$728K framing from §3.</p>
+<table>
+<thead><tr><th>Technique</th><th>Risk category</th><th>Potential cost avoided (direction)</th></tr></thead>
+<tbody>
+<tr>
+<td>T1087.004</td>
+<td>Account enumeration</td>
+<td class="notes">Shrinks the phishing/targeting surface an adversary builds from a user directory</td>
+</tr>
+<tr>
+<td>T1550.001</td>
+<td>Credential / token theft</td>
+<td class="notes">Fraction of the $728K credential-breach exposure (§3); token reuse is the residual-0.8% path that survives MFA (§4–§5)</td>
+</tr>
+</tbody>
+</table>
 </section>
 <footer>6 entries — 3 graph_call · 3 token_event · 0 consent · 2 triaged finding(s)</footer>
 </body>

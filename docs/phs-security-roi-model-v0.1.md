@@ -123,11 +123,15 @@ What Rejewski adds beyond "deploy MFA":
 
 ## 6. Findings-to-ROI bridge
 
-Each R011 finding (docs/findings-report-r011.md) mapped to its control and its risk
-category. **"Potential cost avoided" assigns no dollar figure** — it maps the finding to
-the relevant baseline risk category and states the direction of the risk. Assigning a
-specific dollar avoided per finding would fabricate precision the data does not support
-(writing rules; baseline confidence bands).
+Each finding mapped to its control and its risk category. The original nine rows are the
+R011 sweep (docs/findings-report-r011.md); the last two — **T1213.002** and **T1033** —
+are later-evidenced techniques (R013 and R012 respectively) folded into the same bridge so
+every implemented, triaged technique has an ROI line. **"Potential cost avoided" assigns no
+dollar figure** — it maps the finding to the relevant baseline risk category and states the
+direction of the risk. Assigning a specific dollar avoided per finding would fabricate
+precision the data does not support (writing rules; baseline confidence bands). The single
+exception is **T1550.001**, which is expressed as a *fraction of* the §3 $728K
+credential-breach exposure, not a standalone number.
 
 | Technique | Severity | Control mapped | Risk category | Potential cost avoided (direction) |
 |---|---|---|---|---|
@@ -140,6 +144,8 @@ specific dollar avoided per finding would fabricate precision the data does not 
 | T1082 | medium | Intune Service Administrator (RBAC) | Endpoint targeting | Limits enumeration of non-compliant/unencrypted devices — the soft lateral-movement targets |
 | T1580 | medium [†] | CA-PUR-001-RequireCompliantApp | Data-classification exposure | Restricts label-inventory reads that would steer later Collection toward Confidential data |
 | T1654 | medium | Reports Reader (RBAC) | Security-log exposure | Least-privilege on sign-in/alert logs denies the adversary the defender's own detection baseline |
+| T1213.002 | medium | CA-SPO-001-RequireCompliantApp | Information-repository exposure | Restricts the SharePoint site inventory that steers later Collection toward business-sensitive repositories (HR, Legal, Finance); a compliant-app CA policy blocks the unmanaged-host token path at the authorization boundary |
+| T1033 | medium | PIM-EligibleRoleAssignments | Privileged-account enumeration | Shrinks the standing set of Global Admin / Privileged Role Administrator holders an adversary can discover as always-on escalation targets; JIT eligibility makes each activation an auditable, time-bound event |
 
 Reading the bridge: the **T1550.001 (High)** finding is the one that ties most directly to
 the §3 dollar figure — token reuse is precisely the residual-0.8% credential-theft path
@@ -193,3 +199,4 @@ vendor-commissioned** (baseline §7). Both are used above with those flags attac
 |---|---|---|
 | v0.1 | 2026-08-15 | Initial model. Scenario: 750-employee mid-market M365 E5. Sources: IBM CODB 2024/2025, Verizon DBIR 2025, M-Trends 2025, Microsoft MFA research. |
 | v0.1 | 2026-08-29 | §6 findings-to-ROI bridge: T1580 severity `low` → `medium` per `docs/finding-severity-rubric-v0.1.md` (re-triage). Direction of risk unchanged; no figures affected. |
+| v0.1 | 2026-09-08 | §6 bridge extended with two later-evidenced techniques — **T1213.002** (CA-SPO-001-RequireCompliantApp, evidenced R013) and **T1033** (PIM-EligibleRoleAssignments, evidenced R012) — same style/rigor as the original nine, direction-of-risk only, no dollar figure. This is the grounding table consumed by the S5 W18 ROI section in `scripts/generate_html_report.py`. No baseline figures added or changed. |

@@ -34,8 +34,6 @@ footer     { margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;
 .badge-medium   { background: #fff3cd; color: #856404; }
 .badge-high     { background: #f8d7da; color: #721c24; }
 .badge-critical { background: #dc3545; color: #ffffff; }
-.placeholder { padding: 0.75em 1em; border: 1px dashed #adb5bd; color: #6c757d;
-             background: #f8f9fa; border-radius: 3px; }
 .notes     { color: #495057; }
 </style>
 </head>
@@ -386,8 +384,58 @@ footer     { margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;
 </table>
 </section>
 <section>
-<h2>ROI</h2>
-<div class="placeholder"><strong>ROI scoring — Sprint 5 Week 18.</strong> This section is a scaffold; ROI is not computed in this template — ROI scoring is Sprint 5 Week 18 (S5 W18 Tue) scope.</div>
+<h2>ROI / business impact</h2>
+<p class="notes">Each finding is mapped to its baseline risk category and direction of risk from the §6 findings-to-ROI bridge in <code>docs/phs-security-roi-model-v0.1.md</code>. Per that model no per-finding dollar figure is assigned; the sole figure that appears (T1550.001) is the established fraction-of-$728K framing from §3.</p>
+<table>
+<thead><tr><th>Technique</th><th>Risk category</th><th>Potential cost avoided (direction)</th></tr></thead>
+<tbody>
+<tr>
+<td>T1069.003</td>
+<td>Group / privilege enumeration</td>
+<td class="notes">Caps stolen-token lifetime, narrowing the 281-day exposure window (§3)</td>
+</tr>
+<tr>
+<td>T1082</td>
+<td>Endpoint targeting</td>
+<td class="notes">Limits enumeration of non-compliant/unencrypted devices — the soft lateral-movement targets</td>
+</tr>
+<tr>
+<td>T1087.004</td>
+<td>Account enumeration</td>
+<td class="notes">Shrinks the phishing/targeting surface an adversary builds from a user directory</td>
+</tr>
+<tr>
+<td>T1213.002</td>
+<td>Information-repository exposure</td>
+<td class="notes">Restricts the SharePoint site inventory that steers later Collection toward business-sensitive repositories (HR, Legal, Finance); a compliant-app CA policy blocks the unmanaged-host token path at the authorization boundary</td>
+</tr>
+<tr>
+<td>T1518.001</td>
+<td>Detection-coverage gap</td>
+<td class="notes">Restricts who can read DfI sensor health — the map of where detection is degraded</td>
+</tr>
+<tr>
+<td>T1526</td>
+<td>CA-policy exposure</td>
+<td class="notes">Least-privilege on policy reads limits an adversary&#x27;s map of where MFA/CA coverage is thin</td>
+</tr>
+<tr>
+<td>T1550.001</td>
+<td>Credential / token theft</td>
+<td class="notes">Fraction of the $728K credential-breach exposure (§3); token reuse is the residual-0.8% path that survives MFA (§4–§5)</td>
+</tr>
+<tr>
+<td>T1580</td>
+<td>Data-classification exposure</td>
+<td class="notes">Restricts label-inventory reads that would steer later Collection toward Confidential data</td>
+</tr>
+<tr>
+<td>T1654</td>
+<td>Security-log exposure</td>
+<td class="notes">Least-privilege on sign-in/alert logs denies the adversary the defender&#x27;s own detection baseline</td>
+</tr>
+</tbody>
+</table>
 </section>
 <footer>28 entries — 14 graph_call · 14 token_event · 0 consent · 9 triaged finding(s)</footer>
 </body>

@@ -13,8 +13,13 @@ CLI shape mirrors scripts/finding_coverage_report.py (argparse, required --outpu
 Sections: header/meta (run id, tenant, date), consent summary (if the run carries a consent
 record), graph-calls table, token-events table, findings summary (one severity badge per
 finding per docs/finding-severity-rubric-v0.1.md v0.2), control mappings per finding, and an
-ROI section rendered as an explicit **placeholder** — ROI computation is Sprint 5 Week 18
-scope and is not computed here.
+ROI / business-impact section (S5 W18). The ROI section is computed by looking each finding's
+technique up in the §6 findings-to-ROI bridge table of docs/phs-security-roi-model-v0.1.md —
+the already-reviewed grounding source of truth — and rendering that technique's risk category
+and direction-of-risk verbatim. **No dollar figure is fabricated:** the only figure that can
+appear is the one already in the reviewed table (T1550.001, expressed as a fraction of the §3
+$728K exposure). A finding whose technique is not in the bridge renders an explicit
+"not yet in the ROI model" line rather than an invented one.
 
 G-6: the report reuses only fields already present (and already scrubbed) in the source
 records — the sandbox tenant is shown truncated to its first segment, the operator UPN is the
@@ -34,6 +39,7 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Optional
@@ -42,14 +48,19 @@ from urllib.parse import urlparse
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_FINDING_DIR = REPO_ROOT / "samples" / "finding-triage"
 DEFAULT_MAPPING_DIR = REPO_ROOT / "samples" / "finding-to-control"
+DEFAULT_ROI_MODEL = REPO_ROOT / "docs" / "phs-security-roi-model-v0.1.md"
 
 SEVERITY_LEVELS = ("informational", "low", "medium", "high", "critical")
 
-ROI_PLACEHOLDER = "ROI scoring — Sprint 5 Week 18"
+# Line shown when a finding's technique is not present in the §6 ROI bridge. Deliberately
+# explicit (never a fabricated figure) — see AC4 / the ROI model's no-fabrication rule.
+ROI_NOT_MODELED = (
+    "Not yet in the ROI model "
+    "(docs/phs-security-roi-model-v0.1.md §6 bridge) — no figure fabricated."
+)
 
 # Centralized stylesheet (single source of truth — not hand-copied per report). Reuses the
-# badge/table/.consent styling from docs/replay-report-r011.html and adds severity badges and
-# the ROI placeholder box.
+# badge/table/.consent styling from docs/replay-report-r011.html and adds severity badges.
 CSS = """
 body       { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
              font-size: 14px; color: #212529; margin: 2em auto; max-width: 960px;
@@ -81,8 +92,6 @@ footer     { margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;
 .badge-medium   { background: #fff3cd; color: #856404; }
 .badge-high     { background: #f8d7da; color: #721c24; }
 .badge-critical { background: #dc3545; color: #ffffff; }
-.placeholder { padding: 0.75em 1em; border: 1px dashed #adb5bd; color: #6c757d;
-             background: #f8f9fa; border-radius: 3px; }
 .notes     { color: #495057; }
 """.strip()
 
@@ -172,6 +181,48 @@ def load_mappings(mapping_dir: Path) -> dict[str, dict]:
         tid = (rec.get("finding") or {}).get("technique_id")
         by_technique.setdefault(tid, rec)
     return {"by_id": by_id, "by_technique": by_technique}
+
+
+def _strip_md(cell: str) -> str:
+    """Strip the light markdown used in the bridge table cells (bold, backticks, footnote daggers)."""
+    s = cell.replace("**", "").replace("`", "")
+    s = re.sub(r"\[[†*‡]\]", "", s)  # footnote markers like [†]
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def load_roi_bridge(path: Path) -> dict[str, dict]:
+    """Parse the §6 findings-to-ROI bridge table of the ROI model doc.
+
+    Returns technique_id -> {severity, control, risk_category, direction}. The ROI model doc
+    is the single source of truth (already reviewed); this parser reads it rather than
+    duplicating the table, so editing the doc is enough to change the rendered ROI section.
+    Returns {} if the file or the §6 table is absent (callers degrade to 'not modeled', never
+    to a fabricated figure).
+    """
+    if not path or not path.is_file():
+        return {}
+    bridge: dict[str, dict] = {}
+    in_section = False
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("## "):
+            in_section = stripped.startswith("## 6.")
+            continue
+        if not in_section or not stripped.startswith("|"):
+            continue
+        cells = [c.strip() for c in stripped.strip("|").split("|")]
+        if len(cells) < 5:
+            continue
+        tech = _strip_md(cells[0])
+        if not re.match(r"^T\d{4}", tech):  # skips the header and the |---| separator row
+            continue
+        bridge[tech] = {
+            "severity": _strip_md(cells[1]),
+            "control": _strip_md(cells[2]),
+            "risk_category": _strip_md(cells[3]),
+            "direction": _strip_md(cells[4]),
+        }
+    return bridge
 
 
 def _render_header(meta: dict) -> str:
@@ -303,16 +354,48 @@ def _render_control_mappings(findings: list[dict], mappings: dict) -> str:
     )
 
 
-def _render_roi_placeholder() -> str:
+def _render_roi(findings: list[dict], bridge: dict) -> str:
+    """One ROI line per finding: risk category + direction of risk from the §6 bridge.
+
+    Every finding gets a line (AC1). A technique in the bridge renders its reviewed
+    risk-category / direction cells verbatim — the only dollar figure that can appear is the
+    one already in the reviewed table (T1550.001, a fraction of the §3 $728K). A technique not
+    in the bridge renders an explicit not-modeled line (AC4), never a fabricated one.
+    """
+    rows = []
+    for f in findings:
+        tid = f.get("technique_id")
+        entry = bridge.get(tid)
+        if entry:
+            rows.append(
+                "<tr>\n"
+                f"<td>{_esc(tid)}</td>\n"
+                f"<td>{_esc(entry['risk_category'])}</td>\n"
+                f'<td class="notes">{_esc(entry["direction"])}</td>\n</tr>'
+            )
+        else:
+            rows.append(
+                "<tr>\n"
+                f"<td>{_esc(tid)}</td>\n"
+                f'<td colspan="2"><em>{_esc(ROI_NOT_MODELED)}</em></td>\n</tr>'
+            )
+    body = "\n".join(rows) if rows else '<tr><td colspan="3">No triaged findings to score.</td></tr>'
+    intro = (
+        '<p class="notes">Each finding is mapped to its baseline risk category and '
+        "direction of risk from the §6 findings-to-ROI bridge in "
+        "<code>docs/phs-security-roi-model-v0.1.md</code>. Per that model no per-finding "
+        "dollar figure is assigned; the sole figure that appears (T1550.001) is the "
+        "established fraction-of-$728K framing from §3.</p>"
+    )
     return (
-        "<section>\n<h2>ROI</h2>\n"
-        f'<div class="placeholder"><strong>{_esc(ROI_PLACEHOLDER)}.</strong> '
-        "This section is a scaffold; ROI is not computed in this template — ROI scoring is "
-        "Sprint 5 Week 18 (S5 W18 Tue) scope.</div>\n</section>"
+        "<section>\n<h2>ROI / business impact</h2>\n" + intro + "\n<table>\n"
+        "<thead><tr><th>Technique</th><th>Risk category</th>"
+        "<th>Potential cost avoided (direction)</th></tr></thead>\n<tbody>\n"
+        + body + "\n</tbody>\n</table>\n</section>"
     )
 
 
-def render_report(meta: dict, findings: list[dict], mappings: dict) -> str:
+def render_report(meta: dict, findings: list[dict], mappings: dict, roi_bridge: dict) -> str:
     ge, te = len(meta["graph_calls"]), len(meta["token_events"])
     ce = len(meta["consent"])
     footer = (
@@ -334,7 +417,7 @@ def render_report(meta: dict, findings: list[dict], mappings: dict) -> str:
         _render_token_events(meta["token_events"]),
         _render_findings(findings),
         _render_control_mappings(findings, mappings),
-        _render_roi_placeholder(),
+        _render_roi(findings, roi_bridge),
         f"<footer>{_esc(footer)}</footer>",
         "</body>",
         "</html>",
@@ -351,6 +434,8 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     p.add_argument("--replay-log", required=True, help="Path to a replay-log JSON array (e.g. samples/replay-log/R012.json).")
     p.add_argument("--finding-dir", default=str(DEFAULT_FINDING_DIR), help="Directory of finding-triage records.")
     p.add_argument("--mapping-dir", default=str(DEFAULT_MAPPING_DIR), help="Directory of finding-to-control records.")
+    p.add_argument("--roi-model", default=str(DEFAULT_ROI_MODEL),
+                   help="Path to the ROI model markdown whose §6 bridge grounds the ROI section.")
     p.add_argument("--output", required=True, help="Path to write the HTML report.")
     return p.parse_args(argv)
 
@@ -365,7 +450,14 @@ def main(argv: Optional[list[str]] = None) -> int:
     meta = load_replay_log(replay_path)
     findings = load_findings(Path(args.finding_dir), meta["run_id"])
     mappings = load_mappings(Path(args.mapping_dir))
-    html_out = render_report(meta, findings, mappings)
+    roi_bridge = load_roi_bridge(Path(args.roi_model))
+    if not roi_bridge:
+        print(
+            f"warning: no ROI bridge parsed from {args.roi_model}; "
+            "ROI section will render all findings as not-yet-modeled",
+            file=sys.stderr,
+        )
+    html_out = render_report(meta, findings, mappings, roi_bridge)
 
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)

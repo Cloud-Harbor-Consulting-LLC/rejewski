@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **ROI / business-impact section in the HTML run report (S5 W18).**
+  `scripts/generate_html_report.py` now computes a real ROI section in place of the old
+  `ROI_PLACEHOLDER` scaffold: for each finding it looks the technique up in the §6
+  findings-to-ROI bridge of `docs/phs-security-roi-model-v0.1.md` (the already-reviewed
+  grounding source of truth, parsed at runtime so the doc stays the single source) and renders
+  that technique's risk category and direction-of-risk verbatim. Every finding gets a line;
+  a technique absent from the bridge renders an explicit "not yet in the ROI model" line
+  rather than a fabricated one. No dollar figure is invented — the only figure that can appear
+  is the established fraction-of-$728K framing (T1550.001) already in the reviewed table. The
+  §6 bridge is extended with two later-evidenced techniques, **T1213.002** (evidenced R013)
+  and **T1033** (evidenced R012), same style/rigor as the original nine (direction-of-risk,
+  no dollar figure). `docs/reports/replay-report-R012.html` and `-R013.html` regenerated to
+  reflect the real ROI section. Also refreshed the stale "successful evidence awaits a
+  post-fix re-run" prose in the T1213.002 finding-to-control mapping to record that R013
+  already evidenced it (status/observed_in were already correct).
+
 ### Changed
 
 - **W17 PM decisions (R013 wrap) — docs-only.** (R2) `docs/roe-consent-flow.md` v0.1 → v0.2:

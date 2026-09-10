@@ -3,14 +3,14 @@
   "technique_id": "T1654",
   "technique_name": "Log Enumeration",
   "run_id": "R013",
-  "severity": "medium",
+  "severity": "high",
   "confidence": "high",
   "control_mapping_id": "ft1654-rbac-reports-reader-001",
   "evidence": [
     "samples/replay-log/R013.json"
   ],
-  "triage_status": "open",
-  "notes": "Log enumeration across two surfaces in R013, both success: tool_signin_logs (107 sign-ins, Surface A) and tool_list_security_alerts (4 Defender XDR alerts, Surface B, the FIRST successful Surface B evidence after the W17 fixes removed the invalid alertType and lastModifiedDateTime select fields). Medium per rubric (B=2, D=2 defender-telemetry map). Recurring. Cross-references Reports Reader (RBAC).",
+  "triage_status": "reviewed",
+  "notes": "Log enumeration across two surfaces in R013, both success: tool_signin_logs (107 sign-ins, Surface A) and tool_list_security_alerts (4 Defender XDR alerts, Surface B, the FIRST successful Surface B evidence after the W17 fixes removed the invalid alertType and lastModifiedDateTime select fields). B=2 tenant-wide, D=2 defender-telemetry map. Re-triaged medium -> high (2026-09-10) per docs/finding-severity-rubric-v0.1.md v1.0: the defensive-evasion escalator was ADOPTED at the v1.0 lock — sign-in/alert telemetry is a defender's-own-detection map (D=2 sub-case (b)) and routes to high via decision-table row 3. Original point-in-time assessment (v0.2) was medium; preserved here for context. Recurring. Cross-references Reports Reader (RBAC).",
   "triage_metadata": {
     "created_utc": "2026-09-03T00:00:00Z",
     "author": "rejewski",

@@ -139,11 +139,11 @@ credential-breach exposure, not a standalone number.
 | T1087.004 | medium | CA-COV008-BlockByLocation | Account enumeration | Shrinks the phishing/targeting surface an adversary builds from a user directory |
 | T1069.003 | medium | CA-SIF001-SignInFrequency-8h | Group / privilege enumeration | Caps stolen-token lifetime, narrowing the 281-day exposure window (§3) |
 | T1550.001 | **high** | Directory Readers (RBAC) | Credential / token theft | Fraction of the $728K credential-breach exposure (§3); token reuse is the residual-0.8% path that survives MFA (§4–§5) |
-| T1526 | medium | Reports Reader (RBAC) | CA-policy exposure | Least-privilege on policy reads limits an adversary's map of where MFA/CA coverage is thin |
-| T1518.001 | medium | Security Reader (RBAC) | Detection-coverage gap | Restricts who can read DfI sensor health — the map of where detection is degraded |
+| T1526 | high [‡] | Reports Reader (RBAC) | CA-policy exposure | Least-privilege on policy reads limits an adversary's map of where MFA/CA coverage is thin |
+| T1518.001 | high [‡] | Security Reader (RBAC) | Detection-coverage gap | Restricts who can read DfI sensor health — the map of where detection is degraded |
 | T1082 | medium | Intune Service Administrator (RBAC) | Endpoint targeting | Limits enumeration of non-compliant/unencrypted devices — the soft lateral-movement targets |
 | T1580 | medium [†] | CA-PUR-001-RequireCompliantApp | Data-classification exposure | Restricts label-inventory reads that would steer later Collection toward Confidential data |
-| T1654 | medium | Reports Reader (RBAC) | Security-log exposure | Least-privilege on sign-in/alert logs denies the adversary the defender's own detection baseline |
+| T1654 | high [‡] | Reports Reader (RBAC) | Security-log exposure | Least-privilege on sign-in/alert logs denies the adversary the defender's own detection baseline |
 | T1213.002 | medium | CA-SPO-001-RequireCompliantApp | Information-repository exposure | Restricts the SharePoint site inventory that steers later Collection toward business-sensitive repositories (HR, Legal, Finance); a compliant-app CA policy blocks the unmanaged-host token path at the authorization boundary |
 | T1033 | medium | PIM-EligibleRoleAssignments | Privileged-account enumeration | Shrinks the standing set of Global Admin / Privileged Role Administrator holders an adversary can discover as always-on escalation targets; JIT eligibility makes each activation an auditable, time-bound event |
 
@@ -155,6 +155,13 @@ blast radius of a replayed token. The rest map to *direction of risk*, not dolla
 > **[†] Note (2026-08-29):** T1580 severity updated `low` → `medium` per
 > `docs/finding-severity-rubric-v0.1.md` (the label taxonomy is a Collection-targeting map,
 > D=2). The bridge's *direction of risk* for T1580 is unchanged; only the severity level is
+> refined. See §9.
+>
+> **[‡] Note (2026-09-10):** T1526, T1518.001, and T1654 severity updated `medium` → `high`
+> per `docs/finding-severity-rubric-v0.1.md` **v1.0**, which adopted the defensive-evasion
+> escalator (PM decision, S5 W18): a finding that maps the tenant's own detection posture
+> (CA-policy coverage, security-sensor health, or sign-in/alert telemetry) routes to `high`.
+> The bridge's *direction of risk* for all three is unchanged; only the severity level is
 > refined. See §9.
 
 ---
@@ -200,3 +207,4 @@ vendor-commissioned** (baseline §7). Both are used above with those flags attac
 | v0.1 | 2026-08-15 | Initial model. Scenario: 750-employee mid-market M365 E5. Sources: IBM CODB 2024/2025, Verizon DBIR 2025, M-Trends 2025, Microsoft MFA research. |
 | v0.1 | 2026-08-29 | §6 findings-to-ROI bridge: T1580 severity `low` → `medium` per `docs/finding-severity-rubric-v0.1.md` (re-triage). Direction of risk unchanged; no figures affected. |
 | v0.1 | 2026-09-08 | §6 bridge extended with two later-evidenced techniques — **T1213.002** (CA-SPO-001-RequireCompliantApp, evidenced R013) and **T1033** (PIM-EligibleRoleAssignments, evidenced R012) — same style/rigor as the original nine, direction-of-risk only, no dollar figure. This is the grounding table consumed by the S5 W18 ROI section in `scripts/generate_html_report.py`. No baseline figures added or changed. |
+| v0.1 | 2026-09-10 | §6 bridge: T1526, T1518.001, and T1654 severity `medium` → `high` [‡] per `docs/finding-severity-rubric-v0.1.md` **v1.0** (defensive-evasion escalator adopted; PM decision, S5 W18). Direction of risk unchanged for all three; only the severity column is refined. No figures affected. |

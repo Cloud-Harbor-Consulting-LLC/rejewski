@@ -7,8 +7,8 @@
       "samples/replay-log/R005.json",
       "samples/replay-log/R011.json"
     ],
-    "severity": "medium",
-    "rationale": "Enumeration of Conditional Access policies via GET /identity/conditionalAccess/policies exposes the defender's detection coverage and policy gaps to an adversary — revealing which user populations lack MFA, which locations are trusted, and which applications have no CA coverage. Access to CA policy configuration should be restricted to the minimum role required for the job function; accounts that only need audit or reporting visibility should hold Reports Reader rather than Security Reader or higher, which reduces the tenant-configuration attack surface available to a compromised account."
+    "severity": "high",
+    "rationale": "Enumeration of Conditional Access policies via GET /identity/conditionalAccess/policies exposes the defender's detection coverage and policy gaps to an adversary — revealing which user populations lack MFA, which locations are trusted, and which applications have no CA coverage. Access to CA policy configuration should be restricted to the minimum role required for the job function; accounts that only need audit or reporting visibility should hold Reports Reader rather than Security Reader or higher, which reduces the tenant-configuration attack surface available to a compromised account. Severity re-triaged medium -> high (2026-09-10) per docs/finding-severity-rubric-v0.1.md v1.0: the defensive-evasion escalator was adopted — a defender's-own-detection map (CA-policy posture; D=2 sub-case (b)) routes to high. Original point-in-time assessment was medium; preserved here for context."
   },
   "control": {
     "control_family": "rbac",

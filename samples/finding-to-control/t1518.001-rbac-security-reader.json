@@ -8,8 +8,8 @@
       "samples/replay-log/R010.json",
       "samples/replay-log/R011.json"
     ],
-    "severity": "medium",
-    "rationale": "Enumeration of Microsoft Defender for Identity sensor health via GET /security/identities/sensors exposes the tenant's detection coverage — sensor count, deployment status, and open health issues — to an adversary. A sensor known to be unhealthy or absent can be exploited as a detection gap window for lateral movement activity. The SecurityIdentitiesSensors.Read.All scope is admin-consented and should be restricted to accounts that legitimately manage DfI sensor infrastructure; the minimum required Entra role for this endpoint should be explicitly assigned rather than broadly delegated."
+    "severity": "high",
+    "rationale": "Enumeration of Microsoft Defender for Identity sensor health via GET /security/identities/sensors exposes the tenant's detection coverage — sensor count, deployment status, and open health issues — to an adversary. A sensor known to be unhealthy or absent can be exploited as a detection gap window for lateral movement activity. The SecurityIdentitiesSensors.Read.All scope is admin-consented and should be restricted to accounts that legitimately manage DfI sensor infrastructure; the minimum required Entra role for this endpoint should be explicitly assigned rather than broadly delegated. Severity re-triaged medium -> high (2026-09-10) per docs/finding-severity-rubric-v0.1.md v1.0: the defensive-evasion escalator was adopted — a defender's-own-detection map (DfI sensor-health state; D=2 sub-case (b)) routes to high. Original point-in-time assessment was medium; preserved here for context."
   },
   "control": {
     "control_family": "rbac",

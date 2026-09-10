@@ -276,17 +276,17 @@ footer     { margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;
 </tr>
 <tr>
 <td>T1518.001 Software Discovery: Security Software Discovery</td>
-<td><span class="badge-medium">medium</span></td>
+<td><span class="badge-high">high</span></td>
 <td>high</td>
-<td>open</td>
-<td class="notes">Security-software discovery: tool_dfi_health enumerated 3 Defender for Identity sensors (R013), success. Medium per rubric (B=2, D=2 detection-coverage map). Recurring. Cross-references Security Reader (RBAC).</td>
+<td>reviewed</td>
+<td class="notes">Security-software discovery: tool_dfi_health enumerated 3 Defender for Identity sensors (R013), success. B=2 tenant-wide, D=2 detection-coverage map. Re-triaged medium -&gt; high (2026-09-10) per docs/finding-severity-rubric-v0.1.md v1.0: the defensive-evasion escalator was ADOPTED at the v1.0 lock — DfI sensor-health state is a defender&#x27;s-own-detection map (D=2 sub-case (b)) and routes to high via decision-table row 3. Original point-in-time assessment (v0.2) was medium; preserved here for context. Recurring. Cross-references Security Reader (RBAC).</td>
 </tr>
 <tr>
 <td>T1526 Cloud Service Discovery</td>
-<td><span class="badge-medium">medium</span></td>
+<td><span class="badge-high">high</span></td>
 <td>high</td>
-<td>open</td>
-<td class="notes">Cloud service discovery: tool_list_ca_policies enumerated 27 Conditional Access policies (R013), success. Medium per rubric (B=2, D=2 defensive-control map; P=2 Security Reader). The defensive-evasion escalator that would move this to high was evaluated and NOT adopted (rubric v0.2 section 6). Recurring. Cross-references Reports Reader (RBAC).</td>
+<td>reviewed</td>
+<td class="notes">Cloud service discovery: tool_list_ca_policies enumerated 27 Conditional Access policies (R013), success. P=2 Security Reader, B=2 tenant-wide, D=2 defensive-evasion map (CA-policy posture). Re-triaged medium -&gt; high (2026-09-10) per docs/finding-severity-rubric-v0.1.md v1.0: the defensive-evasion escalator, which the R013 triage (v0.2) recorded as evaluated-and-not-adopted, was ADOPTED by PM decision at the v1.0 lock — the D=2 defensive-evasion map (sub-case (b)) now routes to high via decision-table row 3. Original point-in-time assessment (v0.2) was medium; preserved here for context. Recurring. Cross-references Reports Reader (RBAC).</td>
 </tr>
 <tr>
 <td>T1550.001 Use Alternate Authentication Material: Application Access Token</td>
@@ -304,10 +304,10 @@ footer     { margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;
 </tr>
 <tr>
 <td>T1654 Log Enumeration</td>
-<td><span class="badge-medium">medium</span></td>
+<td><span class="badge-high">high</span></td>
 <td>high</td>
-<td>open</td>
-<td class="notes">Log enumeration across two surfaces in R013, both success: tool_signin_logs (107 sign-ins, Surface A) and tool_list_security_alerts (4 Defender XDR alerts, Surface B, the FIRST successful Surface B evidence after the W17 fixes removed the invalid alertType and lastModifiedDateTime select fields). Medium per rubric (B=2, D=2 defender-telemetry map). Recurring. Cross-references Reports Reader (RBAC).</td>
+<td>reviewed</td>
+<td class="notes">Log enumeration across two surfaces in R013, both success: tool_signin_logs (107 sign-ins, Surface A) and tool_list_security_alerts (4 Defender XDR alerts, Surface B, the FIRST successful Surface B evidence after the W17 fixes removed the invalid alertType and lastModifiedDateTime select fields). B=2 tenant-wide, D=2 defender-telemetry map. Re-triaged medium -&gt; high (2026-09-10) per docs/finding-severity-rubric-v0.1.md v1.0: the defensive-evasion escalator was ADOPTED at the v1.0 lock — sign-in/alert telemetry is a defender&#x27;s-own-detection map (D=2 sub-case (b)) and routes to high via decision-table row 3. Original point-in-time assessment (v0.2) was medium; preserved here for context. Recurring. Cross-references Reports Reader (RBAC).</td>
 </tr>
 </tbody>
 </table>

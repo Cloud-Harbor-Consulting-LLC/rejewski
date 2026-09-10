@@ -39,16 +39,24 @@ authoritative technique count and tactic distribution are in docs/attck-coverage
 | T1087.004 | Discovery | `scripts/tool_list_users.py` | `GET /users` | 8 (see §3 for other surfaces) | medium | CA-COV008-BlockByLocation |
 | T1069.003 | Discovery | `scripts/tool_list_groups.py` | `GET /me/memberOf` | 19 | medium | CA-SIF001-SignInFrequency-8h |
 | T1550.001 | Defense Evasion / Lateral Movement | `scripts/identity.py` | MSAL encrypted cache (silent reuse) | 10 token events | high | Directory Readers (RBAC) |
-| T1526 | Discovery | `scripts/tool_list_ca_policies.py` | `GET /identity/conditionalAccess/policies` | 25 | medium | Reports Reader (RBAC) |
-| T1518.001 | Discovery | `scripts/tool_dfi_health.py` | `GET /security/identities/sensors` | 3 | medium | Security Reader (RBAC) |
+| T1526 | Discovery | `scripts/tool_list_ca_policies.py` | `GET /identity/conditionalAccess/policies` | 25 | high [‡] | Reports Reader (RBAC) |
+| T1518.001 | Discovery | `scripts/tool_dfi_health.py` | `GET /security/identities/sensors` | 3 | high [‡] | Security Reader (RBAC) |
 | T1082 | Discovery | `scripts/tool_intune_devices.py` | `GET /deviceManagement/managedDevices` | 1 | medium | Intune Service Administrator (RBAC) |
 | T1580 | Discovery | `scripts/tool_purview_labels.py` | `GET /security/dataSecurityAndGovernance/sensitivityLabels` | 4 | medium [†] | CA-PUR-001-RequireCompliantApp |
-| T1654 | Discovery | `scripts/tool_signin_logs.py` | `GET /auditLogs/signIns` | 30 | medium | Reports Reader (RBAC) |
+| T1654 | Discovery | `scripts/tool_signin_logs.py` | `GET /auditLogs/signIns` | 30 | high [‡] | Reports Reader (RBAC) |
 
 > **[†] Note (2026-08-29):** T1580 severity updated `low` → `medium` per
 > `docs/finding-severity-rubric-v0.1.md` — the Purview label taxonomy is a Collection-targeting
 > map (D=2 in the rubric), not infra-only metadata. This R011 report originally assessed it as
 > `low`; the value is refined here while the finding itself is unchanged.
+>
+> **[‡] Note (2026-09-10):** T1526, T1518.001, and T1654 severity updated `medium` → `high` per
+> `docs/finding-severity-rubric-v0.1.md` **v1.0**, which adopted the **defensive-evasion escalator**
+> (PM decision, S5 W18): a finding that maps the tenant's own detection posture — CA-policy coverage
+> (T1526), security-sensor health (T1518.001), or sign-in/alert telemetry (T1654) — routes to `high`
+> (rubric §4 decision-table row 3), because it tells an adversary *what to evade*, not merely who or
+> what exists. This R011 report originally assessed all three as `medium`; the value is refined here
+> (in both the summary table and the §3 detail blocks) while the findings themselves are unchanged.
 
 ---
 
@@ -119,7 +127,7 @@ authoritative technique count and tactic distribution are in docs/attck-coverage
 - **Endpoint:** `GET /identity/conditionalAccess/policies`
 - **Evidence:** samples/replay-log/R011.json
 - **Objects enumerated:** 25 Conditional Access policies
-- **Severity:** medium
+- **Severity:** high [‡]
 - **Confidence:** high
 - **Control:** Reports Reader (RBAC) — restricts CA-policy and reporting visibility to the least role a job function needs.
 - **Rationale:** Enumeration of Conditional Access policies via GET /identity/conditionalAccess/policies exposes the defender's detection coverage and policy gaps to an adversary — revealing which user populations lack MFA, which locations are trusted, and which applications have no CA coverage. Access to CA policy configuration should be restricted to the minimum role required for the job function; accounts that only need audit or reporting visibility should hold Reports Reader rather than Security Reader or higher, which reduces the tenant-configuration attack surface available to a compromised account.
@@ -133,7 +141,7 @@ authoritative technique count and tactic distribution are in docs/attck-coverage
 - **Endpoint:** `GET /security/identities/sensors`
 - **Evidence:** samples/replay-log/R011.json
 - **Objects enumerated:** 3 DfI sensors
-- **Severity:** medium
+- **Severity:** high [‡]
 - **Confidence:** high
 - **Control:** Security Reader (RBAC) — gates DfI sensor-health reads behind an explicitly assigned security-reader-class role rather than a broadly delegated grant.
 - **Rationale:** Enumeration of Microsoft Defender for Identity sensor health via GET /security/identities/sensors exposes the tenant's detection coverage — sensor count, deployment status, and open health issues — to an adversary. A sensor known to be unhealthy or absent can be exploited as a detection gap window for lateral movement activity. The SecurityIdentitiesSensors.Read.All scope is admin-consented and should be restricted to accounts that legitimately manage DfI sensor infrastructure; the minimum required Entra role for this endpoint should be explicitly assigned rather than broadly delegated.
@@ -175,7 +183,7 @@ authoritative technique count and tactic distribution are in docs/attck-coverage
 - **Endpoint:** `GET /auditLogs/signIns`
 - **Evidence:** samples/replay-log/R011.json
 - **Objects enumerated:** 30 sign-in records
-- **Severity:** medium
+- **Severity:** high [‡]
 - **Confidence:** high
 - **Control:** Reports Reader (RBAC) — restricts sign-in log access to designated security operations accounts.
 - **Rationale:** Reading sign-in logs via GET /auditLogs/signIns gives an adversary visibility into the authentication telemetry the defending team uses to detect anomalies. With the full sign-in record an adversary can identify low-detection windows (periods of low sign-in volume), correlate failed then succeeded sign-ins to infer detection thresholds, and determine which accounts generate security alerts — then operate through accounts that do not. AuditLog.Read.All is gated by the Reports Reader role or higher; restricting Reports Reader assignments to designated security operations accounts reduces the number of compromised credential paths that expose authentication telemetry to an adversary.

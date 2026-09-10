@@ -29,6 +29,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Severity rubric → v1.0 (locked): CIS Controls v8 tie-in + defensive-evasion escalator adopted
+  (S5 W18, PM decision).** `docs/finding-severity-rubric-v0.1.md` bumped v0.2 → v1.0 (filename slug
+  kept at `-v0.1` for link stability): (a) added a **CIS Controls v8** framework cross-reference —
+  one CIS anchor per severity level tied to the P/B/D dimensions, with stated reasoning for choosing
+  CIS over Microsoft Secure Score (a rubric needs a stable reference; Secure Score is a per-tenant,
+  fluctuating posture metric); (b) **adopted the defensive-evasion escalator** — a `D = 2` defender's-
+  own-detection map (CA-policy posture, security-sensor health, sign-in/alert telemetry) now routes
+  to **high** via new decision-table row 3; §2 high/medium tests, §3 D=2 anchor, §5.4, and §6 updated
+  from "deferred" to "adopted". The escalator cascaded across every artifact that embedded these three
+  severities, each with a dated footnote preserving the original medium assessment (T1580 precedent):
+  - `samples/finding-triage/t1526-r011-ca-policy-discovery.json`, `…/t1526-r013-ca-policy-discovery-001.json`
+  - `samples/finding-triage/t1518.001-r011-dfi-sensor-health.json`, `…/t1518-001-r013-dfi-sensor-health-001.json`
+  - `samples/finding-triage/t1654-r011-signin-logs.json`, `…/t1654-r013-log-enumeration-001.json`
+    (all six re-triaged `medium` → `high`, `triage_status` `open` → `reviewed`)
+  - `samples/finding-to-control/t1526-rbac-reports-reader.json`, `t1518.001-rbac-security-reader.json`,
+    `t1654-rbac-reports-reader.json` (severity → `high`, dated note in `rationale`)
+  - `docs/findings-report-r011.md` (§2 summary rows + §3 detail blocks → `high`, shared `[‡]` footnote)
+  - `docs/phs-security-roi-model-v0.1.md` (§6 bridge severity column → `high [‡]`, `[‡]` footnote, §9 row)
+  - `docs/reports/replay-report-R013.html` regenerated (T1526/T1518.001/T1654 badges now `high`).
+    R012 was regenerated too but is unchanged — neither of its findings (T1087.004, T1550.001) is in the
+    escalated set. Scoped to exactly those three techniques; no other severity changed.
+
 - **W17 PM decisions (R013 wrap) — docs-only.** (R2) `docs/roe-consent-flow.md` v0.1 → v0.2:
   added a prominent §1 operator-safety callout requiring `-TenantId` to be pinned on every admin /
   Graph-PowerShell action against the sandbox, after the R013-setup incident where WAM silently

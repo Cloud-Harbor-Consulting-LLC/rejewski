@@ -3,14 +3,14 @@
   "technique_id": "T1518.001",
   "technique_name": "Software Discovery: Security Software Discovery",
   "run_id": "R013",
-  "severity": "medium",
+  "severity": "high",
   "confidence": "high",
   "control_mapping_id": "ft1518-001-rbac-security-reader-001",
   "evidence": [
     "samples/replay-log/R013.json"
   ],
-  "triage_status": "open",
-  "notes": "Security-software discovery: tool_dfi_health enumerated 3 Defender for Identity sensors (R013), success. Medium per rubric (B=2, D=2 detection-coverage map). Recurring. Cross-references Security Reader (RBAC).",
+  "triage_status": "reviewed",
+  "notes": "Security-software discovery: tool_dfi_health enumerated 3 Defender for Identity sensors (R013), success. B=2 tenant-wide, D=2 detection-coverage map. Re-triaged medium -> high (2026-09-10) per docs/finding-severity-rubric-v0.1.md v1.0: the defensive-evasion escalator was ADOPTED at the v1.0 lock — DfI sensor-health state is a defender's-own-detection map (D=2 sub-case (b)) and routes to high via decision-table row 3. Original point-in-time assessment (v0.2) was medium; preserved here for context. Recurring. Cross-references Security Reader (RBAC).",
   "triage_metadata": {
     "created_utc": "2026-09-03T00:00:00Z",
     "author": "rejewski",

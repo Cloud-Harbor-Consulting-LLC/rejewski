@@ -63,14 +63,19 @@ ROI_NOT_MODELED = (
 # badge/table/.consent styling from docs/replay-report-r011.html and adds severity badges.
 CSS = """
 body       { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-             font-size: 14px; color: #212529; margin: 2em auto; max-width: 960px;
-             padding: 0 1em; }
-table      { border-collapse: collapse; width: 100%; margin-bottom: 1.5em; }
-th         { background: #f8f9fa; text-align: left; padding: 8px 10px;
-             border-bottom: 2px solid #dee2e6; font-weight: 600; }
-td         { padding: 7px 10px; border-bottom: 1px solid #dee2e6; vertical-align: top; }
-tr:nth-child(even) td { background: #f8f9fa; }
-code       { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.88em; }
+             font-size: 14px; color: #212529; background: #ffffff; margin: 2em auto;
+             max-width: 960px; padding: 0 1em; }
+table      { border-collapse: collapse; width: 100%; margin-bottom: 1.5em;
+             border: 1px solid #dee2e6; border-radius: 6px; overflow: hidden; }
+th         { background: #eef1f5; text-align: left; padding: 9px 12px;
+             border-bottom: 2px solid #d3d9e0; font-weight: 600; color: #343a40;
+             white-space: nowrap; }
+td         { padding: 8px 12px; border-bottom: 1px solid #e9ecef; vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:nth-child(even) td { background: #f8f9fa; }
+tbody tr:hover td { background: #eef4fb; }
+code       { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.86em;
+             background: #f1f3f5; padding: 1px 5px; border-radius: 3px; color: #383d41; }
 h1         { font-size: 1.3em; margin-bottom: 0.25em; }
 h2         { font-size: 1em; font-weight: 600; margin: 1.5em 0 0.5em;
              text-transform: uppercase; letter-spacing: 0.05em; color: #6c757d; }
@@ -83,16 +88,20 @@ footer     { margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;
              color: #6c757d; font-size: 0.9em; }
 .badge-success, .badge-error, .badge-other,
 .badge-informational, .badge-low, .badge-medium, .badge-high, .badge-critical {
-             padding: 2px 8px; border-radius: 3px; font-size: 0.85em; white-space: nowrap; }
+             display: inline-block; padding: 2px 9px; border-radius: 10px;
+             font-size: 0.82em; font-weight: 600; white-space: nowrap; }
 .badge-success  { background: #d4edda; color: #155724; }
 .badge-error    { background: #f8d7da; color: #721c24; }
 .badge-other    { background: #e2e3e5; color: #383d41; }
+/* Severity ramp — distinct hue per level: gray -> blue -> amber -> orange -> solid red. */
 .badge-informational { background: #e2e3e5; color: #383d41; }
 .badge-low      { background: #d1ecf1; color: #0c5460; }
 .badge-medium   { background: #fff3cd; color: #856404; }
-.badge-high     { background: #f8d7da; color: #721c24; }
+.badge-high     { background: #ffe0b2; color: #8a4b00; }
 .badge-critical { background: #dc3545; color: #ffffff; }
 .notes     { color: #495057; }
+.ref-link  { color: #0b5cad; text-decoration: none; white-space: nowrap; }
+.ref-link:hover { text-decoration: underline; }
 """.strip()
 
 
@@ -336,7 +345,10 @@ def _render_control_mappings(findings: list[dict], mappings: dict) -> str:
         ctrl = rec.get("control") or {}
         tenets = ", ".join(ctrl.get("nist_800_207_tenets", []))
         ref = ctrl.get("reference_url", "")
-        ref_html = f'<a href="{_esc(ref)}">ref</a>' if ref else ""
+        ref_html = (
+            f'<a class="ref-link" href="{_esc(ref)}" target="_blank" rel="noopener">'
+            "Microsoft Docs ↗</a>" if ref else "<span class=\"notes\">—</span>"
+        )
         rows.append(
             "<tr>\n"
             f"<td>{_esc(f.get('technique_id'))}</td>\n"
@@ -349,7 +361,7 @@ def _render_control_mappings(findings: list[dict], mappings: dict) -> str:
     return (
         "<section>\n<h2>Control mappings</h2>\n<table>\n"
         "<thead><tr><th>Technique</th><th>Control</th><th>Family / Type</th>"
-        "<th>Pillar · NIST 800-207</th><th>Ref</th></tr></thead>\n<tbody>\n"
+        "<th>Pillar · NIST 800-207</th><th>Reference</th></tr></thead>\n<tbody>\n"
         + body + "\n</tbody>\n</table>\n</section>"
     )
 

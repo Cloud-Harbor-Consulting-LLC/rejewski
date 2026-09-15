@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/schemas/roe-consent/v2.json",
+  "title": "Rejewski ROE Consent Record (v2 — durable long-term archive)",
+  "description": "Superset of the v1 replay-log-embedded consent record (schemas/roe-consent/v1.json). v2 keeps the entire v1 core unchanged so the same record can still seed a run's replay log, and adds the durable-archive block needed for a standalone consent artifact that reconciles field-by-field against the SharePoint ROE Consent Archive workbook (see docs/external-auth.md §5). v1 records (R010/R011) do NOT validate against v2 by design — they remain v1 and validate against v1.json; committed evidence is not invalidated. Self-test runs populate the counterparty block with an explicit self-test marker (never blank). additionalProperties: false throughout; draft 2020-12.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event",
+    "run_id",
+    "tenant_id",
+    "operator_object_id",
+    "techniques",
+    "expected_duration_seconds",
+    "prompt_emitted_at",
+    "confirmed_at",
+    "confirmation_latency_seconds",
+    "engagement",
+    "counterparty",
+    "scope",
+    "authorization",
+    "archive"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "2",
+      "description": "Distinguishes a v2 durable-archive record from the v1 embedded shape (which carries no schema_version)."
+    },
+    "event": {
+      "type": "string",
+      "enum": ["consent.granted", "consent.declined"],
+      "description": "Consent outcome (v1 core)."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Binds the record to a run's replay-log entries (v1 core)."
+    },
+    "tenant_id": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      "description": "Target tenant GUID (v1 core). For engagement.type=self_test this MUST equal the G-1 sandbox tenant. For third_party_assessment it is the counterparty tenant — recorded here as authorization metadata only; G-1 still locks all actual Rejewski code execution to the sandbox today (docs/external-auth.md §2)."
+    },
+    "operator_object_id": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      "description": "Entra ID object id of the signed-in operator (v1 core); never UPN/display name."
+    },
+    "techniques": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"
+      },
+      "description": "ATT&CK technique IDs confirmed at the prompt (v1 core). MUST be a subset of scope.surface's agreed technique classes for a third-party engagement."
+    },
+    "expected_duration_seconds": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Upper bound (v1 core; G-8 alignment)."
+    },
+    "prompt_emitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 UTC timestamp when the prompt was emitted (v1 core)."
+    },
+    "confirmed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 UTC timestamp when the operator confirmed (v1 core)."
+    },
+    "confirmation_latency_seconds": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "confirmed_at - prompt_emitted_at, rounded down (v1 core)."
+    },
+    "engagement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type", "mvp_pillar", "status"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Workbook column: Engagement Name."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["self_test", "third_party_assessment"],
+          "description": "Workbook column: Engagement Type. self_test = cloudharbordemo/CHC-internal; third_party_assessment = an external counterparty tenant."
+        },
+        "mvp_pillar": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Workbook column: MVP Pillar (e.g. 'Pillar 2 - Security ROI')."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "active", "completed", "expired", "revoked"],
+          "description": "Workbook column: Status."
+        }
+      }
+    },
+    "counterparty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["is_self_test", "org", "contact_name", "contact_email"],
+      "properties": {
+        "is_self_test": {
+          "type": "boolean",
+          "description": "Explicit self-test marker (AC4). TRUE for cloudharbordemo/CHC-internal runs; FALSE for a third-party engagement. Never omitted, never null."
+        },
+        "org": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Workbook column: Counterparty Org. Self-test runs use an explicit marker such as 'Cloud Harbor Consulting (self-test)', never blank."
+        },
+        "contact_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Workbook column: Counterparty Contact."
+        },
+        "contact_email": {
+          "type": "string",
+          "format": "email",
+          "description": "Workbook column: Counterparty Email."
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["surface", "summary"],
+      "properties": {
+        "surface": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Workbook column: Scope Surface. The agreed, enumerated surfaces the run is authorized to touch (tenants, Graph surfaces, or technique classes). A third-party run MUST NOT exceed this set (docs/external-auth.md §3)."
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Workbook column: Scope Summary — the plain-language statement of what was agreed."
+        }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "signed_by_provider",
+        "signed_by_counterparty",
+        "signature_method",
+        "signed_date",
+        "effective_date",
+        "expiry_date",
+        "evidence_ref"
+      ],
+      "properties": {
+        "signed_by_provider": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Workbook column: Signed By (provider side) — the Cloud Harbor Consulting signatory."
+        },
+        "signed_by_counterparty": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Workbook column: Signed By (counterparty side). For a self-test this restates the CHC signatory (self-authorized)."
+        },
+        "signature_method": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Workbook column: Signature Method. Free text to reconcile against the workbook's own vocabulary; recommended values: 'self_test_attestation', 'wet_signature', 'e_signature', 'email_authorization'. A third-party engagement MUST use a counter-signed method, not self_test_attestation (docs/external-auth.md §2)."
+        },
+        "signed_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Workbook column: Signed date (YYYY-MM-DD)."
+        },
+        "effective_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Workbook column: Effective date (YYYY-MM-DD)."
+        },
+        "expiry_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Authorization expiry (YYYY-MM-DD). A run whose confirmed_at falls outside [effective_date, expiry_date] is out of authorization (docs/external-auth.md §3)."
+        },
+        "evidence_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path or URI to the retained signed engagement-letter equivalent (the evidence that proves authorization). For a self-test this points at docs/roe-consent-flow.md."
+        }
+      }
+    },
+    "archive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_id", "storage_location", "created_utc"],
+      "properties": {
+        "record_id": {
+          "type": "string",
+          "pattern": "^roe-[a-z0-9-]+$",
+          "description": "Stable durable-record id (kebab-case, roe- prefix), independent of any single replay log."
+        },
+        "storage_location": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Workbook column: Storage Location — where the durable record and its evidence are filed."
+        },
+        "created_utc": {
+          "type": "string",
+          "format": "date-time",
+          "description": "RFC 3339 UTC timestamp when this durable-archive record was authored."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/schemas/roe-consent/v1.json",
+  "title": "Rejewski ROE Consent Record (v1 — replay-log-embedded)",
+  "description": "The consent record as it is embedded as the first entry of a run's replay log, per docs/roe-consent-flow.md v0.2 §3. This is the shape of the committed R010/R011 consent records. v1 is frozen for backward compatibility; the durable long-term-archive superset is schemas/roe-consent/v2.json. additionalProperties: false; every field required; draft 2020-12.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event",
+    "run_id",
+    "tenant_id",
+    "operator_object_id",
+    "techniques",
+    "expected_duration_seconds",
+    "prompt_emitted_at",
+    "confirmed_at",
+    "confirmation_latency_seconds"
+  ],
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": ["consent.granted", "consent.declined"],
+      "description": "Consent outcome. A declined record is preserved as evidence of the refusal (roe-consent-flow.md §4)."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Binds the record to every downstream replay-log entry. Committed samples use the run-label form (e.g. R011); a runtime-generated UUIDv4 is also accepted (roe-consent-flow.md §2)."
+    },
+    "tenant_id": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      "description": "Target tenant GUID. For self-test runs this MUST equal the G-1 locked sandbox tenant (76b87c33-6178-4ff9-94a7-164792c8e4c6)."
+    },
+    "operator_object_id": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      "description": "Entra ID object id of the signed-in operator; never UPN or display name (ADR 0001 §8)."
+    },
+    "techniques": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"
+      },
+      "description": "ATT&CK technique IDs as confirmed at the prompt."
+    },
+    "expected_duration_seconds": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Upper bound; the run aborts if it exceeds 2x this value (G-8 alignment)."
+    },
+    "prompt_emitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 UTC timestamp when the consent prompt was emitted."
+    },
+    "confirmed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 UTC timestamp when the operator confirmed."
+    },
+    "confirmation_latency_seconds": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "confirmed_at - prompt_emitted_at, rounded down."
+    }
+  }
+}

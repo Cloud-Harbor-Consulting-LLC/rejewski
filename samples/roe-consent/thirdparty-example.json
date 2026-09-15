@@ -1,0 +1,50 @@
+{
+  "schema_version": "2",
+  "event": "consent.granted",
+  "run_id": "RX-CONTOSO-001",
+  "tenant_id": "11111111-2222-3333-4444-555555555555",
+  "operator_object_id": "99999999-8888-7777-6666-555555555555",
+  "techniques": [
+    "T1087.004",
+    "T1069.003",
+    "T1526"
+  ],
+  "expected_duration_seconds": 1200,
+  "prompt_emitted_at": "2026-10-05T14:00:00Z",
+  "confirmed_at": "2026-10-05T14:00:07Z",
+  "confirmation_latency_seconds": 7,
+  "engagement": {
+    "name": "Contoso Ltd — Entra read-only posture assessment",
+    "type": "third_party_assessment",
+    "mvp_pillar": "Pillar 1 - Zero Trust adversary emulation",
+    "status": "draft"
+  },
+  "counterparty": {
+    "is_self_test": false,
+    "org": "Contoso Ltd",
+    "contact_name": "Jane Doe (CISO)",
+    "contact_email": "jane.doe@contoso.example"
+  },
+  "scope": {
+    "surface": [
+      "tenant:contoso.onmicrosoft.com",
+      "graph:read-only-GET",
+      "techniques:T1087.004,T1069.003,T1526"
+    ],
+    "summary": "ILLUSTRATIVE, NOT A LIVE ENGAGEMENT. Counterparty-authorized read-only enumeration of account, group, and CA-policy discovery surfaces only, against Contoso's own tenant. All other techniques and surfaces are out of scope for this engagement."
+  },
+  "authorization": {
+    "signed_by_provider": "Derek Morgan (Cloud Harbor Consulting)",
+    "signed_by_counterparty": "Jane Doe (Contoso Ltd, CISO)",
+    "signature_method": "e_signature",
+    "signed_date": "2026-10-01",
+    "effective_date": "2026-10-05",
+    "expiry_date": "2026-10-12",
+    "evidence_ref": "SharePoint > Engagements > Contoso > signed-engagement-letter-2026-10-01.pdf"
+  },
+  "archive": {
+    "record_id": "roe-contoso-2026q4-001",
+    "storage_location": "SharePoint > ROE Consent Archive workbook (row: Contoso Ltd Entra assessment)",
+    "created_utc": "2026-10-01T00:00:00Z"
+  }
+}

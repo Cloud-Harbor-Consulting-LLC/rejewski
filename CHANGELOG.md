@@ -47,6 +47,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Reporting polish — HTML run report visual pass (S5 W19).** `scripts/generate_html_report.py`
+  CSS/markup only (no change to what data renders): (1) **severity ramp** reworked to a distinct
+  hue per level — gray → blue → amber → **orange** (`high`, was pink) → solid red (`critical`) — so
+  `medium` and `high` are unambiguous at a glance and `high` no longer collides with the pink error
+  badge (verified by rendering, not just hex); (2) **control reference links** relabeled from a bare
+  "ref" to "**Microsoft Docs ↗**" (clear outbound affordance, `target=_blank rel=noopener`; hrefs
+  unchanged) and the column header "Ref" → "Reference"; (3) **table styles** — rounded borders,
+  clearer header shading, row hover, pill-shaped bolder badges, monospace `code` chips, explicit
+  white `body` background so reports render cleanly regardless of the viewer's theme.
+  `docs/reports/replay-report-R012.html` and `-R013.html` regenerated. No functional/data change.
+
 - **Severity rubric → v1.0 (locked): CIS Controls v8 tie-in + defensive-evasion escalator adopted
   (S5 W18, PM decision).** `docs/finding-severity-rubric-v0.1.md` bumped v0.2 → v1.0 (filename slug
   kept at `-v0.1` for link stability): (a) added a **CIS Controls v8** framework cross-reference —

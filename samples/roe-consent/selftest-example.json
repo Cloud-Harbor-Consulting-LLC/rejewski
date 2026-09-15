@@ -1,0 +1,56 @@
+{
+  "schema_version": "2",
+  "event": "consent.granted",
+  "run_id": "R011",
+  "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+  "operator_object_id": "48df3ad2-9110-4c27-9630-f82b1b8eb177",
+  "techniques": [
+    "T1078.004",
+    "T1087.004",
+    "T1069.003",
+    "T1550.001",
+    "T1526",
+    "T1518.001",
+    "T1082",
+    "T1580",
+    "T1654"
+  ],
+  "expected_duration_seconds": 1800,
+  "prompt_emitted_at": "2026-07-18T16:30:32Z",
+  "confirmed_at": "2026-07-18T16:30:35Z",
+  "confirmation_latency_seconds": 3,
+  "engagement": {
+    "name": "Rejewski self-test sweep (cloudharbordemo)",
+    "type": "self_test",
+    "mvp_pillar": "Pillar 1 - Zero Trust adversary emulation",
+    "status": "completed"
+  },
+  "counterparty": {
+    "is_self_test": true,
+    "org": "Cloud Harbor Consulting (self-test)",
+    "contact_name": "Derek Morgan",
+    "contact_email": "derek.morgan@cloudharborconsulting.cloud"
+  },
+  "scope": {
+    "surface": [
+      "tenant:cloudharbordemo",
+      "graph:read-only-GET",
+      "techniques:all-implemented"
+    ],
+    "summary": "Full read-only sweep of all implemented Rejewski techniques against the CHC-owned cloudharbordemo sandbox. No counterparty; self-authorized under the standing ROE."
+  },
+  "authorization": {
+    "signed_by_provider": "Derek Morgan (Cloud Harbor Consulting)",
+    "signed_by_counterparty": "Derek Morgan (Cloud Harbor Consulting) — self-authorized",
+    "signature_method": "self_test_attestation",
+    "signed_date": "2026-07-18",
+    "effective_date": "2026-07-18",
+    "expiry_date": "2027-07-18",
+    "evidence_ref": "docs/roe-consent-flow.md"
+  },
+  "archive": {
+    "record_id": "roe-selftest-r011-001",
+    "storage_location": "SharePoint > ROE Consent Archive workbook (row: Rejewski self-test sweep)",
+    "created_utc": "2026-09-15T00:00:00Z"
+  }
+}

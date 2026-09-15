@@ -11,6 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **External authorization flow + ROE consent record v2 (S5 W18).** New `docs/external-auth.md`
+  documents the third-party tenant-assessment scenario that `docs/roe-consent-flow.md` never
+  covered: the authorization chain (signed engagement letter, recorded counterparty identity,
+  enumerated scope surface, time-boxed window), scope-boundary enforcement (tenant lock, techniques
+  ⊆ scope surface, authorization window — all deny-only), how it differs from the self-test flow,
+  and a field-by-field mapping onto the SharePoint ROE Consent Archive workbook. It is explicit that
+  **G-1 still locks all live execution to `cloudharbordemo`** — the doc is process/authorization
+  only, not a guardrail change, and a real third-party run needs a superseding ADR. New
+  `schemas/roe-consent/v1.json` freezes the committed 9-field replay-log-embedded consent shape
+  (R010/R011 stay valid); `schemas/roe-consent/v2.json` is a strict superset adding the durable
+  long-term-archive block (engagement / counterparty / scope / authorization / archive). New
+  `scripts/write_consent_record.py` emits a v2 record (`build_consent_record`, plus `v1_core()` that
+  extracts the embedded shape so the replay-log write path is unchanged and additive). Self-test
+  records carry an explicit self-test marker, never blank. Samples: `samples/roe-consent/selftest-example.json`
+  and `…/thirdparty-example.json` (fictional counterparty, illustrative). Tests in
+  `tests/test_roe_consent_schema.py` validate both scenarios, the v1→v2 superset separation, and the
+  builder.
+
 - **ROI / business-impact section in the HTML run report (S5 W18).**
   `scripts/generate_html_report.py` now computes a real ROI section in place of the old
   `ROI_PLACEHOLDER` scaffold: for each finding it looks the technique up in the §6

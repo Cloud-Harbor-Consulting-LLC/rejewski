@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **README v1 + ADR 0007 naming rationale (S5 W19).** New `docs/adr/0007-naming-rationale.md`
+  (Status: Proposed) records the project's name origin and the Marian Rejewski heritage attribution
+  in one durable, citable place, and states the trademark posture honestly (internal clearance
+  research complete; formal outside-counsel opinion pending, Risk Register RK018 — no clearance is
+  claimed). It cites the internal clearance memo as a reference, not a guarantee, and retires the
+  dangling `0002-naming-rejewski.md` reference **without touching ADR 0002** (the separate
+  ID/filename/branch naming-convention doc). `README.md` upgraded to v1: the **Naming** section now
+  carries the verbatim 91-word attribution paragraph and links to ADR 0007 (not the nonexistent
+  `0002-naming-rejewski.md`); the **Quickstart** section replaces its Sprint-6 deferral with real
+  prerequisites / install / `.env` configure / run steps; the **Rules of Engagement** and
+  **Guardrails** sections expand from pointer stubs into brief inline summaries. Two pre-existing
+  doc bugs fixed along the way: the ROE section's broken `0001-roe-consent.md` link now points at
+  `docs/roe-consent-flow.md` / `docs/adr/0001-rules-of-engagement.md`, and the guardrails list —
+  previously a stale G1–G8 set that contradicted its own linked source — is reconciled to the
+  actual **G-1…G-9** in `docs/guardrails.md`.
+
 - **External authorization flow + ROE consent record v2 (S5 W18).** New `docs/external-auth.md`
   documents the third-party tenant-assessment scenario that `docs/roe-consent-flow.md` never
   covered: the authorization chain (signed engagement letter, recorded counterparty identity,

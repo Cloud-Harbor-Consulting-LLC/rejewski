@@ -71,6 +71,23 @@ Rejewski runs under nine operational guardrails (**G-1 through G-9**), each enfo
 
 Full rule text — statement, rationale, enforcement, scope, and exceptions for each — is in [docs/guardrails.md](docs/guardrails.md); the guardrail set is authorized by [ADR 0001](docs/adr/0001-rules-of-engagement.md).
 
+## Design principles
+
+These are the program-level **operating principles** from the [Project Harbor Sonar Master Plan](https://cloudharborconsulting.sharepoint.com/:t:/s/CHC-Ops/IQBCENuicazZQK8l9Z4XeVFKAQNQEEy11y6ehgv9eb__az0?e=9rw5oh) §2 — the *why* behind how the project is run (scope, cadence, launch strategy).
+
+> **Different numbering scheme from the Guardrails above.** These principles use the Master Plan's own `G1`–`G8` labels; they are **not** the code-enforced `G-1` through `G-9` in the [Guardrails](#guardrails) section above. Guardrails answer "what does the code enforce"; these principles answer "why does the project operate the way it does." Don't conflate `G4` here (Threat Actor Emulation) with `G-4` above (FOCI client allowlist), etc.
+
+- **G1 — Read-Only.** The agent never writes to the target tenant: no policy creation, role assignment, group-membership change, or user-property change; Microsoft Graph calls are limited to GET.
+- **G2 — No Credential Harvesting.** No password spray, token replay, MFA-bypass attempts, or session-cookie capture; authentication uses the operator's signed-in account with consented scopes only.
+- **G3 — Telemetry-Aware and Replayable.** Every run produces a structured replay log (prompts, tool calls, results, timestamps) so findings reproduce; the agent assumes Defender XDR audit telemetry sees every call.
+- **G4 — Threat Actor Emulation.** The agent emulates the recon and discovery TTPs of a real-world threat actor, mapped to MITRE ATT&CK Enterprise — no persistence, no lateral movement off M365, no defense evasion.
+- **G5 — Rules of Engagement.** Every run starts with an ROE prompt and a consent record; the operator confirms tenant ownership or written authorization and scope boundaries, and acknowledges G1–G4.
+- **G6 — Private Build, Public Launch.** Repo, boards, and build artifacts stay private through Sat Oct 24, 2026; public launch is Mon Oct 26, 2026, with a single high-level teaser post on Sat Aug 1, 2026.
+- **G7 — M365-Wide Control Inventory Mapping.** Every finding maps to a specific M365 control (Conditional Access policy, Defender setting, Purview label, Intune compliance check, and so on); the agent does not surface findings without a control mapping.
+- **G8 — Measure at Sprint Boundaries.** Build KPIs are collected weekly and sprint-checkpoint KPIs reviewed every four weeks; v1.1 backlog grooming happens at sprint checkpoints, never mid-sprint.
+
+Source: Project Harbor Sonar Master Plan §2 (Operating Guardrails), linked in the status banner above.
+
 ## Naming
 
 Rejewski is named for Marian Rejewski (1905-1980), the Polish mathematician who in December 1932 first reconstructed the internal wiring of the German military Enigma cipher machine using permutation theory, without access to a captured device. Working with fellow Polish Cipher Bureau cryptologists Jerzy Różycki and Henryk Zygalski, he built the foundation later extended by British codebreakers at Bletchley Park. The name honors that legacy of applying rigorous method to previously "unbreakable" security systems. Trademark clearance research is complete internally; a formal opinion from outside counsel is pending as of this writing.

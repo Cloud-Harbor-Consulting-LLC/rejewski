@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **README "Design principles" section (S5 W19 fast-follow).** Added a new `Design principles`
+  section to `README.md`, placed after `Guardrails` and before `Naming`, carrying the eight
+  program-level operating principles from Master Plan §2 (`G1`–`G8`: Read-Only, No Credential
+  Harvesting, Telemetry-Aware & Replayable, Threat Actor Emulation, Rules of Engagement, Private
+  Build/Public Launch, M365-Wide Control Inventory Mapping, Measure at Sprint Boundaries), read
+  fresh from the current Master Plan (`phs-master-plan-v1.5.md` §2). Framed explicitly as
+  program/operating principles with a callout disambiguating the Master Plan's `G1`–`G8` numbering
+  from the code-enforced `G-1`–`G-9` in the Guardrails section. Restores the principles framing that
+  PR #114 removed when it corrected the mislabeled guardrail list — now as its own clearly-separated
+  section. No change to the `Guardrails` (G-1…G-9) section.
+
 - **README v1 + ADR 0007 naming rationale (S5 W19).** New `docs/adr/0007-naming-rationale.md`
   (Status: Proposed) records the project's name origin and the Marian Rejewski heritage attribution
   in one durable, citable place, and states the trademark posture honestly (internal clearance

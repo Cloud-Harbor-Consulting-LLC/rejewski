@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **CONTRIBUTING.md v1 + SECURITY.md (S5 W19).** Expanded the Sprint-1 CONTRIBUTING.md stub into
+  v1: branching model (per ADR 0002 §6), the standing PR conventions (squash-merge, **no GitHub
+  Issues**, **no `Closes #N`**), Conventional-Commits commit format, testing expectations (full
+  suite green, baseline 192; run via `pytest`), references to the four `.github/ISSUE_TEMPLATE/`
+  templates, the ADR process (ADR 0002 + `docs/adr/_template.md`), and a security-disclosure
+  pointer. New root **SECURITY.md** covers reporting a vulnerability in Rejewski's own code (not
+  tenant findings it produces) — private email contact, scoped honestly to the private-build phase
+  (repo private through Sat Oct 24, 2026), with a note that the coordinated-disclosure process
+  expands at public launch. `README.md` Contributing section updated from a "lands in Sprint 5"
+  deferral to a real summary linking CONTRIBUTING/SECURITY/Code of Conduct. `CODE_OF_CONDUCT.md`
+  (Contributor Covenant v2.1) and `LICENSE` (MIT, 2026, Cloud Harbor Consulting LLC) were reviewed
+  and confirmed correct as-is — no changes made.
+
 - **README "Design principles" section (S5 W19 fast-follow).** Added a new `Design principles`
   section to `README.md`, placed after `Guardrails` and before `Naming`, carrying the eight
   program-level operating principles from Master Plan §2 (`G1`–`G8`: Read-Only, No Credential

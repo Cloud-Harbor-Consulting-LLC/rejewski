@@ -1,19 +1,79 @@
 # Contributing to Rejewski
 
-Thanks for your interest in Rejewski. This project is in early development under Project Harbor Sonar (PHS), Cloud Harbor Consulting's flagship security agent build.
+Thanks for your interest in Rejewski. This project is developed under Project Harbor Sonar (PHS), Cloud Harbor Consulting's flagship security agent build.
 
 ## Status
 
-Sprint 1 Week 1 (Tue May 12, 2026 to Sat May 16, 2026). The repo is private through Sat Oct 24, 2026 and goes public Mon Oct 26, 2026. External contributions are not accepted during the private phase.
+The repo is **private through Sat Oct 24, 2026** and goes **public Mon Oct 26, 2026**. During the private phase, contributions come from the Cloud Harbor Consulting build team; external contributions open at the public flip. The conventions below apply now and carry into the public phase.
 
 ## Code of Conduct
 
 This project adopts the [Contributor Covenant v2.1](./CODE_OF_CONDUCT.md). All participants are expected to uphold it. Report unacceptable behavior to <derek.morgan@cloudharborconsulting.cloud>.
 
-## Full Guidelines
+## Branching model
 
-Full contribution guidelines (branching model, PR conventions, commit message format, sign-off requirements, testing expectations, ADR process) land in Sprint 5 Week 19 ahead of the public flip.
+Branch off `main`. Names follow **ADR 0002 §6**:
+
+- `feature/<kebab-case-summary>` — new work
+- `fix/<kebab-case-summary>` — corrections
+- `docs/<kebab-case-summary>` — documentation-only changes
+
+Never embed an ADR or backlog ID in a branch name — branches are ephemeral, IDs are durable (ADR 0002 §6). Keep each branch scoped to one reviewable change.
+
+## Commit messages
+
+Use a Conventional-Commits-style subject: `type(scope): summary`, e.g. `feat(report): add ROI section`, `fix(alerts): correct $select field`, `docs(readme): add Design principles section`. Common types: `feat`, `fix`, `docs`, `style`, `test`, `refactor`, `chore`. Keep the subject imperative and under ~72 characters; put the rationale in the body.
+
+There is **no DCO `Signed-off-by` requirement**. AI-assisted commits carry a `Co-Authored-By:` trailer identifying the assisting model.
+
+## Pull request conventions
+
+These are Rejewski's **standing PR conventions** — follow them for every change:
+
+- **Squash and merge**, then delete the branch. One PR is one squashed commit on `main`.
+- **No GitHub Issues.** Work is tracked in the PHS Master Plan / Planner, not GitHub Issues. Do not open Issues to track tasks. (GitHub *issue templates* still exist for external bug/doc/policy reports once public — see [Issue templates](#issue-templates).)
+- **No `Closes #N` / `Fixes #N`** auto-close keywords in commits or PR descriptions — there are no tracking Issues to close.
+- Keep PRs **small and focused** — one coherent change per PR.
+- The PR description states **what changed, why, and how it was verified** (which acceptance criteria it meets).
+- Before opening a PR: the **full test suite is green**, `git diff --check` is clean, and the branch is rebased/current with `main`.
+- Sign-off / attribution: end commit messages with the `Co-Authored-By:` trailer when AI-assisted; end PR descriptions with the standard generation trailer.
+
+## Testing expectations
+
+Rejewski ships with a Python test suite (`pytest`). Every PR must keep it **fully green** — the current baseline is **192 passing**.
+
+```bash
+python -m venv .venv
+source .venv/Scripts/activate        # macOS/Linux: source .venv/bin/activate
+pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+Add or update tests with any behavioral change. Schema, tool, and report changes must carry matching test coverage; docs-only changes keep the suite green without new tests. Also run `git diff --check` (no trailing-whitespace or conflict markers) before opening the PR.
+
+## Issue templates
+
+Once the repo is public, bug/documentation/policy reports use the templates in [`.github/ISSUE_TEMPLATE/`](./.github/ISSUE_TEMPLATE/):
+
+- **Bug report** (`bug_report.yml`) — a policy template, script, or document behaves incorrectly.
+- **Documentation fix** (`documentation_fix.yml`) — a correction, clarification, or improvement to documentation.
+- **Policy request** (`policy_request.yml`) — propose a new Conditional Access policy or a change to an existing one.
+- The template chooser is configured in `config.yml`.
+
+These templates are for **external reports on the public repo**; they do not change the internal "no GitHub Issues for task tracking" convention above.
+
+## Architecture Decision Records (ADRs)
+
+Durable design decisions are recorded as ADRs under [`docs/adr/`](./docs/adr/). Write one when a decision is reversible only by a superseding decision — a guardrail change, an identity/auth model, a schema contract, a naming or process rule.
+
+- Copy [`docs/adr/_template.md`](./docs/adr/_template.md) and follow the section layout (Context, Decision, Rationale, Consequences, Alternatives, Compliance, Change Log).
+- Numbering and reference style follow **ADR 0002 (Naming Convention)**: four-digit zero-padded IDs, sequential, **never reused or renumbered**; filename `NNNN-kebab-case-title.md`; in-text reference `ADR 0007` (with a space). Renaming an artifact is a Supersede event, not a rewrite.
+- New ADRs land as `Status: Proposed` and move to `Accepted` when adopted.
+
+## Security disclosure
+
+To report a security vulnerability **in Rejewski's own code** (not findings Rejewski produces against a target tenant), follow [SECURITY.md](./SECURITY.md). Please do **not** open a public issue or PR for a suspected vulnerability — email <derek.morgan@cloudharborconsulting.cloud> instead.
 
 ## Questions
 
-Open an issue or contact <derek.morgan@cloudharborconsulting.cloud>.
+Contact <derek.morgan@cloudharborconsulting.cloud>.

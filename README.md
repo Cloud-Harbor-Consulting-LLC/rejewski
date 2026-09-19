@@ -96,7 +96,7 @@ Full rationale and heritage attribution: [ADR 0007 — Naming Rationale and Heri
 
 ## Contributing
 
-See CONTRIBUTING.md. Full v1 lands in Sprint 5.
+Contribution guidelines are in [CONTRIBUTING.md](CONTRIBUTING.md): the branching model (per ADR 0002), PR conventions (squash-merge, no GitHub Issues, no "Closes #N"), commit format, testing expectations, the issue templates, and the ADR process. Report a security vulnerability in Rejewski itself via [SECURITY.md](SECURITY.md); all participants follow the [Code of Conduct](CODE_OF_CONDUCT.md). External contributions open at the public launch (Mon Oct 26, 2026).
 
 ## License
 

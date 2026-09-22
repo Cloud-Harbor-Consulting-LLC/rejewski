@@ -11,6 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **R014 — fresh comprehensive end-to-end evidence run (S5 W20, Sprint 5 Checkpoint prep).** A single
+  consented, operator-authorized session against the `cloudharbordemo` sandbox (G-1) exercising all
+  14 implemented tool surfaces in one pass: `samples/replay-log/R014.json` (29 entries — 1 consent
+  record + 14 token_event + 14 graph_call; 13 successes + 1 documented block), nine `*-r014-*`
+  finding-triage records, and `docs/reports/replay-report-R014.html` (each finding rendered with a
+  severity badge and an ROI line, plus a consent section). Findings were triaged from what the tenant
+  actually returned — **9 distinct findings**, not padded: `tool_list_inbox_rules` blocked as expected
+  (HTTP 404 MailboxNotEnabledForRESTAPI — the documented permanent self-mailbox boundary, T1114.002,
+  captured as an error, not a finding), and `tool_list_security_alerts` returned 0 rows (empty, folds
+  into the T1654 log-enumeration finding). The 14 surfaces collapse to 9 techniques because five
+  (users/applications/service_principals/role_assignments/oauth_grants) map to T1087.004 and two
+  (signin_logs/security_alerts) map to T1654 — the same collapse as R011/R013. Severities follow the
+  locked rubric v1.0 (T1526/T1518.001/T1654/T1550.001 high; rest medium). G-6: the committed log
+  carries only per-call row counts and the sandbox operator UPN (consistent with R010-R013), never the
+  enumerated directory payloads. **The 10+-findings checkpoint bar is not met by the honest count (9);
+  see the PR for the demo-readiness note and the R013 6-vs-9 investigation.**
+
 - **CONTRIBUTING.md v1 + SECURITY.md (S5 W19).** Expanded the Sprint-1 CONTRIBUTING.md stub into
   v1: branching model (per ADR 0002 §6), the standing PR conventions (squash-merge, **no GitHub
   Issues**, **no `Closes #N`**), Conventional-Commits commit format, testing expectations (full

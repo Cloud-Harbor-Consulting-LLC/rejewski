@@ -4,7 +4,7 @@
 - **Date:** 2026-05-19
 - **Deciders:** Derek Morgan (Principal Architect)
 - **Supersedes:** none
-- **Related:** ADR-0001 Rules of Engagement §1 Tenant Scope, §3 Technique Allowlist, §7 Credential Handling; ADR-0003 Technique Module Format; ADR-0004 Identity Token Acquisition Model (this ADR refines the persistence/reuse layer ADR-0004 left implicit); guardrails G-1 Tenant Scope Lock, G-9 No Operator-Created App Registrations; threat-model.md v0.2 §3 Adversary Model (Silent Operator); docs/b021-research-report.md (Tue May 19, 2026).
+- **Related:** ADR-0001 Rules of Engagement §1 Tenant Scope, §3 Technique Allowlist, §7 Credential Handling; ADR-0003 Technique Module Format; ADR-0004 Identity Token Acquisition Model (this ADR refines the persistence/reuse layer ADR-0004 left implicit); guardrails G-1 Tenant Scope Lock, G-2 No tenant app registration; threat-model.md v0.2 §3 Adversary Model (Silent Operator); docs/b021-research-report.md (Tue May 19, 2026).
 
 ---
 

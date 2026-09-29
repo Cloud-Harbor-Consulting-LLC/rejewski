@@ -4,26 +4,26 @@
 
 ## Type of change
 
-- [ ] Bug fix (script, template, or doc)
-- [ ] New policy template
-- [ ] Change to existing policy template
+- [ ] Bug fix (script or behavior)
+- [ ] New tool / technique module
+- [ ] Schema or contract change (replay-log, finding-triage, finding-to-control, roe-consent)
+- [ ] Evidence run (replay log + triage + report)
 - [ ] Documentation
 - [ ] Tooling / repo hygiene
 
-## Design principle cited
+## Guardrail / ADR cited
 
-<!-- If this is a policy change, cite the principle from Policy-Design.md it serves. -->
+<!-- Cite the guardrail(s) (docs/guardrails.md, G-1…G-9) and/or ADR this change serves or is bound by. -->
 
 ## Checklist
 
-- [ ] Policy changes include a report-only deployment step and rollout notes.
-- [ ] Placeholders use the `REPLACE_WITH_*_OBJECT_ID` / `REPLACE_WITH_*_STRENGTH_ID` convention.
-- [ ] No tenant-specific IDs, user principal names, or internal URLs committed.
-- [ ] `Deploy-CABaseline.ps1 -WhatIf` still parses every template without error.
-- [ ] CHANGELOG.md updated under `## [Unreleased]`.
-- [ ] Docs updated if behavior, required scopes, or prerequisites changed.
-- [ ] markdownlint clean (or justified exemption in `.markdownlint.json`).
+- [ ] Full test suite green (`python -m pytest -q`).
+- [ ] `git diff --check` clean (no trailing whitespace / conflict markers).
+- [ ] G-6: no operator paths, tokens, real UPNs, or non-sandbox tenant IDs committed (public Microsoft IDs — the sandbox tenant `76b87c33…` and Graph CLI client `14d82eec…` — are allowed).
+- [ ] `CHANGELOG.md` updated under `## [Unreleased]`.
+- [ ] Docs / docstrings updated if behavior, required scopes, or prerequisites changed.
+- [ ] Squash-merge; no GitHub Issues opened for task tracking; no `Closes #N` auto-close keyword.
 
 ## Test evidence
 
-<!-- WhatIf output, screenshot, or tenant result. Redact identifiers. -->
+<!-- pytest result, or the replay-log / report artifact for an evidence run. Redact identifiers. -->

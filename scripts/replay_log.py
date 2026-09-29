@@ -21,7 +21,7 @@ v0.3 (Wed May 20, 2026): kind-discriminated response shapes.
                            cache_path, flow)
 
 Writes one JSON entry per run to samples/replay-log/<utc-stamp>-<uuid>.json,
-validated against schemas/replay-log/v0.4.json. Two-layer secret scrubbing:
+validated against schemas/replay-log/v0.5.json. Two-layer secret scrubbing:
 allow-list for request.headers (Authorization and any other non-listed header
 is dropped key-and-value); deny-list for all other dict keys (value replaced
 with [REDACTED] when key matches SECRET_KEY_PATTERN). Tenant GUID is redacted

@@ -1,105 +1,85 @@
 # Rejewski Bug Bash Report — Sprint 6 Open Week (W21)
 
 - Date: 2026-09-29
-- Scope: doc-hygiene cleanup (2 confirmed items) + QA consistency pass across all 14 tool scripts (`scripts/tool_*.py`), following the W16 template (docs/bug-bash-report-w16.md)
-- Baseline HEAD: `9d5f8f8` (PR #117)
+- **Scope: FULL REPO** — every directory (scripts, tests, docs incl. ADRs + technique modules, schemas, samples, .github, root files), not the 14-`tool_*.py`-only scope of the W16 precedent. W16 was mid-Sprint-4; this is the last full-repo pass before README v2 (Thu) and Tool 15 (next week).
+- Baseline HEAD: `8603a18` (PR #118)
 - Test baseline: **192 passed** (recorded before any change)
-- Test after changes: **192 passed** (docs-only changes — no behavior change, no test delta)
-- Bound: confirmed doc-hygiene items fixed directly; fleet check documented whether or not anything needed fixing. No functional/behavioral changes.
+- Test after changes: **192 passed** (docs/docstring/template changes only — no behavior change, no test delta)
+- Format: follows docs/bug-bash-report-w16.md.
+- Bound: confirmed items and clear-target stale references fixed directly; anything whose correct target needs the owner's context is **flagged**, not guessed.
 
-## Part A — Doc-hygiene items fixed
+> **Two-PR note.** An earlier (superseded) brief scoped this bash to the 14 tools + two docs; that
+> subset shipped as **PR #118** — the `docs/attck-coverage.md` (D1) and `docs/guardrails.md` (D2)
+> fixes and the 14-tool fleet check. This PR completes the **full-repo** scope: the third confirmed
+> item (D3, `replay_log.py`), the sweep across the other 20 scripts and every remaining directory,
+> and this report expanded to full-repo. D1/D2 are on `main` and were re-verified still-correct here.
 
-**D1 — `docs/attck-coverage.md`: leftover Sprint-1/Sprint-2-era forward-planning language.**
-The "Path to Sprint 2 target" section still carried forward-looking planning prose — "Technique
-selection for the Sprint 3 checkpoint target (TBD at S2 kick-off) opens when Sprint 2 begins" —
-plus an S2-retro "candidates to select" list, never cleaned up across four checkpoints. Sprint 2
-closed 2026-07-04; the running total is now 20 techniques. Rewrote the prose as a **historical
-record**: the S2 target was reached/exceeded, the total reached 20 by Sprint 4, and the flagged
-candidates (T1213.002 → Tool 14; T1580/T1654 → Tools 9/10; T1069.003/T1526 sub-surfaces) were
-subsequently implemented. Dropped the forward-looking TBD language and the speculative
-T1003/T1552 credential-surface item (out of scope under G-2/G-3 read-only anyway). The growth
-table itself is unchanged — it was already the authoritative record.
+## Part A — Confirmed doc-hygiene items
 
-**D2 — `docs/guardrails.md`: stale Sprint-1 framing + never-materialized `tests/replay/` scope.**
-- File intro read "Operational rules that **bound every Sprint 1 technique**" — the guardrails now
-  bind all 14 tools across six sprints. Rewrote to "Operational rules that **bind every Rejewski
-  technique and tool**" (present tense) and trimmed "ADR 0001 (Sprint 1 Rules of Engagement)" to
-  "ADR 0001 (Rules of Engagement)".
-- G-1 **Scope** referenced "every replay scenario under `tests/replay/` (when that directory lands
-  in Sprint 2)". Confirmed `tests/replay/` **never materialized** — `tests/` is flat at HEAD
-  `9d5f8f8` (`test_replay_log.py`, `test_tool_*.py`, no `replay/` subdirectory). Updated the Scope
-  line to the actual layout: "the replay-log and per-tool tests under `tests/` (test_replay_log.py,
-  test_tool_*.py)" and dropped the never-true parenthetical.
+| # | Item | Status |
+|---|---|---|
+| D1 | `docs/attck-coverage.md` — leftover "Sprint 3 target TBD at S2 kick-off" / S2-retro planning prose → rewritten as historical record | Fixed in **PR #118**; re-verified |
+| D2 | `docs/guardrails.md` — intro "bound every Sprint 1 technique" → present tense; G-1 Scope `tests/replay/` (never materialized) → actual flat `tests/` layout | Fixed in **PR #118**; re-verified |
+| D3 | `scripts/replay_log.py` line 24 — docstring "validated against schemas/replay-log/**v0.4**.json" while `SCHEMA_PATH`/`SCHEMA_VERSION` are **v0.5** | **Fixed here** → v0.5.json. (The v0.3/v0.4/v0.5 mentions at lines 5–16 are a legitimate version-history changelog and were left as-is; line 24 was the only drift.) |
 
-## Part B — Fleet consistency checklist (per W16)
+## Part B — Full scripts/ sweep (34 script files, not just the 14 tools)
 
-Checklist applied per script:
-1. `--help` output format and flag-naming consistency
-2. Empty-result stderr messaging pattern
-3. G-6 redaction usage (tenant GUIDs, cache/operator paths)
-4. No leftover TODO/FIXME comments or debug prints
-5. Docstring accuracy against current behavior (schema version, privilege lines, etc.)
-
-### Fleet-wide results
+Note: the repo has **34** script files (14 `tool_*.py` + **20** non-tool), not the "31" the brief
+estimated — the estimate omitted `reasoning_loop.py` (and miscounted). All 34 were swept.
 
 | Check | Result |
 |---|---|
-| TODO / FIXME / XXX / HACK / debug prints / `pdb` / `breakpoint()` | **None** across all 14 (clean) |
-| Empty-result stderr notice (`No <noun> found/returned`, `file=sys.stderr`) | Present and consistent in **all 14** (one distinct per-tool noun each, e.g. "No users found", "No OAuth2 permission grants found") |
-| G-6 redaction (`redact_tenant_id` / `_redact` on evidence `tenant_id`) | Present in **all 14**; `tool_list_sharepoint_sites` additionally scrubs the tenant GUID from `webUrl` substrings (the only tool emitting URLs that embed it) — matches W16 |
-| Replay-log schema version stamped in docstrings | **v0.5 in all 14** — 22 occurrences of "v0.5 schema", **zero** v0.3/v0.4 drift (the W16 F1 drift did not recur; the morning pre-check confirmed) |
-| Flag naming (`--run-id`, `--replay-log-dir`, `--row-cap`) | Consistent, present in **14/14**; argparse used in all 14 |
-| `--run-id` optional (default=None) | **14/14** (W16 N2 stays resolved) |
-| Default replay-log dir = `REPO_ROOT / "replay-logs"` | **14/14** (W16 N1 stays resolved) |
-| `--emit / --no-emit` dry-run toggle | **14/14** (W16 N3 stays resolved) |
+| TODO / FIXME / XXX / HACK / debug prints / `pdb` / `breakpoint()` — repo-wide | **None** (the only `XXXX` hits are intentional fill-in markers in `docs/adr/_template.md`) |
+| Schema-version drift in docstrings | Fixed D3 (`replay_log.py`); **no other script** references a stale replay-log schema version — all 14 tools already cite v0.5 (verified, matches the morning pre-check), and no non-tool script cites v0.1–v0.4 |
+| G-6 leak scan repo-wide (operator paths `C:\Users`/`USERPROFILE`, cache paths, secret literals) | **None** committed. Tenant/client GUIDs present are the allowed public values only: `76b87c33…` (sandbox tenant), `14d82eec…` (Graph CLI FOCI client), `48df3ad2…` (seeded operator object-id per ADR 0001 §8), `04b07795…` (Azure CLI — **doc references only**, in ADRs 0004/0005/0006 + T1550.001.md, NOT in `rejewski.config.json`, so the G-4 allowlist is intact), and the all-zeros placeholder in the third-party consent sample |
+| 14-tool fleet consistency (per W16) | **Clean, 14/14** — empty-result stderr notice consistent, G-6 redaction present in all 14, `--run-id` optional / `replay-logs/` default / `--emit` toggle all 14/14 (W16 N1/N2/N3 stay resolved). (Detail unchanged from PR #118.) |
+| Non-tool scripts (20): argparse/`--help`, docstrings | 10 use argparse; no stale schema/path references found; `identity.py`, `replay_log.py`, `write_consent_r0NN.py`, `step4-token-smoke.py`, `seed-cloudharbordemo.ps1` are library/one-off modules (no CLI, by design) |
 
-### Per-script review table
+## Part C — Repo-wide doc-link resolution
 
-| # | Script | Issues found | Fixed | Flagged (not fixed) |
-|---|---|---|---|---|
-| 1 | tool_list_users.py | — | — | — |
-| 2 | tool_list_groups.py | — | — | — |
-| 3 | tool_list_applications.py | — | — | — |
-| 4 | tool_list_ca_policies.py | — | — | — |
-| 5 | tool_list_role_assignments.py | — | — | — |
-| 6 | tool_list_service_principals.py | — | — | — |
-| 7 | tool_dfi_health.py | — | — | — |
-| 8 | tool_intune_devices.py | — | — | — |
-| 9 | tool_purview_labels.py | — | — | — |
-| 10 | tool_signin_logs.py | — | — | — |
-| 11 | tool_list_oauth_grants.py | — | — | — |
-| 12 | tool_list_security_alerts.py | — | — | — |
-| 13 | tool_list_inbox_rules.py | — | — | — |
-| 14 | tool_list_sharepoint_sites.py | — | — | — |
+- **Markdown links:** 51 markdown files scanned (root docs, all 8 ADRs, all 20 technique modules, demos) → 33 `[](…)` internal links, **0 broken**.
+- **Bare path references** (the plain-text `docs/…`, `scripts/…`, `schemas/…` cross-refs the ADRs/techniques use): 101 distinct refs → **3 non-resolving**, triaged:
+  1. `docs/adr/0002-naming-rejewski.md` (in ADR 0007) — **confirmed historical**, 0 live links, 4 backticked explanatory mentions describing the reference PR #114 retired. Not broken.
+  2. `docs/adr/0004-borrowed-first-party-clients.md` (in `docs/demos/b007-device-compliance.md`) — **broken**: ADR 0004's real filename is `0004-identity-token-acquisition-model.md`. **Fixed here.**
+  3. `docs/b021-research-report.md` (×6 in `docs/adr/0005-token-persistence-and-reuse.md`) — **broken, FLAGGED** (see below).
+- Also fixed while in `b007-device-compliance.md`: a stale guardrail-ID reference — "G-9 (no operator-created app registrations)" → **G-2 (no tenant app registration)** (current guardrails.md has G-9 = Enumeration row cap; G-2 = No tenant app registration). The identical drift in `docs/adr/0005` line 7 was fixed too. These were the **only two** such stale G-9-as-app-reg references; every other G-9 mention correctly means the row cap.
 
-**All 14 scripts: zero issues.** This is a clean result — a valid, reportable outcome. Unlike W16
-(which found schema-version drift in 5 tools and the N1/N2/N3 fleet inconsistencies, all since
-resolved), the fleet is now fully consistent; nothing needed fixing.
+## Part D — schemas/ (9 files)
 
-### Notes (reviewed, no action — consistent with W16)
+- replay-log **v0.1–v0.5** (5), finding-to-control **v0.1**, finding-triage **v0.1**, roe-consent **v1/v2**. v0.5 is the live replay-log schema (`replay_log.py`). The older v0.1–v0.4 are **retained deliberately** to validate the older committed logs (R002–R009 era) — not orphaned.
+- No code or doc points at a superseded replay-log schema version as if it were live, except one flagged case (Part F flags).
 
-- **`--page-size` absent on Tools 13 (inbox_rules) and 14 (sharepoint_sites).** Legitimately
-  different — `messageRules` and site-`search` surfaces are not paged the same way. Not an issue
-  (same conclusion as W16).
-- **`--select` present on 10/14.** Endpoint-specific: tools whose Graph surface does not expose a
-  useful `$select` omit it. Informative variance, not drift.
-- **`--help` em-dash rendering** can show `—` as `�` under the default Windows console codepage;
-  clean under `PYTHONIOENCODING=utf-8`. Terminal display artifact, not a source issue (W16 note).
+## Part E — tests/ (25 files)
 
-## Part C — Internal doc-link verification
+- All 25 collect and pass (192). Imports resolve to real modules (`replay_log`, `rejewski_runtime`, `consolidate_run`, `finding_dedup`, `finding_coverage_report`, `generate_html_report`, `identity`, `reasoning_loop`). **No orphaned test** references a removed/renamed script or function — an orphaned import would fail collection, and collection is clean.
 
-- **17 internal links** across `README.md`, `SECURITY.md`, `CONTRIBUTING.md` — **0 broken.** Every
-  relative link (including the three ADR links on the ROE/Guardrails lines and the
-  CONTRIBUTING/SECURITY/Code-of-Conduct cross-links) resolves to a real file.
-- **`docs/adr/0007-naming-rationale.md`** mentions of the old `0002-naming-rejewski.md` filename:
-  **0 live markdown links**, 4 backticked historical mentions — all explanatory prose describing
-  the retired reference (what PR #114 fixed), confirmed **not** live broken links.
+## Part F — .github/ (wrong-repo content — fixed)
+
+The `.github/` templates were substantially **copied from a different CHC repo (M365-Security-Frameworks) and never adapted to Rejewski**:
+
+- **CODEOWNERS** header read "Code owners for **M365-Security-Frameworks**" → **Fixed** to Rejewski (owner `@dmorgan-chc` and path patterns were already correct).
+- **ISSUE_TEMPLATE/config.yml** discussions link pointed at `…/M365-Security-Frameworks/discussions` with "applying the baseline in your tenant" wording → **Fixed** to the `rejewski` repo with Rejewski-appropriate wording.
+- **pull_request_template.md** was wholesale the policy-templates repo's template — "New policy template", "cite the principle from **Policy-Design.md**", "**Deploy-CABaseline.ps1 -WhatIf**", "REPLACE_WITH_*_OBJECT_ID", "**markdownlint**" — none of which exist in this Python toolkit → **Rewritten** for Rejewski's actual conventions (types: bug/tool/schema/evidence-run/docs/hygiene; guardrail-or-ADR citation; checklist: suite green, `git diff --check` clean, G-6, CHANGELOG, squash-merge / no Issues / no `Closes #N`) per CONTRIBUTING.md v1.
+- The four ISSUE_TEMPLATE forms otherwise reference real fields; `policy_request.yml` is noted in the flags below.
+
+## Part G — samples/ and root files
+
+- `samples/` (replay-log, finding-triage, finding-to-control, roe-consent) validate against their schemas (covered by the suite). No leaked PII beyond the established row-count + operator-UPN convention.
+- Root: README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT (Contributor Covenant v2.1), LICENSE (MIT 2026 Cloud Harbor Consulting LLC), CHANGELOG, `rejewski.config.json` — reviewed; no stale placeholders; the G-4 client allowlist in config is intact (single FOCI client `14d82eec…`).
+
+## Flags — surfaced, NOT fixed (correct remediation needs the owner's context)
+
+- **F1 — `docs/adr/0005` cites `docs/b021-research-report.md` (×6) but the file is not in-repo.** The 6 references cite specific sections (§3, §5, §8, §9, §11) — clearly a substantial B021 research doc, almost certainly in the SharePoint research corpus (as the ADR 0007 clearance memo is). The `docs/` prefix falsely implies an in-repo file. **Recommendation:** either commit the report to `docs/`, or re-annotate the references SharePoint-style like ADR 0007 does ("… — SharePoint, not in-repo"). Not fixed because the true location can't be verified from the repo.
+- **F2 — `docs/phs-zt-scenarios-v0.1.md:195` claims replay-log `v0.1.json` carries a `scenario_id` field, but `scenario_id` exists in NO replay-log schema (v0.1–v0.5).** Either the field was planned-but-never-implemented, or it became `run_id` (added in v0.4). This is a v0.1-vintage Pillar-1 scenarios doc; the correct fix depends on whether the ZT-scenario→replay binding still applies. Flagged for a decision.
+- **F3 (minor) — `.github/ISSUE_TEMPLATE/policy_request.yml`** ("Propose a new Conditional Access policy") may also be M365-Security-Frameworks heritage. It is arguably in-domain for Rejewski (findings map to CA controls), so it was **left as-is** — noted for a keep/cut decision before public launch.
 
 ## Summary
 
-- Doc-hygiene items fixed: **2** (D1 attck-coverage.md stale S2/S3 planning language; D2 guardrails.md Sprint-1 framing + `tests/replay/` scope line) — documentation only.
-- Tool scripts reviewed: **14 / 14** — **zero issues**, no fixes needed (schema-version consistency, redaction, empty-result messaging, flag naming, and the three former W16 findings all verified consistent).
-- Internal doc links verified: **17 / 17 resolve**; ADR 0007 historical mentions confirmed non-broken.
-- No functional/behavioral changes. No real functional bug surfaced by the fleet check.
-- Test suite: **192 → 192** (docs-only, no behavior changed).
-- Open-bugs status for the S6 W21 acceptance: **no open functional bugs**; all W16 findings remain resolved; the two doc-hygiene items are closed here.
+- Confirmed items fixed: **3** (D1 attck-coverage + D2 guardrails in PR #118; **D3 replay_log.py here**).
+- Additional stale references fixed by the full-repo sweep: **b007 ADR-0004 filename**, **2× G-9→G-2** guardrail-ID drift (b007 + adr/0005), **3× .github wrong-repo content** (CODEOWNERS, config.yml, PR template). All docs/template only.
+- Directories swept: scripts (34), tests (25), docs (51 md incl. 8 ADRs + 20 techniques), schemas (9), samples, .github, root — **repo-wide**. Clean where clean (a valid outcome); findings documented above.
+- Doc links: 33 markdown links + 101 bare-path refs verified; the 3 non-resolving triaged (1 historical, 1 fixed, 1 flagged).
+- Flags for owner decision: **3** (F1 b021 report, F2 scenario_id, F3 policy_request.yml).
+- No functional/behavioral changes; no real functional bug surfaced.
+- Test suite: **192 → 192**.
+- S6 W21 acceptance ("open bugs closed or moved to v1.1"): no open functional bugs; the confirmed items and clear stale references are closed here; the 3 flags are the only items that may warrant a v1.1/follow-up decision.

@@ -83,3 +83,15 @@ The `.github/` templates were substantially **copied from a different CHC repo (
 - No functional/behavioral changes; no real functional bug surfaced.
 - Test suite: **192 → 192**.
 - S6 W21 acceptance ("open bugs closed or moved to v1.1"): no open functional bugs; the confirmed items and clear stale references are closed here; the 3 flags are the only items that may warrant a v1.1/follow-up decision.
+
+---
+
+## Fast-follow (same day) — F1 / F2 / F3 closed
+
+All three flags were decided and resolved the same day (PR after #119). Docs/template only; suite 192 → 192.
+
+- **F1 — external-source citation (ADR 0005 → `b021-research-report.md`).** The report is a real B021 SharePoint research doc (Tue May 19, 2026), not a dropped in-repo file. Resolved by annotating it the way ADR 0007 annotates its external clearance memo: the Related-line citation now reads `` `b021-research-report.md` — the B021 token-persistence research report (SharePoint, not in-repo; …), cited by section throughout this ADR ``, the false `docs/` in-repo path prefix is removed, and all five inline §-citations are backticked and tagged `(SharePoint)`. No citation content dropped — only the marking changed.
+- **F2 — stale field/schema reference (`phs-zt-scenarios-v0.1.md`).** "`scenario_id`" appeared in no schema (v0.1–v0.5); the field that actually does the binding is `run_id`. Corrected the line to name `run_id` and cite the current `schemas/replay-log/v0.5.json`; the term "scenario_id" no longer appears anywhere in the file.
+- **F3 — out-of-domain issue template.** `policy_request.yml` (invited Conditional-Access policy-authoring requests — wrong shape for a read-only research tool, cited a non-existent `Policy-Design.md`) was **deleted**. `config.yml` had no reference to it. Removing it surfaced that the **sibling issue templates carried the same M365-Security-Frameworks heritage** the #119 `.github` fixes caught at the CODEOWNERS/config/PR-template layer — this was the form-body layer: `bug_report.yml`'s Affected-area dropdown listed `Deploy-CABaseline.ps1` / `Policy-Design.md` / `ROI-CONDITIONAL-ACCESS.md` / "CA policy template (JSON)" and asked for PowerShell / Microsoft.Graph SDK versions (this is a Python repo), and `documentation_fix.yml` gave an M365-SF example path. Both were re-scoped to Rejewski (tool/core-script/schema/doc areas; Python/msal environment; a Rejewski doc-path example), and `CONTRIBUTING.md`'s issue-template list was updated to drop the Policy request row and fix the bug-report description. Remaining issue types — **bug report + documentation fix** (+ the config chooser and its discussions contact link) — cover Rejewski's actual needs; enhancement/idea traffic goes to Discussions.
+
+**One adjacent item observed, NOT changed (out of F1/F2/F3 scope):** `docs/phs-zt-scenarios-v0.1.md`'s guardrails cross-reference line mislabels `G-3` ("credential discipline") and `G-5` ("tenant scope") — the same stale-guardrail-ID class as the b007/ADR-0005 `G-9`→`G-2` fixes, but in a file the F1/F2/F3 scope did not cover. Flagged for a future touch.

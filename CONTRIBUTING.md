@@ -53,11 +53,10 @@ Add or update tests with any behavioral change. Schema, tool, and report changes
 
 ## Issue templates
 
-Once the repo is public, bug/documentation/policy reports use the templates in [`.github/ISSUE_TEMPLATE/`](./.github/ISSUE_TEMPLATE/):
+Once the repo is public, bug and documentation reports use the templates in [`.github/ISSUE_TEMPLATE/`](./.github/ISSUE_TEMPLATE/):
 
-- **Bug report** (`bug_report.yml`) — a policy template, script, or document behaves incorrectly.
+- **Bug report** (`bug_report.yml`) — a tool script, core script, schema, or document behaves incorrectly.
 - **Documentation fix** (`documentation_fix.yml`) — a correction, clarification, or improvement to documentation.
-- **Policy request** (`policy_request.yml`) — propose a new Conditional Access policy or a change to an existing one.
 - The template chooser is configured in `config.yml`.
 
 These templates are for **external reports on the public repo**; they do not change the internal "no GitHub Issues for task tracking" convention above.

@@ -1,5 +1,5 @@
 name: Bug report
-description: A policy template, script, or document behaves incorrectly.
+description: A tool script, core script, schema, or document behaves incorrectly.
 title: "[Bug] "
 labels: ["bug", "triage"]
 body:
@@ -12,20 +12,19 @@ body:
     attributes:
       label: Affected area
       options:
-        - CA policy template (JSON)
-        - Deploy-CABaseline.ps1
-        - Policy-Design.md
-        - ROI-CONDITIONAL-ACCESS.md
-        - Scripts/README.md
+        - Tool script (scripts/tool_*.py)
+        - Core script (replay_log.py, consolidate_run.py, generate_html_report.py, identity.py, …)
+        - Schema (replay-log / finding-triage / finding-to-control / roe-consent)
+        - Documentation (README, ADR, technique module, guardrails)
         - Other (explain below)
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Framework version
-      description: Release tag or commit SHA you're running (e.g., v1.0.1).
-      placeholder: v1.0.1
+      label: Version
+      description: Commit SHA you're running (Rejewski is pre-release; there are no tagged versions yet).
+      placeholder: main @ <commit-sha>
     validations:
       required: true
   - type: textarea
@@ -52,10 +51,10 @@ body:
     id: env
     attributes:
       label: Environment
-      description: PowerShell version, Microsoft.Graph SDK version, OS.
+      description: Python version, key package versions (msal, requests, jsonschema), OS.
       placeholder: |
-        PowerShell: 7.4.1
-        Microsoft.Graph: 2.15.0
+        Python: 3.11.9
+        msal: 1.28.0
         OS: Windows 11 23H2
   - type: checkboxes
     id: confirm

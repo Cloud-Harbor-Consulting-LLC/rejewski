@@ -104,6 +104,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Sprint 6 bug-bash fast-follow — F1/F2/F3 closed (S6 W21, same day as #119).** Resolves the three
+  items PR #119 flagged for a decision. **F1:** `docs/adr/0005-token-persistence-and-reuse.md`'s six
+  citations of `b021-research-report.md` are now marked as an external SharePoint research doc (the
+  ADR 0007 external-source treatment) instead of a false `docs/` in-repo path — no citation content
+  dropped. **F2:** `docs/phs-zt-scenarios-v0.1.md` referenced a `scenario_id` field that exists in no
+  schema (v0.1–v0.5); corrected to the real binding field `run_id` and the current
+  `schemas/replay-log/v0.5.json`; "scenario_id" no longer appears in the repo. **F3:** deleted the
+  out-of-domain `.github/ISSUE_TEMPLATE/policy_request.yml` (invited Conditional-Access policy-authoring
+  requests — wrong shape for a read-only tool). Removing it surfaced that `bug_report.yml` and
+  `documentation_fix.yml` carried the same M365-Security-Frameworks heritage at the form-body layer
+  (`Deploy-CABaseline.ps1` / `Policy-Design.md` affected-area options, PowerShell/Graph-SDK
+  environment); both re-scoped to Rejewski (tool/script/schema/doc areas, Python env) and
+  `CONTRIBUTING.md`'s template list updated. Docs/template only; suite 192 → 192.
+
 - **Sprint 6 bug bash — FULL-REPO hygiene + consistency (S6 W21).** Unlike the W16 precedent
   (14 `tool_*.py` only), this pass swept the **whole repo** — all 34 scripts, 25 tests, 51 markdown
   docs (8 ADRs + 20 technique modules), 9 schemas, samples, `.github/`, and root files — as the last

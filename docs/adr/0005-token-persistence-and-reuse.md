@@ -4,7 +4,7 @@
 - **Date:** 2026-05-19
 - **Deciders:** Derek Morgan (Principal Architect)
 - **Supersedes:** none
-- **Related:** ADR-0001 Rules of Engagement §1 Tenant Scope, §3 Technique Allowlist, §7 Credential Handling; ADR-0003 Technique Module Format; ADR-0004 Identity Token Acquisition Model (this ADR refines the persistence/reuse layer ADR-0004 left implicit); guardrails G-1 Tenant Scope Lock, G-2 No tenant app registration; threat-model.md v0.2 §3 Adversary Model (Silent Operator); docs/b021-research-report.md (Tue May 19, 2026).
+- **Related:** ADR-0001 Rules of Engagement §1 Tenant Scope, §3 Technique Allowlist, §7 Credential Handling; ADR-0003 Technique Module Format; ADR-0004 Identity Token Acquisition Model (this ADR refines the persistence/reuse layer ADR-0004 left implicit); guardrails G-1 Tenant Scope Lock, G-2 No tenant app registration; threat-model.md v0.2 §3 Adversary Model (Silent Operator); `b021-research-report.md` — the B021 token-persistence research report (SharePoint, not in-repo; Tue May 19, 2026), cited by section throughout this ADR.
 
 ---
 
@@ -24,14 +24,14 @@ The MSAL `PublicClientApplication` is constructed with `client_capabilities=["CP
 
 Cache path default is `~/.cache/rejewski/<actor-upn-slug>.bin` on Linux with platform equivalents on Windows (`%LOCALAPPDATA%\rejewski\<actor-upn-slug>.bin`) and macOS (`~/Library/Caches/rejewski/<actor-upn-slug>.bin`). Operators can override via `REJEWSKI_CACHE_PATH`. Cache-write serialization is delegated to msal-extensions' bundled portalocker; Rejewski does not implement custom locking.
 
-Every token acquisition — silent reuse or interactive ROPC — emits a `token_event` replay-log entry to the configured replay-log directory. The entry's request envelope records the token endpoint URL, flow (silent or ropc), and requested scopes; the response envelope records outcome, AADSTS code (on error), correlation id, persistence kind (encrypted or plaintext), and cache path. Access tokens, refresh tokens, and id tokens are never written to the replay log. MSAL PII logging stays off by default per b021-research-report.md §9.
+Every token acquisition — silent reuse or interactive ROPC — emits a `token_event` replay-log entry to the configured replay-log directory. The entry's request envelope records the token endpoint URL, flow (silent or ropc), and requested scopes; the response envelope records outcome, AADSTS code (on error), correlation id, persistence kind (encrypted or plaintext), and cache path. Access tokens, refresh tokens, and id tokens are never written to the replay log. MSAL PII logging stays off by default per `b021-research-report.md` §9 (SharePoint).
 
 ## 3. Rationale
 
 - **MSAL/msal-extensions is the documented path.** Microsoft's identity team ships msal-extensions as the cross-platform persistence layer for MSAL Python; the cache schema is shared across MSAL .NET / Java / Python / JS so the on-disk artifact is structurally identical to what `Connect-MgGraph` writes for the same client ID. Rejewski's cache file does not advertise itself as adversary tooling at rest.
 - **Encrypted at rest, by default, no operator opt-in required.** DPAPI / Keychain / libsecret are user-bound encryption surfaces; a Rejewski cache pulled off a host without the originating user session cannot be decrypted. ADR-0001 §7 Credential Handling requires that captured credential material live encrypted; the encrypted-by-default decision satisfies §7 without operator action.
-- **Headless Linux is a sharp edge.** `build_encrypted_persistence` silently falls back to plaintext `FilePersistence` on Linux without libsecret + unlocked Secret Service. b021-research-report.md §3 flags this as the second-most-likely failure mode for B021. Rejewski's explicit `REJEWSKI_ALLOW_PLAINTEXT_CACHE` opt-in plus a loud replay-log entry forces the operator to acknowledge plaintext exposure rather than discovering it after a tenant-scope incident.
-- **CP1 + acquire_token_silent_with_error matches Midnight Blizzard tradecraft.** A naive client that fails on a CAE claims challenge collapses back into interactive ROPC, which then trips MFA / risk policies. A CAE-capable client surfaces the `claims` parameter to the helper, which feeds it into the next interactive call. b021-research-report.md §8 documents this as Midnight Blizzard-tier emulation fidelity; ADR-0004 §3 already commits to that fidelity bar.
+- **Headless Linux is a sharp edge.** `build_encrypted_persistence` silently falls back to plaintext `FilePersistence` on Linux without libsecret + unlocked Secret Service. `b021-research-report.md` §3 (SharePoint) flags this as the second-most-likely failure mode for B021. Rejewski's explicit `REJEWSKI_ALLOW_PLAINTEXT_CACHE` opt-in plus a loud replay-log entry forces the operator to acknowledge plaintext exposure rather than discovering it after a tenant-scope incident.
+- **CP1 + acquire_token_silent_with_error matches Midnight Blizzard tradecraft.** A naive client that fails on a CAE claims challenge collapses back into interactive ROPC, which then trips MFA / risk policies. A CAE-capable client surfaces the `claims` parameter to the helper, which feeds it into the next interactive call. `b021-research-report.md` §8 (SharePoint) documents this as Midnight Blizzard-tier emulation fidelity; ADR-0004 §3 already commits to that fidelity bar.
 - **Refresh tokens rotate; portalocker matters.** Every silent redemption invalidates the previous refresh token after a short grace window. Concurrent tool runs without serialized cache writes can hand one of two tools a stale refresh token and a confusing AADSTS70008. msal-extensions ships portalocker; reusing it is the obvious decision and avoids inventing a custom lock.
 - **Token-event replay-log emission is the audit surface.** schema v0.2 (PR 1, Sun May 17, 2026) added the `kind` discriminator with `token_event` as an enumerated value precisely to let scripts/identity.py emit its own entries alongside graph_call entries. ADR-0001 §7 requires that every credential-touching action is replayable; emission at the helper level (not the tool level) ensures coverage even if a future tool forgets.
 
@@ -44,7 +44,7 @@ Every token acquisition — silent reuse or interactive ROPC — emits a `token_
 - **Scope shape:** requested scopes are determined by the calling tool; helper does not narrow or escalate. Default `https://graph.microsoft.com/.default` when the caller does not specify.
 - **Consent path:** pre-consented (ADR-0004 §4).
 - **MFA posture:** silent path bypasses MFA challenges by design (refresh token already redeems claims). CAE-driven mid-session claims challenges arrive as `insufficient_claims` errors; helper escalates to interactive ROPC with the `claims_challenge` parameter populated.
-- **Dwell-signal expectations:** every silent redemption produces a non-interactive sign-in log entry with `appId=14d82eec...`, `clientAppUsed=Mobile Apps and Desktop clients`, `tokenIssuerType=AzureAD`. Volumetric anomaly (long-running sessions, scope diversity over time, IP/UA drift) is the differentiator from legitimate Graph Command Line Tools admin sessions per b021-research-report.md §11.
+- **Dwell-signal expectations:** every silent redemption produces a non-interactive sign-in log entry with `appId=14d82eec...`, `clientAppUsed=Mobile Apps and Desktop clients`, `tokenIssuerType=AzureAD`. Volumetric anomaly (long-running sessions, scope diversity over time, IP/UA drift) is the differentiator from legitimate Graph Command Line Tools admin sessions per `b021-research-report.md` §11 (SharePoint).
 
 ## 5. Consequences
 
@@ -64,7 +64,7 @@ Every token acquisition — silent reuse or interactive ROPC — emits a `token_
 ### 5.3 Neutral
 
 - Cache path defaults under `~/.cache/rejewski/` (Linux), `~/Library/Caches/rejewski/` (macOS), `%LOCALAPPDATA%\rejewski\` (Windows). Operators wanting a project-local cache (for reproducibility tests) override via `REJEWSKI_CACHE_PATH`.
-- Cache file naming uses an actor-UPN slug so multi-user test scenarios get one cache file per identity; FOCI cross-client tokens for the same identity share one cache row (per b021-research-report.md §5).
+- Cache file naming uses an actor-UPN slug so multi-user test scenarios get one cache file per identity; FOCI cross-client tokens for the same identity share one cache row (per `b021-research-report.md` §5, SharePoint).
 
 ## 6. Alternatives Considered
 

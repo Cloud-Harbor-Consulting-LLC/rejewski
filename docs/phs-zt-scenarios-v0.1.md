@@ -192,7 +192,7 @@ These are signal-level uncertainties carried forward from the v0.1 grounding pas
 - ADR 0003 Technique Module Format (0003-technique-module-format.md) — technique modules emit signals that map to scenarios.
 - guardrails.md — G-1 tenant lock, G-3 credential discipline, G-5 tenant scope, G-9 enumeration row cap.
 - threat-model.md — §3 asset model, §4 authentication surface, §5 data-tier exposure.
-- schemas/replay-log/v0.1.json — replay-log entries carry the scenario_id field.
+- schemas/replay-log/v0.5.json — replay-log entries carry the run_id binding field.
 - Sprint 2 build will produce technique modules that emit the signals defined here.
 
 ## Change log

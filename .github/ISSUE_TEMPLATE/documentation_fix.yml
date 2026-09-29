@@ -7,7 +7,7 @@ body:
     id: file
     attributes:
       label: File
-      description: Path to the doc (e.g., `Frameworks/Conditional-Access-Baseline/Policy-Design.md`).
+      description: Path to the doc (e.g., `docs/guardrails.md` or `docs/techniques/T1087.004.md`).
     validations:
       required: true
   - type: textarea

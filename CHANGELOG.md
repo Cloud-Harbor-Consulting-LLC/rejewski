@@ -104,17 +104,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Sprint 6 bug bash — doc hygiene + fleet consistency (S6 W21).** Two stale-doc fixes:
-  `docs/attck-coverage.md` "Path to Sprint 2 target" prose rewritten from leftover forward-looking
-  "Sprint 3 target TBD at S2 kick-off" / S2-retro candidate-selection language into a historical
-  record (the flagged candidates all shipped; total reached 20 by Sprint 4); `docs/guardrails.md`
-  intro "bound every Sprint 1 technique" → "bind every Rejewski technique and tool" (present tense),
-  and the G-1 Scope line's never-materialized `tests/replay/` reference replaced with the actual flat
-  `tests/` layout (`test_replay_log.py`, `test_tool_*.py`). New `docs/bug-bash-report-w21.md` records
-  the full pass: the 14-tool fleet check came back **clean — zero issues** (no TODO/debug, no
-  schema-version drift, G-6 redaction and empty-result messaging consistent across all 14, and the
-  three former W16 findings N1/N2/N3 all verified still-resolved), and **17/17** internal doc links in
-  README/SECURITY/CONTRIBUTING resolve. Docs-only; no functional change; suite 192 → 192.
+- **Sprint 6 bug bash — FULL-REPO hygiene + consistency (S6 W21).** Unlike the W16 precedent
+  (14 `tool_*.py` only), this pass swept the **whole repo** — all 34 scripts, 25 tests, 51 markdown
+  docs (8 ADRs + 20 technique modules), 9 schemas, samples, `.github/`, and root files — as the last
+  full-repo pass before README v2 and Tool 15. Confirmed items fixed: `docs/attck-coverage.md` stale
+  "Sprint 3 target TBD" / S2-retro prose → historical record, and `docs/guardrails.md` Sprint-1 framing
+  + never-materialized `tests/replay/` scope line (both shipped in **PR #118**); and
+  `scripts/replay_log.py` docstring "validated against …v0.4.json" → **v0.5.json** (the module that
+  owns `SCHEMA_VERSION`; only its own line 24 was behind — the version-history changelog above it is
+  legitimate). Additional stale references fixed by the sweep: `docs/demos/b007-device-compliance.md`
+  cited a non-existent `0004-borrowed-first-party-clients.md` (→ real `0004-identity-token-acquisition-model.md`);
+  two docs (b007 + `docs/adr/0005`) referenced a stale guardrail ID "G-9 (no operator-created app
+  registrations)" (→ **G-2 no tenant app registration**; current G-9 is the row cap); and `.github/`
+  carried **wrong-repo content copied from M365-Security-Frameworks** — CODEOWNERS header, the
+  ISSUE_TEMPLATE discussions URL, and the entire PR template (policy-repo boilerplate:
+  `Policy-Design.md`, `Deploy-CABaseline.ps1`, markdownlint) — all corrected/rewritten for Rejewski.
+  Three items **flagged, not fixed** (correct target needs owner context): ADR 0005's 6 refs to a
+  non-in-repo `docs/b021-research-report.md` (likely SharePoint), a `scenario_id` claim in
+  `phs-zt-scenarios-v0.1.md` for a field in no schema, and whether `policy_request.yml` should stay.
+  Full write-up in `docs/bug-bash-report-w21.md`. All docs/docstring/template only — no functional
+  change; suite 192 → 192.
 
 - **Reporting polish — HTML run report visual pass (S5 W19).** `scripts/generate_html_report.py`
   CSS/markup only (no change to what data renders): (1) **severity ramp** reworked to a distinct

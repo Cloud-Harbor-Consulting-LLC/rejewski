@@ -101,6 +101,6 @@ The demo also produces the SigninLogs signal that downstream detection content (
 
 - docs/phs-zt-scenarios-v0.1.md — ZT-S01 baseline scenario (Pillar 1 anchor).
 - docs/adr/0001-rules-of-engagement.md — tenant scope (cloudharbordemo only), consent floor, technique allowlist.
-- docs/adr/0004-borrowed-first-party-clients.md — borrowed-client policy and identifier registry.
+- docs/adr/0004-identity-token-acquisition-model.md — borrowed-client policy and identifier registry.
 - docs/threat-model.md — Sprint 1 finding on Graph CLI ROPC delegated-token path.
-- docs/guardrails.md — G-1 (tenant lock), G-3 (read-default posture), G-9 (no operator-created app registrations).
+- docs/guardrails.md — G-1 (tenant lock), G-3 (read-default posture), G-2 (no tenant app registration).

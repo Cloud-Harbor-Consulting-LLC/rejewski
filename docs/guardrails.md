@@ -1,6 +1,6 @@
 # Rejewski Guardrails
 
-Operational rules that bound every Sprint 1 technique. Each guardrail has an ID, statement, rationale, enforcement, scope, and exceptions. Technique modules in docs/techniques/ cite these IDs by number. ADR 0001 (Sprint 1 Rules of Engagement) authorizes the set.
+Operational rules that bind every Rejewski technique and tool. Each guardrail has an ID, statement, rationale, enforcement, scope, and exceptions. Technique modules in docs/techniques/ cite these IDs by number. ADR 0001 (Rules of Engagement) authorizes the set.
 
 ---
 
@@ -12,7 +12,7 @@ Operational rules that bound every Sprint 1 technique. Each guardrail has an ID,
 
 **Enforcement.** The runtime loader in scripts/rejewski_runtime.py reads the tenant ID from rejewski.config.json and compares against the constant 76b87c33-6178-4ff9-94a7-164792c8e4c6 before any technique module fires. A mismatch raises a TenantScopeViolation exception and aborts the run before any Graph call is issued. The loader smoke test (Wed May 13 evening) confirms the pre-flight comparison fires correctly.
 
-**Scope.** Binds every technique module under docs/techniques/, every smoke-test script under scripts/, and every replay scenario under tests/replay/ (when that directory lands in Sprint 2). Binds the Claude Agent SDK runtime when invoked by an operator and the headless runtime when invoked by CI.
+**Scope.** Binds every technique module under docs/techniques/, every tool and smoke-test script under scripts/, and the replay-log and per-tool tests under tests/ (test_replay_log.py, test_tool_*.py). Binds the Claude Agent SDK runtime when invoked by an operator and the headless runtime when invoked by CI.
 
 **Exceptions.** None at Sprint 1. Future cross-tenant techniques (e.g., guest-account enumeration patterns) will require their own guardrail and an ADR amendment before any cross-tenant target ID is added to the allowlist.
 

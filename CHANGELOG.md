@@ -104,6 +104,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Sprint 6 bug bash — doc hygiene + fleet consistency (S6 W21).** Two stale-doc fixes:
+  `docs/attck-coverage.md` "Path to Sprint 2 target" prose rewritten from leftover forward-looking
+  "Sprint 3 target TBD at S2 kick-off" / S2-retro candidate-selection language into a historical
+  record (the flagged candidates all shipped; total reached 20 by Sprint 4); `docs/guardrails.md`
+  intro "bound every Sprint 1 technique" → "bind every Rejewski technique and tool" (present tense),
+  and the G-1 Scope line's never-materialized `tests/replay/` reference replaced with the actual flat
+  `tests/` layout (`test_replay_log.py`, `test_tool_*.py`). New `docs/bug-bash-report-w21.md` records
+  the full pass: the 14-tool fleet check came back **clean — zero issues** (no TODO/debug, no
+  schema-version drift, G-6 redaction and empty-result messaging consistent across all 14, and the
+  three former W16 findings N1/N2/N3 all verified still-resolved), and **17/17** internal doc links in
+  README/SECURITY/CONTRIBUTING resolve. Docs-only; no functional change; suite 192 → 192.
+
 - **Reporting polish — HTML run report visual pass (S5 W19).** `scripts/generate_html_report.py`
   CSS/markup only (no change to what data renders): (1) **severity ramp** reworked to a distinct
   hue per level — gray → blue → amber → **orange** (`high`, was pink) → solid red (`critical`) — so

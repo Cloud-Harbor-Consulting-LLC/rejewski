@@ -125,21 +125,17 @@ targets and avoid detection. T1550.001 operationalises the token that T1078.004 
 | S2 W7 implementation (2026-06-23) | T1580 implemented (Tool 9); T1654 added as implemented (Tool 10) | **17** |
 | S4 W14 ATT&CK expansion (2026-08-15) | T1114.003 + T1033 implemented; T1528 catalogued | **20** |
 
-Sprint 2 checkpoint target of 10 techniques reached and exceeded (16 catalogued/implemented
-ahead of the Thu 2026-07-02 checkpoint). Technique selection for the Sprint 3
-checkpoint target (TBD at S2 kick-off) opens when Sprint 2 begins.
-Candidates to select at the S2 retro from the Sprint 2+ catalogue in docs/threat-model.md:
+The Sprint 2 checkpoint target of 10 techniques was reached and exceeded — 16 techniques were
+catalogued/implemented ahead of the Thu 2026-07-02 checkpoint, and the running total reached
+**20** by Sprint 4 (2026-08-15). The table above is the authoritative record of what was added
+and when.
 
-- T1069.003 deferred surfaces (transitiveMemberOf, directoryRoles) — already modelled,
-  could split into a sub-entry if ATT&CK attribution differs.
-- T1526 deferred surfaces (subscribedSkus, organization, servicePrincipals,
-  applications) — additional T1526 sub-surfaces or a distinct T1082 mapping.
-- T1213.002 Data from Information Repositories: SharePoint — site/list enumeration
-  via GET /sites; requires Sites.Read.All scope uplift.
-- T1003 / T1552 credential exposure surfaces if a read-only enumeration path exists
-  (e.g., authentication methods registered per user).
-
-Selection is at Derek's discretion at the S2 kick-off or the S1 checkpoint retro.
+The candidates that were flagged for selection at the S2 retro have since been implemented or
+catalogued and folded into the coverage table at the top of this document: T1213.002 (Data from
+Information Repositories: SharePoint) shipped as Tool 14; T1580 and T1654 shipped as Tools 9 and
+10; and the T1069.003 and T1526 deferred sub-surfaces were modelled in their technique modules.
+This section is retained as the historical growth record; the authoritative current set is the
+coverage table at the top of this document.
 
 ---
 

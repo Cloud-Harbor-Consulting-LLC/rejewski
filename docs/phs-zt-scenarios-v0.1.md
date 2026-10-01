@@ -119,7 +119,7 @@ SigninLogs
 - **Pass (defender wins).** Either AADSTS50076 denies the token, or a risky-sign-in event with riskEventType = unfamiliarFeatures is logged within five minutes of the Rejewski attempt, and risk-based CA blocks subsequent Graph calls.
 - **Fail (defender loses).** Token issued, no risky-sign-in event is recorded, and no CA policy interrupts subsequent Graph activity. This is the gap Rejewski exists to exercise — the ROPC against a FOCI client makes the traffic look like legitimate admin tooling.
 
-**Cross-refs.** threat-model.md §4 (authentication surface); guardrails.md G-3, G-5 (credential discipline and tenant scope); Sprint 2 W1 candidate for risk-based CA hardening recommendations.
+**Cross-refs.** threat-model.md §4 (authentication surface); guardrails.md G-3, G-5 (consent floor and evidence capture); Sprint 2 W1 candidate for risk-based CA hardening recommendations.
 
 ---
 
@@ -190,7 +190,7 @@ These are signal-level uncertainties carried forward from the v0.1 grounding pas
 - ADR 0001 Rules of Engagement (0001-rules-of-engagement.md) — tenant scope and authorization boundary.
 - ADR 0002 Naming Convention (0002-naming-convention.md) — scenario ID format consistency.
 - ADR 0003 Technique Module Format (0003-technique-module-format.md) — technique modules emit signals that map to scenarios.
-- guardrails.md — G-1 tenant lock, G-3 credential discipline, G-5 tenant scope, G-9 enumeration row cap.
+- guardrails.md — G-1 tenant lock, G-3 consent floor, G-5 evidence capture, G-9 enumeration row cap.
 - threat-model.md — §3 asset model, §4 authentication surface, §5 data-tier exposure.
 - schemas/replay-log/v0.5.json — replay-log entries carry the run_id binding field.
 - Sprint 2 build will produce technique modules that emit the signals defined here.

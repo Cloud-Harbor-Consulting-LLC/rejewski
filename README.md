@@ -59,6 +59,40 @@ python scripts/generate_html_report.py --replay-log <consolidated-log>.json --ou
 
 The full agentic loop (Claude Agent SDK) is driven by `python scripts/rejewski_runtime.py`, which reads `rejewski.config.json` and enforces the G-1 sandbox-tenant check before any Graph call.
 
+## Usage example — a full comprehensive run
+
+The Quickstart above runs a single tool. A real assessment exercises **all 14 tool surfaces in one consented session**, consolidates them under a single run ID, and renders one report. This is the shape of the canonical **R014** run committed as evidence in this repo.
+
+**1. Consent once for the run.** Follow the ROE prompt ([docs/roe-consent-flow.md](docs/roe-consent-flow.md)) and use a single run ID for the whole session — here `R014`.
+
+**2. Run every tool surface, tagged to that run ID.** Each tool authenticates once (then reuses the cached token) and writes its own entries to `replay-logs/`:
+
+```bash
+for tool in tool_list_users tool_list_applications tool_list_service_principals \
+            tool_list_role_assignments tool_list_oauth_grants tool_list_groups \
+            tool_list_ca_policies tool_dfi_health tool_intune_devices \
+            tool_purview_labels tool_signin_logs tool_list_security_alerts \
+            tool_list_sharepoint_sites tool_list_inbox_rules; do
+  python scripts/$tool.py --run-id R014
+done
+```
+
+**3. Consolidate the run** into one replay log. `consolidate_run.py` reads every `replay-logs/` entry whose `run_id` matches, writes `samples/replay-log/<run-id>.json`, and unconditionally redacts the operator-local cache path (G-6):
+
+```bash
+python scripts/consolidate_run.py --run-id R014
+```
+
+**4. Render the HTML report** from the consolidated log plus the committed finding records (`--finding-dir`/`--mapping-dir`/`--roi-model` default to the `samples/` sets):
+
+```bash
+python scripts/generate_html_report.py \
+  --replay-log samples/replay-log/R014.json \
+  --output docs/reports/replay-report-R014.html
+```
+
+The committed result is **[docs/reports/replay-report-R014.html](docs/reports/replay-report-R014.html)**: a single self-contained report — graph calls, token events, findings, control mappings, and a per-finding ROI section — from one 14-surface run, with **9 distinct findings, each carrying a severity score and an ROI line**. Fourteen surfaces collapse to nine findings because several map to the same ATT&CK technique (five to T1087.004 account discovery, two to T1654 log enumeration), and `tool_list_inbox_rules` is a documented block (the delegated self-mailbox boundary), not a finding.
+
 ## Rules of Engagement
 
 Every run is gated by a per-run consent prompt. The prompt summarizes the target tenant, the techniques in scope, the expected duration, and the operator identity, and the operator confirms by echoing a generated run ID back verbatim — any other input is treated as a decline, and a declined or aborted run terminates before any network egress. The consent record is written as the first entry of the run's replay log and binds every downstream entry by `run_id`. Sprint 1's exit floor is five consented runs logged end-to-end.

@@ -104,6 +104,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **README v2 — full comprehensive run example (S6 W21 Thu).** Added a new **Usage example** section
+  after the Quickstart (the single-tool walkthrough is unchanged): the multi-tool comprehensive-run
+  shape — all 14 tool surfaces in one consented session (`--run-id R014`), consolidated with
+  `scripts/consolidate_run.py --run-id R014`, and rendered with `scripts/generate_html_report.py
+  --replay-log … --output …` (real flags, confirmed via `--help`). It points at the real committed
+  artifact `docs/reports/replay-report-R014.html` (9 findings, each with a severity score + ROI line)
+  and explains the 14-surfaces → 9-findings collapse — nothing hypothetical. Bundled: corrected two
+  stale guardrail-ID descriptions in `docs/phs-zt-scenarios-v0.1.md` — "G-3 credential discipline" →
+  **G-3 consent floor** and "G-5 tenant scope" → **G-5 evidence capture** (per the actual G-1…G-9 in
+  `docs/guardrails.md`; the IDs were right, the labels were wrong — "G-5 tenant scope" could not mean
+  G-1 since the line already lists G-1 tenant lock). This closes the "one adjacent item" flagged in
+  the PR #120 readout. Docs only; suite 192 → 192.
+
 - **Sprint 6 bug-bash fast-follow — F1/F2/F3 closed (S6 W21, same day as #119).** Resolves the three
   items PR #119 flagged for a decision. **F1:** `docs/adr/0005-token-persistence-and-reuse.md`'s six
   citations of `b021-research-report.md` are now marked as an external SharePoint research doc (the

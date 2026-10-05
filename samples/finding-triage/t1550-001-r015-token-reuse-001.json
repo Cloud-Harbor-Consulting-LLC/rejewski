@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1550-001-r015-token-reuse-001",
+  "technique_id": "T1550.001",
+  "technique_name": "Use Alternate Authentication Material: Application Access Token",
+  "run_id": "R015",
+  "severity": "high",
+  "confidence": "high",
+  "control_mapping_id": "ft1550-001-rbac-directory-readers-001",
+  "evidence": [
+    "samples/replay-log/R015.json"
+  ],
+  "triage_status": "open",
+  "notes": "Application access token reuse: the delegated bearer token was silently reused across all R015 tool calls via the MSAL encrypted cache (14 token events). High per rubric v1.0 (D=3 token material; operates through the authentication control). Recurring. Cross-references Directory Readers (RBAC).",
+  "triage_metadata": {
+    "created_utc": "2026-10-05T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

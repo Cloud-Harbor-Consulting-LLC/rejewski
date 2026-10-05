@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1654-r015-log-enumeration-001",
+  "technique_id": "T1654",
+  "technique_name": "Log Enumeration",
+  "run_id": "R015",
+  "severity": "high",
+  "confidence": "high",
+  "control_mapping_id": "ft1654-rbac-reports-reader-001",
+  "evidence": [
+    "samples/replay-log/R015.json"
+  ],
+  "triage_status": "open",
+  "notes": "Log enumeration across two surfaces in R015, both HTTP 200 but EMPTY this run: tool_signin_logs (0 sign-in records - R014 returned 9; this is tenant state, the window had no sign-ins) and tool_list_security_alerts (0 alerts). The enumeration capability is confirmed by the authorized 200 responses (not 403/denied); no telemetry was present to surface this run. High per rubric v1.0 (defensive-evasion escalator: the authorized read of the defender's sign-in/alert surface is the high-value capability; row count is tenant state, not a change in authorization). Recurring. Cross-references Reports Reader (RBAC).",
+  "triage_metadata": {
+    "created_utc": "2026-10-05T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

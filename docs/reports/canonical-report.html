@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rejewski Run Report — R015</title>
+<style>
+body       { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+             font-size: 14px; color: #212529; background: #ffffff; margin: 2em auto;
+             max-width: 960px; padding: 0 1em; }
+table      { border-collapse: collapse; width: 100%; margin-bottom: 1.5em;
+             border: 1px solid #dee2e6; border-radius: 6px; overflow: hidden; }
+th         { background: #eef1f5; text-align: left; padding: 9px 12px;
+             border-bottom: 2px solid #d3d9e0; font-weight: 600; color: #343a40;
+             white-space: nowrap; }
+td         { padding: 8px 12px; border-bottom: 1px solid #e9ecef; vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:nth-child(even) td { background: #f8f9fa; }
+tbody tr:hover td { background: #eef4fb; }
+code       { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.86em;
+             background: #f1f3f5; padding: 1px 5px; border-radius: 3px; color: #383d41; }
+h1         { font-size: 1.3em; margin-bottom: 0.25em; }
+h2         { font-size: 1em; font-weight: 600; margin: 1.5em 0 0.5em;
+             text-transform: uppercase; letter-spacing: 0.05em; color: #6c757d; }
+.meta      { color: #6c757d; font-size: 0.9em; margin-bottom: 1em; }
+.consent   { padding: 0.75em 1em; border-left: 4px solid #ccc;
+             margin-bottom: 0.75em; background: #f8f9fa; }
+.consent.granted { border-left-color: #28a745; }
+.consent.declined { border-left-color: #dc3545; }
+footer     { margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;
+             color: #6c757d; font-size: 0.9em; }
+.badge-success, .badge-error, .badge-other,
+.badge-informational, .badge-low, .badge-medium, .badge-high, .badge-critical {
+             display: inline-block; padding: 2px 9px; border-radius: 10px;
+             font-size: 0.82em; font-weight: 600; white-space: nowrap; }
+.badge-success  { background: #d4edda; color: #155724; }
+.badge-error    { background: #f8d7da; color: #721c24; }
+.badge-other    { background: #e2e3e5; color: #383d41; }
+/* Severity ramp — distinct hue per level: gray -> blue -> amber -> orange -> solid red. */
+.badge-informational { background: #e2e3e5; color: #383d41; }
+.badge-low      { background: #d1ecf1; color: #0c5460; }
+.badge-medium   { background: #fff3cd; color: #856404; }
+.badge-high     { background: #ffe0b2; color: #8a4b00; }
+.badge-critical { background: #dc3545; color: #ffffff; }
+.notes     { color: #495057; }
+.ref-link  { color: #0b5cad; text-decoration: none; white-space: nowrap; }
+.ref-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header>
+<h1>Rejewski Run Report</h1>
+<p class="meta">Run: R015 · Tenant: 76b87c33 · Operator: meganb@cloudharbor-demo.com · Date: 2026-10-05</p>
+<p class="meta">29 entries</p>
+</header>
+<section>
+<h2>Consent</h2>
+<div class="consent granted">
+<strong>consent.granted</strong> · <code>2026-10-05T14:11:19Z</code><br>
+Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T1654, T1213.002, T1114.002, T1550.001
+</div>
+</section>
+<section>
+<h2>Graph calls</h2>
+<table>
+<thead><tr><th>Time</th><th>Technique</th><th>Tool</th><th>Endpoint</th><th>Rows</th><th>Outcome</th></tr></thead>
+<tbody>
+<tr>
+<td><code>14:11:16 UTC</code></td>
+<td>T1087.004 Account Discovery: Cloud Account</td>
+<td>tool_list_users</td>
+<td><code>/v1.0/users</code></td>
+<td>9</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:18 UTC</code></td>
+<td>T1087.004 Account Discovery: Cloud Account</td>
+<td>tool_list_applications</td>
+<td><code>/v1.0/applications</code></td>
+<td>10</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:20 UTC</code></td>
+<td>T1087.004 Account Discovery: Cloud Account</td>
+<td>tool_list_service_principals</td>
+<td><code>/v1.0/servicePrincipals</code></td>
+<td>439</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:27 UTC</code></td>
+<td>T1087.004 Account Discovery: Cloud Account</td>
+<td>tool_list_role_assignments</td>
+<td><code>/v1.0/roleManagement/directory/roleAssignments</code></td>
+<td>16</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:30 UTC</code></td>
+<td>T1087.004 Account Discovery: Cloud Account</td>
+<td>tool_list_oauth_grants</td>
+<td><code>/v1.0/oauth2PermissionGrants</code></td>
+<td>23</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:32 UTC</code></td>
+<td>T1069.003 Permission Groups Discovery: Cloud Groups</td>
+<td>tool_list_groups</td>
+<td><code>/v1.0/groups</code></td>
+<td>25</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:34 UTC</code></td>
+<td>T1526 Cloud Service Discovery</td>
+<td>tool_list_ca_policies</td>
+<td><code>/v1.0/identity/conditionalAccess/policies</code></td>
+<td>27</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:37 UTC</code></td>
+<td>T1518.001 Software Discovery: Security Software Discovery</td>
+<td>tool_dfi_health</td>
+<td><code>/v1.0/security/identities/sensors</code></td>
+<td>3</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:41 UTC</code></td>
+<td>T1082 System Information Discovery</td>
+<td>tool_intune_devices</td>
+<td><code>/v1.0/deviceManagement/managedDevices</code></td>
+<td>3</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:43 UTC</code></td>
+<td>T1580 Cloud Infrastructure Discovery</td>
+<td>tool_purview_labels</td>
+<td><code>/v1.0/security/dataSecurityAndGovernance/sensitivityLabels</code></td>
+<td>4</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:46 UTC</code></td>
+<td>T1654 Log Enumeration</td>
+<td>tool_signin_logs</td>
+<td><code>/v1.0/auditLogs/signIns</code></td>
+<td>0</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:49 UTC</code></td>
+<td>T1654 Log Enumeration</td>
+<td>tool_list_security_alerts</td>
+<td><code>/v1.0/security/alerts_v2</code></td>
+<td>0</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:53 UTC</code></td>
+<td>T1213.002 Data from Information Repositories: Sharepoint</td>
+<td>tool_list_sharepoint_sites</td>
+<td><code>/v1.0/sites</code></td>
+<td>2</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:56 UTC</code></td>
+<td>T1114.002 Email Collection: Remote Email Collection</td>
+<td>tool_list_inbox_rules</td>
+<td><code>/v1.0/me/mailFolders/inbox/messageRules</code></td>
+<td>0</td>
+<td><span class="badge-error">error</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section>
+<h2>Token events</h2>
+<table>
+<thead><tr><th>Time</th><th>Technique</th><th>Outcome</th></tr></thead>
+<tbody>
+<tr>
+<td><code>14:11:16 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:18 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:20 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:27 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:30 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:32 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:34 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:37 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:41 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:43 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:46 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:49 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:53 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>14:11:56 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section>
+<h2>Findings</h2>
+<table>
+<thead><tr><th>Technique</th><th>Severity</th><th>Confidence</th><th>Triage</th><th>Notes</th></tr></thead>
+<tbody>
+<tr>
+<td>T1069.003 Permission Groups Discovery: Cloud Groups</td>
+<td><span class="badge-medium">medium</span></td>
+<td>high</td>
+<td>open</td>
+<td class="notes">Permission-groups discovery: tool_list_groups enumerated 25 groups (R015 weekly full sweep), success. Severity medium per docs/finding-severity-rubric-v0.1.md v1.0 (B=2 tenant-wide, D=2 group/privilege map). Recurring (R010-R014). Cross-references CA-SIF001-SignInFrequency-8h.</td>
+</tr>
+<tr>
+<td>T1082 System Information Discovery</td>
+<td><span class="badge-medium">medium</span></td>
+<td>high</td>
+<td>open</td>
+<td class="notes">System information discovery: tool_intune_devices enumerated 3 Intune-managed devices (R015), success. Medium per rubric v1.0 (B=2 tenant-wide, D=2 endpoint-targeting inventory). Recurring. Cross-references Intune Service Administrator (RBAC).</td>
+</tr>
+<tr>
+<td>T1087.004 Account Discovery: Cloud Account</td>
+<td><span class="badge-medium">medium</span></td>
+<td>high</td>
+<td>open</td>
+<td class="notes">Account discovery across five surfaces in the R015 full sweep, all success: tool_list_users (9), tool_list_applications (10), tool_list_role_assignments (16), tool_list_service_principals (439), tool_list_oauth_grants (23). Service-principal count grew 432-&gt;439 since R014. Medium per rubric v1.0 (B=2 tenant-wide read, D=2 directory/identity target map). Recurring (R010-R014). Cross-references CA-COV008-BlockByLocation.</td>
+</tr>
+<tr>
+<td>T1213.002 Data from Information Repositories: SharePoint</td>
+<td><span class="badge-medium">medium</span></td>
+<td>high</td>
+<td>open</td>
+<td class="notes">SharePoint information-repository discovery: tool_list_sharepoint_sites enumerated 2 site collections (R015), success. Medium per rubric v1.0 (B=2 tenant-wide, D=2 repository target list). Recurring (first evidenced R013). Cross-references CA-SPO-001-RequireCompliantApp.</td>
+</tr>
+<tr>
+<td>T1518.001 Software Discovery: Security Software Discovery</td>
+<td><span class="badge-high">high</span></td>
+<td>high</td>
+<td>open</td>
+<td class="notes">Security-software discovery: tool_dfi_health enumerated 3 Defender for Identity sensors (R015), success. High per rubric v1.0 (defensive-evasion escalator: D=2 detection-coverage map, decision-table row 3). Recurring. Cross-references Security Reader (RBAC).</td>
+</tr>
+<tr>
+<td>T1526 Cloud Service Discovery</td>
+<td><span class="badge-high">high</span></td>
+<td>high</td>
+<td>open</td>
+<td class="notes">Cloud service discovery: tool_list_ca_policies enumerated 27 Conditional Access policies (R015), success. High per rubric v1.0 (defensive-evasion escalator: D=2 CA-policy posture map, decision-table row 3). Recurring. Cross-references Reports Reader (RBAC).</td>
+</tr>
+<tr>
+<td>T1550.001 Use Alternate Authentication Material: Application Access Token</td>
+<td><span class="badge-high">high</span></td>
+<td>high</td>
+<td>open</td>
+<td class="notes">Application access token reuse: the delegated bearer token was silently reused across all R015 tool calls via the MSAL encrypted cache (14 token events). High per rubric v1.0 (D=3 token material; operates through the authentication control). Recurring. Cross-references Directory Readers (RBAC).</td>
+</tr>
+<tr>
+<td>T1580 Cloud Infrastructure Discovery</td>
+<td><span class="badge-medium">medium</span></td>
+<td>high</td>
+<td>open</td>
+<td class="notes">Cloud infrastructure discovery: tool_purview_labels enumerated 4 Purview sensitivity labels (R015), success. Medium per rubric v1.0 (B=2 tenant-wide, D=2 data-classification taxonomy that steers Collection). Recurring. Cross-references CA-PUR-001-RequireCompliantApp.</td>
+</tr>
+<tr>
+<td>T1654 Log Enumeration</td>
+<td><span class="badge-high">high</span></td>
+<td>high</td>
+<td>open</td>
+<td class="notes">Log enumeration across two surfaces in R015, both HTTP 200 but EMPTY this run: tool_signin_logs (0 sign-in records - R014 returned 9; this is tenant state, the window had no sign-ins) and tool_list_security_alerts (0 alerts). The enumeration capability is confirmed by the authorized 200 responses (not 403/denied); no telemetry was present to surface this run. High per rubric v1.0 (defensive-evasion escalator: the authorized read of the defender&#x27;s sign-in/alert surface is the high-value capability; row count is tenant state, not a change in authorization). Recurring. Cross-references Reports Reader (RBAC).</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section>
+<h2>Control mappings</h2>
+<table>
+<thead><tr><th>Technique</th><th>Control</th><th>Family / Type</th><th>Pillar · NIST 800-207</th><th>Reference</th></tr></thead>
+<tbody>
+<tr>
+<td>T1069.003</td>
+<td>CA-SIF001-SignInFrequency-8h</td>
+<td>conditional_access / preventive</td>
+<td>Identities · T3, T4, T6</td>
+<td><a class="ref-link" href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-access-session-lifetime" target="_blank" rel="noopener">Microsoft Docs ↗</a></td>
+</tr>
+<tr>
+<td>T1082</td>
+<td>Intune Service Administrator</td>
+<td>rbac / preventive</td>
+<td>Endpoints · T3, T4</td>
+<td><a class="ref-link" href="https://learn.microsoft.com/en-us/mem/intune/fundamentals/role-based-access-control" target="_blank" rel="noopener">Microsoft Docs ↗</a></td>
+</tr>
+<tr>
+<td>T1087.004</td>
+<td>CA-COV008-BlockByLocation</td>
+<td>conditional_access / preventive</td>
+<td>Identities · T3, T4</td>
+<td><a class="ref-link" href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-access-policy-block-access" target="_blank" rel="noopener">Microsoft Docs ↗</a></td>
+</tr>
+<tr>
+<td>T1213.002</td>
+<td>CA-SPO-001-RequireCompliantApp</td>
+<td>conditional_access / preventive</td>
+<td>Data · T4, T6</td>
+<td><a class="ref-link" href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-filter-for-applications" target="_blank" rel="noopener">Microsoft Docs ↗</a></td>
+</tr>
+<tr>
+<td>T1518.001</td>
+<td>Security Reader</td>
+<td>rbac / preventive</td>
+<td>Identities · T3, T4</td>
+<td><a class="ref-link" href="https://learn.microsoft.com/en-us/defender-for-identity/role-groups" target="_blank" rel="noopener">Microsoft Docs ↗</a></td>
+</tr>
+<tr>
+<td>T1526</td>
+<td>Reports Reader</td>
+<td>rbac / preventive</td>
+<td>Identities · T4, T6</td>
+<td><a class="ref-link" href="https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#reports-reader" target="_blank" rel="noopener">Microsoft Docs ↗</a></td>
+</tr>
+<tr>
+<td>T1550.001</td>
+<td>Directory Readers</td>
+<td>rbac / preventive</td>
+<td>Identities · T4, T6</td>
+<td><a class="ref-link" href="https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#directory-readers" target="_blank" rel="noopener">Microsoft Docs ↗</a></td>
+</tr>
+<tr>
+<td>T1580</td>
+<td>CA-PUR-001-RequireCompliantApp</td>
+<td>conditional_access / preventive</td>
+<td>Data · T3, T4, T5</td>
+<td><a class="ref-link" href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-filter-for-applications" target="_blank" rel="noopener">Microsoft Docs ↗</a></td>
+</tr>
+<tr>
+<td>T1654</td>
+<td>Reports Reader</td>
+<td>rbac / preventive</td>
+<td>Identities · T3, T4</td>
+<td><a class="ref-link" href="https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#reports-reader" target="_blank" rel="noopener">Microsoft Docs ↗</a></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section>
+<h2>ROI / business impact</h2>
+<p class="notes">Each finding is mapped to its baseline risk category and direction of risk from the §6 findings-to-ROI bridge in <code>docs/phs-security-roi-model-v0.1.md</code>. Per that model no per-finding dollar figure is assigned; the sole figure that appears (T1550.001) is the established fraction-of-$728K framing from §3.</p>
+<table>
+<thead><tr><th>Technique</th><th>Risk category</th><th>Potential cost avoided (direction)</th></tr></thead>
+<tbody>
+<tr>
+<td>T1069.003</td>
+<td>Group / privilege enumeration</td>
+<td class="notes">Caps stolen-token lifetime, narrowing the 281-day exposure window (§3)</td>
+</tr>
+<tr>
+<td>T1082</td>
+<td>Endpoint targeting</td>
+<td class="notes">Limits enumeration of non-compliant/unencrypted devices — the soft lateral-movement targets</td>
+</tr>
+<tr>
+<td>T1087.004</td>
+<td>Account enumeration</td>
+<td class="notes">Shrinks the phishing/targeting surface an adversary builds from a user directory</td>
+</tr>
+<tr>
+<td>T1213.002</td>
+<td>Information-repository exposure</td>
+<td class="notes">Restricts the SharePoint site inventory that steers later Collection toward business-sensitive repositories (HR, Legal, Finance); a compliant-app CA policy blocks the unmanaged-host token path at the authorization boundary</td>
+</tr>
+<tr>
+<td>T1518.001</td>
+<td>Detection-coverage gap</td>
+<td class="notes">Restricts who can read DfI sensor health — the map of where detection is degraded</td>
+</tr>
+<tr>
+<td>T1526</td>
+<td>CA-policy exposure</td>
+<td class="notes">Least-privilege on policy reads limits an adversary&#x27;s map of where MFA/CA coverage is thin</td>
+</tr>
+<tr>
+<td>T1550.001</td>
+<td>Credential / token theft</td>
+<td class="notes">Fraction of the $728K credential-breach exposure (§3); token reuse is the residual-0.8% path that survives MFA (§4–§5)</td>
+</tr>
+<tr>
+<td>T1580</td>
+<td>Data-classification exposure</td>
+<td class="notes">Restricts label-inventory reads that would steer later Collection toward Confidential data</td>
+</tr>
+<tr>
+<td>T1654</td>
+<td>Security-log exposure</td>
+<td class="notes">Least-privilege on sign-in/alert logs denies the adversary the defender&#x27;s own detection baseline</td>
+</tr>
+</tbody>
+</table>
+</section>
+<footer>29 entries — 14 graph_call · 14 token_event · 1 consent · 9 triaged finding(s)</footer>
+</body>
+</html>

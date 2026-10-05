@@ -11,6 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **R015 — canonical sample run + first standing weekly end-to-end run (S6 W21 Sat, makeup).** The next
+  numbered run in the R-series (after R014, #117) **and** the first run under the new weekly Saturday
+  cadence adopted at the Sprint 5 Checkpoint (2026-09-26) to close the ROE Runs KPI gap — landing Mon
+  2026-10-05 this once as a makeup for the slipped Sat 2026-10-03 slot. One consented, operator-authorized
+  session against `cloudharbordemo` (G-1) exercising all 14 tool surfaces: `samples/replay-log/R015.json`
+  (29 entries — consent-first, 14 token_event + 14 graph_call; 13 success + 1 documented inbox block),
+  nine `*-r015-*` finding-triage records, and `docs/reports/replay-report-R015.html` (each finding with a
+  severity badge + ROI line). **Honest count: 9 findings, not padded** — same technique set as R014, with
+  one real tenant-state change noted transparently: `tool_signin_logs` returned **0 rows** this run (R014
+  had 9) and `tool_list_security_alerts` 0, so both T1654 surfaces were empty — the calls succeeded (HTTP
+  200, authorized), so the log-enumeration capability is still evidenced, but no telemetry was present to
+  surface (counted as 9; it would be 8 if empty-result techniques are excluded). Service principals grew
+  432→439, groups 23→25 since Sep 22. Also committed the literally-named canonical artifacts the Master
+  Plan acceptance calls for: **`samples/canonical-run.json`** (a byte-identical **copy** of R015.json — a
+  copy, not a symlink, for Windows/git consistency since the repo uses no symlinks) and
+  **`docs/reports/canonical-report.html`** (copy of the R015 report, kept under `docs/reports/` for
+  convention); these are stable-named aliases of the latest weekly run that future launch-facing
+  references can point at without churning per numbered run. G-6: only per-call row counts + the sandbox
+  operator UPN committed (no enumerated payloads; cache paths redacted, 14 markers); single sandbox
+  tenant throughout. Suite 192 → 192.
+
 - **R014 — fresh comprehensive end-to-end evidence run (S5 W20, Sprint 5 Checkpoint prep).** A single
   consented, operator-authorized session against the `cloudharbordemo` sandbox (G-1) exercising all
   14 implemented tool surfaces in one pass: `samples/replay-log/R014.json` (29 entries — 1 consent

@@ -146,6 +146,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ATT&CK v1.0 target recalibrated 25 → 20 (S6, 2026-10-06).** `docs/attck-coverage.md` v0.9 → v0.10:
+  the v1.0 target line changed from 25 to 20 unique techniques. Rationale: coverage held at 20 through
+  Sprint 6 (reporting / polish / launch-prep theme), and no further technique fits the read-only M365
+  discovery model without padding — the clean fits were exhausted by Sprint 4. Three genuine late
+  candidates (T1201 Password Policy Discovery, T1018 Remote System Discovery, T1552 Unsecured
+  Credentials metadata recon) were deferred to the v1.1 backlog rather than forced into v1.0 to keep
+  the coverage map honest. Current count (20) now equals the target. PM-side docs updated in step
+  (Master Plan v1.7, KPI dashboard, product backlog v1.1). Docs-only; no code change.
+
 - **README v2 — full comprehensive run example (S6 W21 Thu).** Added a new **Usage example** section
   after the Quickstart (the single-tool walkthrough is unchanged): the multi-tool comprehensive-run
   shape — all 14 tool surfaces in one consented session (`--run-id R014`), consolidated with

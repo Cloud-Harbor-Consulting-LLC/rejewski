@@ -1,7 +1,7 @@
 # Rejewski ATT&CK Coverage Map
 
-- Version: v0.8
-- Last updated: 2026-08-15
+- Version: v0.9
+- Last updated: 2026-10-06
 - Status: Living document — updated at each sprint checkpoint
 - Authors: Derek Morgan
 - Related: docs/threat-model.md, docs/techniques/, docs/guardrails.md
@@ -28,7 +28,7 @@ phs-kpi-dashboard-v1.0.xlsx.
 | Technique | Name | Tactic | Status | Module | Script(s) |
 |-----------|------|--------|--------|--------|-----------|
 | T1078.004 | Valid Accounts: Cloud Accounts | Initial Access | Implemented — Sprint 1 | docs/techniques/T1078.004.md | scripts/identity.py |
-| T1087.004 | Account Discovery: Cloud Account | Discovery | Implemented — Sprint 1 | docs/techniques/T1087.004.md | scripts/tool_list_users.py, scripts/tool_list_applications.py, scripts/tool_list_role_assignments.py, scripts/tool_list_service_principals.py, scripts/tool_list_oauth_grants.py |
+| T1087.004 | Account Discovery: Cloud Account | Discovery | Implemented — Sprint 1 | docs/techniques/T1087.004.md | scripts/tool_list_users.py, scripts/tool_list_applications.py, scripts/tool_list_role_assignments.py, scripts/tool_list_service_principals.py, scripts/tool_list_oauth_grants.py, scripts/tool_list_pim_eligible_roles.py |
 | T1069.003 | Permission Groups Discovery: Cloud Groups | Discovery | Implemented — Sprint 1 | docs/techniques/T1069.003.md | scripts/tool_list_groups.py |
 | T1550.001 | Use Alternate Authentication Material: Application Access Token | Defense Evasion / Lateral Movement | Implemented — Sprint 1 | docs/techniques/T1550.001.md | scripts/identity.py (ADR 0005) |
 | T1526 | Cloud Service Discovery | Discovery | Implemented — Sprint 2 W5 pull-forward | docs/techniques/T1526.md | scripts/tool_list_ca_policies.py |

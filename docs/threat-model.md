@@ -1,13 +1,24 @@
 # Project Harbor Sonar — Threat Model
 
-- Version: v1.4
-- Last updated: 2026-08-15
+- Version: v1.5
+- Last updated: 2026-10-06
 - Status: Living document
 - Authors: Derek Morgan
 - Related: ADR 0001 (Sprint 1 Rules of Engagement), ADR 0002 (Consent floor evidence), ADR 0003 (Technique Module Format), docs/guardrails.md, docs/techniques/, docs/attck-coverage.md
 
 ## Change log
 
+- v1.5 (2026-10-06) — Sprint 6 W22 Tool 15. T1087.004 Account Discovery: Cloud
+  Account gains Surface F — PIM-eligible directory role assignment enumeration via
+  GET /roleManagement/directory/roleEligibilityScheduleInstances
+  (scripts/tool_list_pim_eligible_roles.py), requiring
+  RoleEligibilitySchedule.Read.Directory scope and one of Global Reader, Security
+  Operator, Security Reader, Security Administrator, or Privileged Role Administrator
+  on the signed-in user (Directory Readers, sufficient for Surface C, is NOT a
+  supported role here). §5 adds a T1087.004 Surface F note. No new technique added —
+  Surface F is an additional surface of the existing implemented T1087.004. Tools
+  implemented 14 → 15; total mapped techniques unchanged at 20 (13 implemented,
+  7 catalogued).
 - v1.4 (2026-08-15) — Sprint 4 W14 ATT&CK expansion (docs-only, no new script).
   Three techniques added to close the Sprint 4 ATT&CK-coverage KPI gap.
   **T1114.003 Email Collection: Email Forwarding Rule** (Collection, Implemented) —
@@ -210,6 +221,24 @@ scope consent. The application-permission counterpart — `appRoleAssignments` o
 each service principal (`GET /servicePrincipals/{id}/appRoleAssignments`) — is a
 deferred surface not yet enumerated; Surface E covers delegated (on-behalf-of-user)
 grants only.
+
+**T1087.004 Surface F (Sprint 6 W22).** Account discovery is extended to PIM-eligible
+directory role assignments via `GET /roleManagement/directory/roleEligibilityScheduleInstances`
+(scripts/tool_list_pim_eligible_roles.py). Where Surface C enumerates active role
+assignments, Surface F enumerates eligible-but-not-activated ones: the roles a principal
+can activate just-in-time through Privileged Identity Management without holding them at
+rest. An account eligible for Global Administrator looks unprivileged at any snapshot yet
+can self-elevate to tenant-wide control, so eligible-role enumeration surfaces an
+escalation-target list that the active-assignment view (Surface C) cannot see. This surface
+requires the `RoleEligibilitySchedule.Read.Directory` delegated scope (admin-consented on
+the FOCI client) and one of Global Reader, Security Operator, Security Reader, Security
+Administrator, or Privileged Role Administrator on the signed-in user; `Directory Readers`,
+sufficient for Surface C, is NOT a supported role here, so an account that can run Surface C
+may still receive HTTP 403, which is a documented sandbox-config finding rather than a defect.
+The tool flags eligibility for Global Administrator (by resolved role name or the well-known
+roleTemplateId) and splits permanent from time-bound eligibility, the permanent case being the
+higher risk. PIM eligibility requires Entra ID P2; a tenant with none configured returns an
+empty set, reported honestly.
 
 **Sprint 2+ catalogued techniques.** The following techniques are catalogued in this threat model — technique modules exist per ADR 0003 format, but no scripts have been written and no sandbox runs executed. Each activates when its sprint opens. The full coverage map is in docs/attck-coverage.md.
 

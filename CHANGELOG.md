@@ -11,6 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Tool 15 — PIM-eligible directory role assignment inventory (S6 W22).** New
+  `scripts/tool_list_pim_eligible_roles.py` enumerates Entra ID PIM-eligible directory role
+  assignments via `GET /roleManagement/directory/roleEligibilityScheduleInstances` (the
+  point-in-time "currently eligible" view). Where Tool 5 lists active assignments, Tool 15 lists
+  eligible-but-not-activated ones — the roles a principal can self-elevate to through PIM without
+  holding them at rest — which is an escalation-target signal active-assignment enumeration misses.
+  Maps to **T1087.004 Surface F** (the eligible-not-active variant of the same "which cloud accounts
+  hold privilege" discovery; no new ATT&CK technique). Endpoint, least-privileged scope
+  (`RoleEligibilitySchedule.Read.Directory`), and supported directory roles (Global Reader, Security
+  Operator/Reader/Administrator, or Privileged Role Administrator — Directory Readers is NOT
+  sufficient here) were verified against current Graph v1.0 docs before implementation. Single
+  `$expand=roleDefinition` (within the v1.0 one-property limit), G-9 row cap, 429/5xx + 401 recovery,
+  G-6 redaction, v0.5 replay-log entry, fleet-standard CLI. Flags eligibility for Global Administrator
+  and splits permanent from time-bound eligibility. Verified against cloudharbordemo (2 principals
+  eligible for Global Administrator, time-bound, 0 permanent). New tests
+  (`tests/test_tool_list_pim_eligible_roles.py`): single-call expand, GA flag by name and by
+  well-known roleTemplateId, aggregates, empty-result, and the HTTP 403 permission-gap path. Docs
+  updated: `docs/techniques/T1087.004.md` (Surface F), `docs/attck-coverage.md` (v0.9),
+  `docs/threat-model.md` (v1.5). **Tools implemented 14 → 15** (the v1.0 tool target); ATT&CK
+  techniques unchanged at 20.
+
 - **R015 — canonical sample run + first standing weekly end-to-end run (S6 W21 Sat, makeup).** The next
   numbered run in the R-series (after R014, #117) **and** the first run under the new weekly Saturday
   cadence adopted at the Sprint 5 Checkpoint (2026-09-26) to close the ROE Runs KPI gap — landing Mon

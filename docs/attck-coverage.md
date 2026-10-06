@@ -1,6 +1,6 @@
 # Rejewski ATT&CK Coverage Map
 
-- Version: v0.9
+- Version: v0.10
 - Last updated: 2026-10-06
 - Status: Living document — updated at each sprint checkpoint
 - Authors: Derek Morgan
@@ -19,7 +19,7 @@ phs-kpi-dashboard-v1.0.xlsx.
 
 **Sprint 2 checkpoint target (Thu 2026-07-02):** 10 unique techniques
 
-**v1.0 target (Sat 2026-10-24):** 25 unique techniques
+**v1.0 target (Sat 2026-10-24):** 20 unique techniques (recalibrated 2026-10-06 from 25). No further technique fits Rejewski's read-only M365 discovery model without padding; the clean fits were exhausted by Sprint 4. Three genuine late candidates were deferred to the v1.1 backlog rather than forced into v1.0 to keep this coverage map honest: T1201 Password Policy Discovery, T1018 Remote System Discovery, T1552 Unsecured Credentials (metadata recon). Target 20 = current 20, so coverage is on target.
 
 ---
 

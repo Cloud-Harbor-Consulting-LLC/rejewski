@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1087-004-r016-account-discovery-001",
+  "technique_id": "T1087.004",
+  "technique_name": "Account Discovery: Cloud Account",
+  "run_id": "R016",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1087-004-ca-cov008-blockbylocation-001",
+  "evidence": [
+    "samples/replay-log/R016.json"
+  ],
+  "triage_status": "open",
+  "notes": "Account discovery across six surfaces in the R016 full sweep, all success: tool_list_users (9), tool_list_applications (10), tool_list_service_principals (442), tool_list_role_assignments (16), tool_list_oauth_grants (23), and tool_list_pim_eligible_roles (2, Surface F, first committed run with Tool 15). The 2 PIM-eligible assignments are roles a principal can activate without holding them at rest; active-assignment enumeration (tool_list_role_assignments) does not show them. Service-principal count grew 439->442 since R015. Medium per rubric v1.0 (B=2 tenant-wide read, D=2 directory/identity target map). Recurring (R010-R015). Cross-references CA-COV008-BlockByLocation.",
+  "triage_metadata": {
+    "created_utc": "2026-10-12T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

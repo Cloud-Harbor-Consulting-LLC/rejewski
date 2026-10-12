@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1580-r016-purview-labels-001",
+  "technique_id": "T1580",
+  "technique_name": "Cloud Infrastructure Discovery",
+  "run_id": "R016",
+  "severity": "medium",
+  "confidence": "high",
+  "control_mapping_id": "ft1580-conditional-access-purview-require-compliant-app-001",
+  "evidence": [
+    "samples/replay-log/R016.json"
+  ],
+  "triage_status": "open",
+  "notes": "Cloud infrastructure discovery: tool_purview_labels enumerated 4 Purview sensitivity labels (R016), success. Medium per rubric v1.0 (B=2 tenant-wide, D=2 data-classification taxonomy that steers Collection). Recurring. Cross-references CA-PUR-001-RequireCompliantApp.",
+  "triage_metadata": {
+    "created_utc": "2026-10-12T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

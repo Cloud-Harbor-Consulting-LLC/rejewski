@@ -63,37 +63,38 @@ python scripts/generate_html_report.py --replay-log <consolidated-log>.json --ou
 
 ## Usage example — a full comprehensive run
 
-The Quickstart above runs a single tool. A real assessment exercises **all 14 tool surfaces in one consented session**, consolidates them under a single run ID, and renders one report. This is the shape of the canonical **R014** run committed as evidence in this repo.
+The Quickstart above runs a single tool. A real assessment exercises **all 15 tool surfaces in one consented session**, consolidates them under a single run ID, and renders one report. This is the shape of the **R016** weekly run, the current canonical run committed as evidence in this repo (`samples/canonical-run.json`).
 
-**1. Consent once for the run.** Follow the ROE prompt ([docs/roe-consent-flow.md](docs/roe-consent-flow.md)) and use a single run ID for the whole session — here `R014`.
+**1. Consent once for the run.** Write the run's consent record before the first tool call (see [Rules of Engagement](#rules-of-engagement); `scripts/write_consent_record.py` builds one) and use a single run ID for the whole session — here `R016`.
 
 **2. Run every tool surface, tagged to that run ID.** Each tool authenticates once (then reuses the cached token) and writes its own entries to `replay-logs/`:
 
 ```bash
 for tool in tool_list_users tool_list_applications tool_list_service_principals \
-            tool_list_role_assignments tool_list_oauth_grants tool_list_groups \
+            tool_list_role_assignments tool_list_oauth_grants tool_list_pim_eligible_roles \
+            tool_list_groups \
             tool_list_ca_policies tool_dfi_health tool_intune_devices \
             tool_purview_labels tool_signin_logs tool_list_security_alerts \
             tool_list_sharepoint_sites tool_list_inbox_rules; do
-  python scripts/$tool.py --run-id R014
+  python scripts/$tool.py --run-id R016
 done
 ```
 
 **3. Consolidate the run** into one replay log. `consolidate_run.py` reads every `replay-logs/` entry whose `run_id` matches, writes `samples/replay-log/<run-id>.json`, and unconditionally redacts the operator-local cache path (G-6):
 
 ```bash
-python scripts/consolidate_run.py --run-id R014
+python scripts/consolidate_run.py --run-id R016
 ```
 
 **4. Render the HTML report** from the consolidated log plus the committed finding records (`--finding-dir`/`--mapping-dir`/`--roi-model` default to the `samples/` sets):
 
 ```bash
 python scripts/generate_html_report.py \
-  --replay-log samples/replay-log/R014.json \
-  --output docs/reports/replay-report-R014.html
+  --replay-log samples/replay-log/R016.json \
+  --output docs/reports/replay-report-R016.html
 ```
 
-The committed result is **[docs/reports/replay-report-R014.html](docs/reports/replay-report-R014.html)**: a single self-contained report — graph calls, token events, findings, control mappings, and a per-finding ROI section — from one 14-surface run, with **9 distinct findings, each carrying a severity score and an ROI line**. Fourteen surfaces collapse to nine findings because several map to the same ATT&CK technique (five to T1087.004 account discovery, two to T1654 log enumeration), and `tool_list_inbox_rules` is a documented block (the delegated self-mailbox boundary), not a finding.
+The committed result is **[docs/reports/replay-report-R016.html](docs/reports/replay-report-R016.html)** (also at [docs/reports/canonical-report.html](docs/reports/canonical-report.html)): a single self-contained report — graph calls, token events, findings, control mappings, and a per-finding ROI section — from one 15-surface run, with **9 distinct findings, each carrying a severity score and an ROI line**. Fifteen surfaces collapse to nine findings because several map to the same ATT&CK technique (six to T1087.004 account discovery, two to T1654 log enumeration), and `tool_list_inbox_rules` is a documented block (the delegated self-mailbox boundary), not a finding.
 
 ## Rules of Engagement
 

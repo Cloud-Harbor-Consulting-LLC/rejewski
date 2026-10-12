@@ -146,6 +146,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Repo wording aligned with shipped behavior; T1526 control mapping corrected (S6 W23, B033).**
+  Pre-launch accuracy pass so the public repo matches the code and the launch article.
+  - `README.md`: the tagline and "What it does" no longer call Rejewski an agentic loop. They now
+    describe the read-only Graph tools, the seeded test account, and the offline Claude Agent SDK
+    layer (`scripts/rejewski_runtime.py` config loader, `scripts/reasoning_loop.py` model routing; no
+    Graph MCP server configured). The G-1 sentence now names where the tenant lock is actually
+    enforced (`scripts/replay_log.py`). Rules of Engagement now separates the consent prompt spec
+    (`docs/roe-consent-flow.md`) from v1.0 practice: the operator writes the consent record before the
+    tools run, and no tool refuses to run without one. Design principle G2 now states the real auth
+    model (ROPC as the seeded test account, then silent reuse of that account's own refresh token,
+    recorded under T1550.001) instead of "no token replay".
+  - `docs/guardrails.md` G-1 Enforcement: replaced the description of a runtime-loader pre-flight
+    check and a `TenantScopeViolation` exception, neither of which exists, with the real mechanism
+    (`write_entry()` tenant refusal; token_event written before the first Graph call).
+  - T1526 control: `samples/finding-to-control/t1526-rbac-reports-reader.json` named Reports Reader,
+    which is not a supported role for `GET /identity/conditionalAccess/policies`. The control is now
+    the CA policy read roles listed in the Microsoft Graph "List policies" reference (Security Reader,
+    Security Administrator, Global Reader, Conditional Access Administrator, Global Secure Access
+    Administrator), with Reports Reader kept as the downgrade target for reporting-only accounts.
+    `mapping_id` and filename are unchanged so the R011–R015 triage records still resolve. Same fix in
+    `docs/findings-report-r011.md` and the `docs/phs-security-roi-model-v0.1.md` §6 control column.
+  No code, schema, or test changes; suite 197 → 197.
+
 - **ATT&CK v1.0 target recalibrated 25 → 20 (S6, 2026-10-06).** `docs/attck-coverage.md` v0.9 → v0.10:
   the v1.0 target line changed from 25 to 20 unique techniques. Rationale: coverage held at 20 through
   Sprint 6 (reporting / polish / launch-prep theme), and no further technique fits the read-only M365

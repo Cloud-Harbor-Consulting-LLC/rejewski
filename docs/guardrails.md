@@ -2,6 +2,8 @@
 
 Operational rules that bind every Rejewski technique and tool. Each guardrail has an ID, statement, rationale, enforcement, scope, and exceptions. Technique modules in docs/techniques/ cite these IDs by number. ADR 0001 (Rules of Engagement) authorizes the set.
 
+**Accuracy note (2026-10-12, B036).** The Enforcement paragraphs were rewritten against the shipped code. Several earlier paragraphs described checks in an SDK layer that was never built. Each Enforcement paragraph now names the mechanism in code, with file references, or says the guardrail is procedural. Four guardrails are enforced in code (G-1 tenant lock, G-3 GET-only, G-5 evidence writes, G-9 row caps). G-2 and G-6 are partly code and partly PR review. G-4, G-7, and G-8 are procedural.
+
 ---
 
 ## G-1 — Sandbox Tenant Lock
@@ -24,7 +26,7 @@ Operational rules that bind every Rejewski technique and tool. Each guardrail ha
 
 **Rationale.** A custom app registration is itself an adversary technique (T1136.003 Create Account: Cloud Account variants, T1098.001 Account Manipulation: Additional Cloud Credentials). Gaining one is what later sprints emulate. Starting from a position of "already has a tenant app reg" would short-circuit the kill chain Rejewski is trying to model and would also leave a permanent artifact in the sandbox tenant.
 
-**Enforcement.** ADR 0001 §3 lists the allowed FOCI clients. The SDK refuses any client ID not in that list. Code review for every technique module checks that the front-matter first_party_client_id is on the allowlist.
+**Enforcement.** Every shipped tool issues GET requests only: tests/test_autonomy_boundary.py asserts structurally and behaviourally that no tool issues a write verb, and `write_entry()` in scripts/replay_log.py refuses a graph_call recorded with a non-GET method, so no tool can create an app registration. `write_entry()` also refuses any entry with an empty borrowed_client_id. Tools take the client ID from the FOCI_CLIENT_ID environment variable, defaulting to `identity.DEFAULT_CLIENT_ID` (14d82eec); the code does not check that value against an allowlist, so the allowlist in ADR 0006 is enforced in PR review against the borrowed_client_id recorded on every replay-log entry. (Corrected 2026-10-12, B036: earlier text said the SDK refuses any client ID not on the allowlist; no such check exists.)
 
 **Scope.** Initial-access techniques, persistence techniques, and any module that touches OAuth client identity. Reaffirmed in every technique module's Borrowed Client section.
 
@@ -34,13 +36,13 @@ Operational rules that bind every Rejewski technique and tool. Each guardrail ha
 
 ## G-3 — Consent floor (read-only Sprint 1)
 
-**Statement.** Sprint 1 token requests carry only read-only Microsoft Graph delegated scopes. Specifically: User.Read, User.ReadBasic.All, Group.Read.All. Write scopes (Mail.Send, Directory.ReadWrite.All, Group.ReadWrite.All) and admin-consent scopes are not requested.
+**Statement.** Rejewski requests delegated Microsoft Graph tokens only and never requests a write scope by name. Every shipped tool requests the `https://graph.microsoft.com/.default` scope, so the token carries whatever delegated permissions are consented to the borrowed client in the tenant, which can include write permissions. The read-only floor is therefore held on the request side: Rejewski issues GET requests only. (Corrected 2026-10-12, B036: the Sprint 1 named-scope list, User.Read, User.ReadBasic.All, and Group.Read.All, no longer describes the shipped tools.)
 
 **Rationale.** Consent floors bound the worst-case impact of an emulation gone wrong. A read-only token cannot send mail as the user, cannot modify directory objects, and cannot create persistence artifacts. Sprint 1 deliberately stays on the discovery side of the kill chain so the safety envelope is shallow.
 
-**Enforcement.** Scope list is pinned in rejewski.config.json under SDK_FIELDS. The SDK refuses to request a scope outside the allowlist. Evidence capture records the granted scopes from each token response; PR review flags any scope drift.
+**Enforcement.** `identity.GRAPH_SCOPE_DEFAULT` is `["https://graph.microsoft.com/.default"]`, and every token_event entry records the requested scopes (not the granted scopes). The GET-only guard does the read-only work: `write_entry()` refuses a graph_call whose method is not GET, and tests/test_autonomy_boundary.py asserts that no shipped tool issues a write verb. PR review flags any new scope or HTTP verb. (Corrected 2026-10-12, B036: earlier text said the scope list is pinned in rejewski.config.json and the SDK refuses other scopes; the config has no scope list and no such refusal exists.)
 
-**Scope.** All Sprint 1 technique modules. ADR 0002 (consent floor evidence) defines the recording format.
+**Scope.** Every shipped tool. The token_event entry (scripts/identity.py, ADR 0005 §2) records the requested scopes.
 
 **Exceptions.** None in Sprint 1. Write-side techniques are deferred to Sprint 2+ with a superseding ADR that uplifts the floor explicitly.
 
@@ -48,13 +50,13 @@ Operational rules that bind every Rejewski technique and tool. Each guardrail ha
 
 ## G-4 — FOCI client allowlist
 
-**Statement.** Sprint 1 uses Microsoft Graph Command Line Tools (14d82eec-204b-4c2f-b7e8-296a70dab67e) as the sole borrowed first-party FOCI client.
+**Statement.** Microsoft Graph Command Line Tools (14d82eec-204b-4c2f-b7e8-296a70dab67e) is the sole borrowed first-party client. Every committed replay-log entry to date records it as borrowed_client_id.
 
 **Rationale.** Constraining the borrowed-client surface to one well-understood, broadly-trusted Microsoft client keeps the sign-in fingerprint stable and predictable. It also gives blue-team detection a single app ID to baseline against during Sprint 1 evidence capture.
 
-**Enforcement.** rejewski.config.json pins the client ID. SDK refuses any other client. Each technique module's front matter restates the client ID and is checked in PR review.
+**Enforcement.** `identity.DEFAULT_CLIENT_ID` is 14d82eec. Tools accept an override through the FOCI_CLIENT_ID environment variable, and the code does not refuse another value. Because every replay-log entry records borrowed_client_id, the client a run used is visible in its evidence; PR review checks committed evidence and each technique module's front matter against ADR 0006. (Corrected 2026-10-12, B036: earlier text said rejewski.config.json pins the client ID and the SDK refuses any other client; the config has no client ID field and no refusal exists.)
 
-**Scope.** All token acquisition flows — device-code, refresh, on-behalf-of. Applies to operator-driven runs and SDK-driven smoke tests alike.
+**Scope.** All token acquisition flows the tools use: ROPC on a cache miss and silent refresh-token reuse (ADR 0004, ADR 0005). Applies to every operator-run tool.
 
 **Exceptions.** None in Sprint 1. Sprint 2+ may introduce additional FOCI clients (Azure CLI, Visual Studio) via superseding ADR. Each addition requires its own G-4 amendment naming the client.
 
@@ -62,11 +64,11 @@ Operational rules that bind every Rejewski technique and tool. Each guardrail ha
 
 ## G-5 — Evidence capture mandatory
 
-**Statement.** Every technique invocation records: technique ID, run number, run date, operator identity, tenant ID, FOCI client ID, sign-in correlation ID, scopes granted, Graph endpoints called, response correlation IDs per call, aggregate row counts, and outcome (success / partial / failed). Evidence is stored in the SharePoint Project Harbor Sonar / Evidence folder under the B-task ID that authorized the run.
+**Statement.** Every tool invocation records a token_event entry and a graph_call entry in the replay log. Together they carry the technique ID, run ID, start and end timestamps, operator UPN, tenant ID, borrowed client ID, requested scopes, token flow (ROPC or silent), the Graph endpoint called, HTTP status, page count, row count, row cap, and outcome (success, row_cap_hit, or error with an error block). A run's entries are consolidated into samples/replay-log/<run-id>.json and committed with its finding-triage records and HTML report. (Corrected 2026-10-12, B036: earlier text listed sign-in and per-call correlation IDs and a SharePoint storage location; the token correlation ID is recorded only when Entra returns one, and committed evidence lives in the repo.)
 
 **Rationale.** The point of Rejewski is repeatable, auditable adversary emulation. A run without evidence is not a run — it cannot be replayed, cannot be reviewed, and cannot ground KPI claims. Mandatory capture also creates the dataset Sprint 2+ detection coverage will be validated against.
 
-**Enforcement.** SDK writes a structured ledger entry per run to logs/rejewski-audit.jsonl (path pinned in rejewski.config.json). Operators copy the ledger entry into the SharePoint Evidence file before closing the run. PR review for technique modules checks that the Evidence section cites at least one B-task evidence file.
+**Enforcement.** Every tool writes its entries through `write_entry()` in scripts/replay_log.py, which validates the entry kind, outcome, tenant, borrowed client ID, and HTTP method before writing it to replay-logs/. scripts/consolidate_run.py collects a run's entries by run_id. Failed calls are written with outcome error and an error block, so a failure leaves evidence. There is no separate audit ledger: `logs/rejewski-audit.jsonl` is declared in rejewski.config.json, but no code writes it. (Corrected 2026-10-12, B036: earlier text described an SDK-written ledger at that path.)
 
 **Scope.** All technique invocations including smoke tests and replay reruns. Failed runs are captured with the failure mode noted.
 
@@ -76,15 +78,15 @@ Operational rules that bind every Rejewski technique and tool. Each guardrail ha
 
 ## G-6 — Audit log redaction
 
-**Statement.** Evidence files published to the Rejewski repo (public on GitHub) redact tenant-identifying content beyond the cloudharbordemo tenant ID itself: account UPNs, account display names, group display names, group object IDs, and any other directory object name are hashed in published evidence. The unredacted index lives in the SharePoint Evidence folder with restricted access.
+**Statement.** Evidence published to the repo carries per-call metadata (endpoint, status, page and row counts), not enumerated directory payloads: no user, group, application, or policy names or object IDs read from the tenant. Three kinds of value are published as-is: the cloudharbordemo tenant ID, the Graph Command Line Tools client ID, and the UPNs of sandbox test accounts that a tool signs in as or targets by name (for example the operator account on every entry, and the mailbox an inbox-rules call targets). Operator-local paths are redacted. (Corrected 2026-10-12, B036: earlier text said UPNs and display names are hashed and an unredacted index is kept in SharePoint; Rejewski does not hash any field, and it avoids the exposure by never writing response payloads.)
 
 **Rationale.** The Rejewski repo is intended to be public so the techniques and guardrails can be cited externally. Publishing the seeded sandbox directory structure verbatim would leak the test fixture, which weakens its value as a fixture if it ever becomes a moving target. Redaction lets the public-repo evidence remain useful for replay while keeping the directory fixture stable.
 
-**Enforcement.** The audit-log redact_secrets flag in rejewski.config.json is true; the SDK hashes named fields before writing logs/rejewski-audit.jsonl. Operators check the hash output before committing to the repo. PR review flags any unredacted UPN, display name, or object ID outside the sandbox tenant ID itself.
+**Enforcement.** Tools write only response metadata to graph_call entries (status, page_count, row_count, row_cap, row_cap_hit), never response bodies. `write_entry()` keeps only an allowlist of request headers, so no Authorization header is logged. scripts/consolidate_run.py unconditionally replaces the token cache path with `<redacted>`. scripts/tool_list_sharepoint_sites.py scrubs the tenant GUID from site URLs. The redact_secrets flag in rejewski.config.json is not read by any tool. PR review checks committed evidence for any UPN, display name, or object ID other than those published values. (Corrected 2026-10-12, B036: earlier text said the SDK hashes named fields into logs/rejewski-audit.jsonl.)
 
-**Scope.** All evidence content destined for the public Rejewski repo. SharePoint-side evidence is unredacted for operator use.
+**Scope.** All evidence content committed to the Rejewski repo (samples/, docs/reports/).
 
-**Exceptions.** The cloudharbordemo tenant ID (76b87c33-6178-4ff9-94a7-164792c8e4c6) and the Graph Command Line Tools client ID (14d82eec) are not redacted — both are public Microsoft-published values.
+**Exceptions.** The cloudharbordemo tenant ID (76b87c33-6178-4ff9-94a7-164792c8e4c6), the Graph Command Line Tools client ID (14d82eec), and sandbox test-account UPNs that a tool signs in as or targets are not redacted. The two IDs identify a sandbox and a public Microsoft client; the UPNs belong to sandbox test accounts (G-7).
 
 ---
 
@@ -94,7 +96,7 @@ Operational rules that bind every Rejewski technique and tool. Each guardrail ha
 
 **Rationale.** Real data in a sandbox is a leak waiting to happen. Even with G-6 redaction, real UPNs in evidence files would be one config error away from public exposure. The cost of seeding fake test users is trivial relative to the downside of leaking a real one.
 
-**Enforcement.** B001 step 4 documents the seeded-user roster. Quarterly audit confirms the roster matches the live sandbox. New users added to the sandbox follow the seeded-user naming pattern (<rejewski-test-NN@cloudharbordemo.onmicrosoft.com>).
+**Enforcement.** Procedural; no code checks for real accounts. scripts/seed-cloudharbordemo.ps1 creates the seeded accounts, which use Microsoft's fictional demo personas (for example Megan Bowen and Adele Vance), and it is the roster of record. Any account added to the sandbox goes through that script or is recorded in it. (Corrected 2026-10-12, B036: earlier text cited a rejewski-test-NN naming pattern and a quarterly roster audit; the seeded accounts use the demo-persona names, and no audit record exists in the repo.)
 
 **Scope.** All users, all groups, all calendar events, all SharePoint content, all Teams chats inside the sandbox tenant.
 
@@ -104,29 +106,29 @@ Operational rules that bind every Rejewski technique and tool. Each guardrail ha
 
 ## G-8 — Time-boxed sessions
 
-**Statement.** Refresh tokens issued in Sprint 1 are not held beyond the session-keep-warm window declared in rejewski.config.json. Sessions are explicitly torn down at the end of each operator run.
+**Statement.** Refresh tokens persist across tool invocations and across runs in an encrypted MSAL token cache on the operator workstation, as decided in ADR 0005. That persistence is what produces the T1550.001 silent-reuse evidence. Rejewski does not end the session at run end; session lifetime is bounded by Microsoft Entra ID refresh-token lifetime and any Conditional Access sign-in frequency that applies to the account. (Corrected 2026-10-12, B036: earlier text said refresh tokens are not held beyond a session-keep-warm window and that sessions are torn down at the end of each run. R016 (2026-10-12) acquired all 15 tokens by silent reuse of a cached session.)
 
 **Rationale.** Long-lived token persistence is itself a Sprint 2+ technique (T1078.004 sub-scenarios, T1098.001). Holding tokens across runs would conflate the discovery emulations being shipped in Sprint 1 with persistence behaviors that have not been authorized yet. Time-boxing also bounds the blast radius if a refresh token cache ever leaks from the operator workstation.
 
-**Enforcement.** rejewski.config.json sets session_keep_warm and the SDK enforces the expiry. Operators run an explicit sign-out at run end; failure to sign out is flagged in the audit ledger.
+**Enforcement.** scripts/identity.py stores the cache with msal-extensions `PersistedTokenCache` over OS encryption (DPAPI on Windows, Keychain on macOS, libsecret on Linux) and refuses a plaintext fallback unless REJEWSKI_ALLOW_PLAINTEXT_CACHE=1 is set. Each token_event records the persistence kind. Teardown is procedural: delete the cache file (REJEWSKI_CACHE_PATH, or `%LOCALAPPDATA%\rejewski\<account>.bin` on Windows) to end the session. The session_keep_warm flag in rejewski.config.json is not read by any tool. (Corrected 2026-10-12, B036: earlier text said the SDK enforces an expiry and that a missed sign-out is flagged in an audit ledger; neither exists.)
 
-**Scope.** All operator runs and all SDK smoke tests in Sprint 1.
+**Scope.** Every operator run, on the workstation that holds the token cache.
 
-**Exceptions.** None in Sprint 1. Persistence-emulation techniques in Sprint 2+ will introduce token-survival scenarios via superseding ADR.
+**Exceptions.** None. ADR 0005 is the decision that authorizes cross-invocation persistence; any automated teardown would be a change to that ADR.
 
 ---
 
 ## G-9 — Enumeration row cap
 
-**Statement.** Sprint 1 discovery techniques cap returned rows at the configured limit per call (default 50 for /users, default 50 for /groups, default 25 for /me/memberOf). Operators may raise the cap per run with explicit justification recorded in the evidence ledger; the SDK refuses uncapped enumeration.
+**Statement.** Every enumeration tool caps the rows it reads per call. The default cap is 1,000 rows (500 for inbox rules), read in pages sized by `$top`. The operator can change the cap for a run with `--row-cap`. (Corrected 2026-10-12, B036: earlier text cited Sprint 1 defaults of 50 rows for /users and /groups and 25 for /me/memberOf.)
 
 **Rationale.** Bounding enumeration volume keeps evidence files manageable, keeps the sign-in trace visible without paginating across hundreds of audit entries, and bounds the noise floor that downstream detection work has to baseline against in Sprint 2. Uncapped enumeration is itself a louder adversary behavior (anomalous-volume signal); Sprint 1 prefers the quieter end of the spectrum.
 
-**Enforcement.** Row caps live in rejewski.config.json. The SDK applies the cap as the $top parameter on Graph requests and stops paging when the cap is hit. The evidence ledger records cap, rows returned, and whether the cap was hit.
+**Enforcement.** Each tool's paging loop stops when the cap is reached, and its graph_call entry records row_cap and row_cap_hit (outcome row_cap_hit when the cap was reached). The cap is a per-tool constant (DEFAULT_ROW_CAP), not a rejewski.config.json setting. The code does not refuse a large `--row-cap` value or require a justification; a raised cap is visible in the replay log and is checked in PR review. (Corrected 2026-10-12, B036: earlier text said caps live in rejewski.config.json and the SDK refuses uncapped enumeration.)
 
-**Scope.** All discovery techniques in Sprint 1 — T1087.004 and T1069.003 today. Initial-access (T1078.004) is unaffected because it does not enumerate.
+**Scope.** Every enumeration tool (scripts/tool_*.py). Token acquisition (T1078.004, T1550.001) is unaffected because it does not enumerate.
 
-**Exceptions.** Per-run cap raises must be recorded in the evidence ledger with operator initials and rationale. No exceptions to the SDK refusing uncapped enumeration.
+**Exceptions.** A raised `--row-cap` is allowed; the replay log records the value used.
 
 **Decision.** G-9 entered as a candidate during the Sprint 1 technique-module drafting; promoted to accepted in this PR on the basis that T1087.004 and T1069.003 already cite a row cap in their Procedure sections without a governing guardrail. Promoting G-9 closes that governance gap before PR 4 (threat-model.md v0.2) ships.
 

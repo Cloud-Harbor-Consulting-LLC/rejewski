@@ -160,6 +160,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Guardrails G-2 to G-9 Enforcement text audited against the code (S6 W23, B036).** `docs/guardrails.md`
+  Enforcement paragraphs for G-2 through G-9 described checks in an SDK layer that was never built: a
+  client-ID allowlist refusal, a scope list and client ID pinned in `rejewski.config.json`, an audit
+  ledger at `logs/rejewski-audit.jsonl`, field hashing, an enforced session expiry with sign-out
+  flagging, and config-held row caps. Each paragraph now names the real mechanism with file
+  references, or says the guardrail is procedural. Statements corrected where they no longer
+  described the tools: G-3 (tools request `.default`; read-only is held by the GET-only guard), G-5
+  (fields actually recorded; evidence lives in the repo), G-6 (no hashing; published evidence carries
+  per-call counts, not payloads; sandbox test-account UPNs are published), G-8 (the encrypted token
+  cache persists across runs per ADR 0005; teardown is manual), G-9 (default cap 1,000 per tool, set by
+  `--row-cap`). Stale Sprint 1 Scope lines updated, and an accuracy note added at the top. README
+  Guardrails summary now says which guardrails are code and which are procedure. G-1 was corrected in
+  #125. Docs only; suite 197 → 197.
+
 - **ROI model v0.2: refreshed to 2026 primary sources; $728K figure retired (S6 W23, B032).**
   `docs/phs-security-roi-model-v0.1.md` (path unchanged; the report generator reads it by path)
   moves to v0.2. v0.1 computed an expected credential-breach exposure of ~$728K from a 2024 IBM

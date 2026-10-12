@@ -146,6 +146,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ROI model v0.2: refreshed to 2026 primary sources; $728K figure retired (S6 W23, B032).**
+  `docs/phs-security-roi-model-v0.1.md` (path unchanged; the report generator reads it by path)
+  moves to v0.2. v0.1 computed an expected credential-breach exposure of ~$728K from a 2024 IBM
+  US mid-market cost ($3.31M) and the 2025 DBIR credential share (22%), and expressed the
+  T1550.001 ROI line as a fraction of it. The 2026 DBIR puts vulnerability exploitation (31%)
+  ahead of credential abuse, and 2026 equivalents of the other inputs were found only in
+  secondary sources, so v0.2 retires the $728K figure and the 281-day exposure window rather than
+  recompute them. The §2 scenario now cites IBM CODB 2026 ($4.99M global average, context only),
+  Verizon DBIR 2026, M-Trends 2026 (14-day median dwell, exploits 32%), and Microsoft Learn (MFA
+  blocks >99.2% of account compromise attacks), each re-verified against its primary source on
+  2026-10-12. §6: no bridge row carries a dollar figure, T1550.001 included.
+  `docs/phs-security-roi-baseline-v0.1.md` → v0.2: new §4a 2026 refresh table (sources 18–21),
+  gaps #10–#11 for the secondary-only figures, §4 kept as history. `scripts/generate_html_report.py`
+  ROI intro and docstrings updated; `tests/test_generate_html_report.py` now asserts no dollar figure
+  in the ROI section or any bridge cell. Reports R012–R015 and `docs/reports/canonical-report.html`
+  regenerated; they also pick up the B033 T1526 control fix. Suite 197 → 197.
+
 - **Repo wording aligned with shipped behavior; T1526 control mapping corrected (S6 W23, B033).**
   Pre-launch accuracy pass so the public repo matches the code and the launch article.
   - `README.md`: the tagline and "What it does" no longer call Rejewski an agentic loop. They now

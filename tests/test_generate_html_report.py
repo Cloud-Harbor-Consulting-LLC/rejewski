@@ -128,10 +128,11 @@ def test_real_r012_sample(tmp_path):
     assert 'class="badge-medium"' in html and 'class="badge-high"' in html
     assert "CA-COV008-BlockByLocation" in html and "Directory Readers" in html
     # ROI section: both R012 findings (T1087.004, T1550.001) are in the bridge and get a
-    # line; only T1550.001 carries the one established dollar figure ($728K fraction).
+    # line. Since ROI model v0.2 no line carries a dollar figure, T1550.001 included.
     assert "ROI / business impact" in html
     assert "Credential / token theft" in html  # T1550.001 risk category
-    assert "$728K" in html
+    roi = html[html.index("<h2>ROI / business impact</h2>"):]
+    assert "$" not in roi[:roi.index("</section>")]
     assert gen.ROI_NOT_MODELED not in html
 
 
@@ -152,8 +153,8 @@ def test_missing_replay_log_errors(tmp_path):
 
 
 def test_roi_bridge_parses_the_committed_model():
-    """The §6 bridge parser yields all 11 techniques, and dollar figures stay confined to the
-    two reviewed cells (AC2: no fabricated figures beyond the established §3 $728K reference)."""
+    """The §6 bridge parser yields all 11 techniques, and no reviewed cell carries a dollar
+    figure (AC2; ROI model v0.2 retired the §3 $728K reference)."""
     bridge = gen.load_roi_bridge(REPO_ROOT / "docs" / "phs-security-roi-model-v0.1.md")
     # the original nine plus the two W18 additions
     expected = {
@@ -163,11 +164,10 @@ def test_roi_bridge_parses_the_committed_model():
     assert set(bridge) == expected
     assert bridge["T1213.002"]["control"] == "CA-SPO-001-RequireCompliantApp"
     assert bridge["T1033"]["control"] == "PIM-EligibleRoleAssignments"
-    assert "728K" in bridge["T1550.001"]["direction"]
-    # AC2 as a data invariant: the ONLY cells that mention a dollar figure are the two that
-    # reference the established §3 $728K exposure — nothing else fabricates a number.
+    assert bridge["T1526"]["control"] == "CA policy read roles (RBAC)"
+    # AC2 as a data invariant: no bridge cell mentions a dollar figure.
     dollar_cells = {t for t, v in bridge.items() if "$" in v["direction"]}
-    assert dollar_cells == {"T1078.004", "T1550.001"}
+    assert dollar_cells == set()
 
 
 def test_roi_finding_not_in_bridge_renders_explicit_line(tmp_path):

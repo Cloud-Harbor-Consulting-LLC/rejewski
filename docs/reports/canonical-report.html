@@ -370,10 +370,10 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 </tr>
 <tr>
 <td>T1526</td>
-<td>Reports Reader</td>
+<td>CA policy read roles (Security Reader, Global Reader, Conditional Access Administrator)</td>
 <td>rbac / preventive</td>
 <td>Identities · T4, T6</td>
-<td><a class="ref-link" href="https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/permissions-reference#reports-reader" target="_blank" rel="noopener">Microsoft Docs ↗</a></td>
+<td><a class="ref-link" href="https://learn.microsoft.com/en-us/graph/api/conditionalaccessroot-list-policies?view=graph-rest-1.0" target="_blank" rel="noopener">Microsoft Docs ↗</a></td>
 </tr>
 <tr>
 <td>T1550.001</td>
@@ -401,14 +401,14 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 </section>
 <section>
 <h2>ROI / business impact</h2>
-<p class="notes">Each finding is mapped to its baseline risk category and direction of risk from the §6 findings-to-ROI bridge in <code>docs/phs-security-roi-model-v0.1.md</code>. Per that model no per-finding dollar figure is assigned; the sole figure that appears (T1550.001) is the established fraction-of-$728K framing from §3.</p>
+<p class="notes">Each finding is mapped to its baseline risk category and direction of risk from the §6 findings-to-ROI bridge in <code>docs/phs-security-roi-model-v0.1.md</code>. Per that model no finding is assigned a dollar figure: breach-cost data does not support a per-finding number.</p>
 <table>
 <thead><tr><th>Technique</th><th>Risk category</th><th>Potential cost avoided (direction)</th></tr></thead>
 <tbody>
 <tr>
 <td>T1069.003</td>
 <td>Group / privilege enumeration</td>
-<td class="notes">Caps stolen-token lifetime, narrowing the 281-day exposure window (§3)</td>
+<td class="notes">Caps stolen-token lifetime, shortening the time a foothold account has to read the tenant (§3: 14-day median dwell)</td>
 </tr>
 <tr>
 <td>T1082</td>
@@ -438,7 +438,7 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <tr>
 <td>T1550.001</td>
 <td>Credential / token theft</td>
-<td class="notes">Fraction of the $728K credential-breach exposure (§3); token reuse is the residual-0.8% path that survives MFA (§4–§5)</td>
+<td class="notes">Token reuse is the residual path that survives MFA (§4–§5); least-privilege on directory reads limits what a replayed token can see</td>
 </tr>
 <tr>
 <td>T1580</td>

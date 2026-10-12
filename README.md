@@ -1,18 +1,20 @@
 # Rejewski
 
-Agentic Microsoft 365 tenant pen-testing assistant. A friendly threat actor that emulates recon and discovery TTPs against a tenant the operator owns or has written authorization to assess, and produces findings mapped to specific M365 controls.
+Read-only Microsoft 365 adversary-emulation toolkit. A friendly threat actor that emulates recon and discovery TTPs against a tenant the operator owns or has written authorization to assess, and produces findings mapped to specific M365 controls.
 
 > **Status:** Private build through Sat Oct 24, 2026. Public launch Mon Oct 26, 2026. See [Project Harbor Sonar Master Plan](https://cloudharborconsulting.sharepoint.com/:t:/s/CHC-Ops/IQBCENuicazZQK8l9Z4XeVFKAQNQEEy11y6ehgv9eb__az0?e=9rw5oh) for build cadence and milestones.
 
 ## What it does
 
-Rejewski runs as an agentic loop on top of the Claude Agent SDK. Each run:
+Rejewski is a set of read-only Microsoft Graph tools. They sign in as a seeded test account in a sandbox tenant and record what that account can read. Each run:
 
-1. Prompts the operator for Rules of Engagement consent and records the consent.
+1. Starts with a Rules of Engagement consent record, written as the first entry of the run's replay log.
 2. Executes read-only Microsoft Graph and Defender / Purview queries against the target tenant.
 3. Maps each finding to a specific M365 control (Conditional Access policy, Defender setting, Purview label, Intune compliance check, and so on).
 4. Emits a structured replay log so every run reproduces.
 5. Renders an HTML report with severity scores and business-impact lines per finding.
+
+An agent layer built on the Claude Agent SDK ships alongside the tools. `scripts/rejewski_runtime.py` loads the SDK options from `rejewski.config.json`, and `scripts/reasoning_loop.py` routes each recon step to a model and stamps the replay-log entry with the model it chose. In v1.0 that layer runs offline: the operator runs the tools, and connecting them to the agent needs a Graph MCP server, which `rejewski.config.json` does not configure.
 
 ## Quickstart
 
@@ -57,7 +59,7 @@ python scripts/consolidate_run.py --run-id demo-001
 python scripts/generate_html_report.py --replay-log <consolidated-log>.json --output report.html
 ```
 
-The full agentic loop (Claude Agent SDK) is driven by `python scripts/rejewski_runtime.py`, which reads `rejewski.config.json` and enforces the G-1 sandbox-tenant check before any Graph call.
+`scripts/rejewski_runtime.py` loads `rejewski.config.json` into Claude Agent SDK options and refuses a config that names an out-of-scope technique. The G-1 sandbox-tenant lock is enforced by `scripts/replay_log.py`, which refuses any entry whose tenant is not `cloudharbordemo`. Each tool writes its token event before its Graph call, so a tool pointed at another tenant stops after token acquisition and before its first Graph call.
 
 ## Usage example — a full comprehensive run
 
@@ -95,7 +97,7 @@ The committed result is **[docs/reports/replay-report-R014.html](docs/reports/re
 
 ## Rules of Engagement
 
-Every run is gated by a per-run consent prompt. The prompt summarizes the target tenant, the techniques in scope, the expected duration, and the operator identity, and the operator confirms by echoing a generated run ID back verbatim — any other input is treated as a decline, and a declined or aborted run terminates before any network egress. The consent record is written as the first entry of the run's replay log and binds every downstream entry by `run_id`. Sprint 1's exit floor is five consented runs logged end-to-end.
+Every run starts with a consent record. [docs/roe-consent-flow.md](docs/roe-consent-flow.md) specifies the consent prompt: it summarizes the target tenant, the techniques in scope, the expected duration, and the operator identity, and the operator confirms by echoing a generated run ID back verbatim. In v1.0 the prompt is specified but not yet wired into the tools. The operator writes the record before running the tools (`scripts/write_consent_record.py` builds a schema-valid one), and no tool refuses to run without one, so the record is a procedural control checked at review. The consent record is the first entry of the run's replay log and binds every downstream entry by `run_id`. Sprint 1's exit floor is five consented runs logged end-to-end.
 
 The self-test consent mechanic is specified in [docs/roe-consent-flow.md](docs/roe-consent-flow.md); the authorization flow for a third-party tenant assessment (and the durable long-term consent-record archive) is in [docs/external-auth.md](docs/external-auth.md); the governing decision is [ADR 0001 — Rules of Engagement](docs/adr/0001-rules-of-engagement.md).
 
@@ -112,7 +114,7 @@ These are the program-level **operating principles** from the [Project Harbor So
 > **Different numbering scheme from the Guardrails above.** These principles use the Master Plan's own `G1`–`G8` labels; they are **not** the code-enforced `G-1` through `G-9` in the [Guardrails](#guardrails) section above. Guardrails answer "what does the code enforce"; these principles answer "why does the project operate the way it does." Don't conflate `G4` here (Threat Actor Emulation) with `G-4` above (FOCI client allowlist), etc.
 
 - **G1 — Read-Only.** The agent never writes to the target tenant: no policy creation, role assignment, group-membership change, or user-property change; Microsoft Graph calls are limited to GET.
-- **G2 — No Credential Harvesting.** No password spray, token replay, MFA-bypass attempts, or session-cookie capture; authentication uses the operator's signed-in account with consented scopes only.
+- **G2 — No Credential Harvesting.** No password spray, no theft or replay of another user's or device's tokens, no MFA-bypass attempts, and no session-cookie capture. The tools sign in as a seeded sandbox test account with that account's own password (ROPC), then silently reuse that account's own cached refresh token. The T1550.001 module records that reuse as evidence of what a stolen refresh token allows.
 - **G3 — Telemetry-Aware and Replayable.** Every run produces a structured replay log (prompts, tool calls, results, timestamps) so findings reproduce; the agent assumes Defender XDR audit telemetry sees every call.
 - **G4 — Threat Actor Emulation.** The agent emulates the recon and discovery TTPs of a real-world threat actor, mapped to MITRE ATT&CK Enterprise — no persistence, no lateral movement off M365, no defense evasion.
 - **G5 — Rules of Engagement.** Every run starts with an ROE prompt and a consent record; the operator confirms tenant ownership or written authorization and scope boundaries, and acknowledges G1–G4.

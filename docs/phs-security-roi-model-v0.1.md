@@ -139,7 +139,7 @@ credential-breach exposure, not a standalone number.
 | T1087.004 | medium | CA-COV008-BlockByLocation | Account enumeration | Shrinks the phishing/targeting surface an adversary builds from a user directory |
 | T1069.003 | medium | CA-SIF001-SignInFrequency-8h | Group / privilege enumeration | Caps stolen-token lifetime, narrowing the 281-day exposure window (§3) |
 | T1550.001 | **high** | Directory Readers (RBAC) | Credential / token theft | Fraction of the $728K credential-breach exposure (§3); token reuse is the residual-0.8% path that survives MFA (§4–§5) |
-| T1526 | high [‡] | Reports Reader (RBAC) | CA-policy exposure | Least-privilege on policy reads limits an adversary's map of where MFA/CA coverage is thin |
+| T1526 | high [‡] | CA policy read roles (RBAC) | CA-policy exposure | Least-privilege on policy reads limits an adversary's map of where MFA/CA coverage is thin |
 | T1518.001 | high [‡] | Security Reader (RBAC) | Detection-coverage gap | Restricts who can read DfI sensor health — the map of where detection is degraded |
 | T1082 | medium | Intune Service Administrator (RBAC) | Endpoint targeting | Limits enumeration of non-compliant/unencrypted devices — the soft lateral-movement targets |
 | T1580 | medium [†] | CA-PUR-001-RequireCompliantApp | Data-classification exposure | Restricts label-inventory reads that would steer later Collection toward Confidential data |

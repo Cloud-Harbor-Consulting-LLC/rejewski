@@ -129,7 +129,7 @@ authoritative technique count and tactic distribution are in docs/attck-coverage
 - **Objects enumerated:** 25 Conditional Access policies
 - **Severity:** high [‡]
 - **Confidence:** high
-- **Control:** Reports Reader (RBAC) — restricts CA-policy and reporting visibility to the least role a job function needs.
+- **Control:** CA policy read roles (RBAC): Security Reader, Security Administrator, Global Reader, Conditional Access Administrator, and Global Secure Access Administrator are the roles that can read CA policies. Limit who holds them; reporting-only accounts should hold Reports Reader, which cannot read CA policies. (Corrected 2026-10-12; this line previously named Reports Reader as the control.)
 - **Rationale:** Enumeration of Conditional Access policies via GET /identity/conditionalAccess/policies exposes the defender's detection coverage and policy gaps to an adversary — revealing which user populations lack MFA, which locations are trusted, and which applications have no CA coverage. Access to CA policy configuration should be restricted to the minimum role required for the job function; accounts that only need audit or reporting visibility should hold Reports Reader rather than Security Reader or higher, which reduces the tenant-configuration attack surface available to a compromised account.
 - **Finding-triage record:** samples/finding-triage/t1526-r011-ca-policy-discovery.json (Part B)
 - **Finding-to-control mapping:** samples/finding-to-control/t1526-rbac-reports-reader.json
@@ -200,7 +200,7 @@ authoritative technique count and tactic distribution are in docs/attck-coverage
 | T1087.004 | conditional_access | CA-COV008-BlockByLocation | preventive | Identities | T3, T4 |
 | T1069.003 | conditional_access | CA-SIF001-SignInFrequency-8h | preventive | Identities | T3, T4, T6 |
 | T1550.001 | rbac | Directory Readers | preventive | Identities | T4, T6 |
-| T1526 | rbac | Reports Reader | preventive | Identities | T4, T6 |
+| T1526 | rbac | CA policy read roles (Security Reader, Global Reader, Conditional Access Administrator) | preventive | Identities | T4, T6 |
 | T1518.001 | rbac | Security Reader | preventive | Identities | T3, T4 |
 | T1082 | rbac | Intune Service Administrator | preventive | Endpoints | T3, T4 |
 | T1580 | conditional_access | CA-PUR-001-RequireCompliantApp | preventive | Data | T3, T4, T5 |

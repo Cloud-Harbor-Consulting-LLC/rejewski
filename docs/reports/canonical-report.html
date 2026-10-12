@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Rejewski Run Report — R015</title>
+<title>Rejewski Run Report — R016</title>
 <style>
 body       { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
              font-size: 14px; color: #212529; background: #ffffff; margin: 2em auto;
@@ -49,13 +49,13 @@ footer     { margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;
 <body>
 <header>
 <h1>Rejewski Run Report</h1>
-<p class="meta">Run: R015 · Tenant: 76b87c33 · Operator: meganb@cloudharbor-demo.com · Date: 2026-10-05</p>
-<p class="meta">29 entries</p>
+<p class="meta">Run: R016 · Tenant: 76b87c33 · Operator: meganb@cloudharbor-demo.com · Date: 2026-10-12</p>
+<p class="meta">31 entries</p>
 </header>
 <section>
 <h2>Consent</h2>
 <div class="consent granted">
-<strong>consent.granted</strong> · <code>2026-10-05T14:11:19Z</code><br>
+<strong>consent.granted</strong> · <code>2026-10-12T12:18:20Z</code><br>
 Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T1654, T1213.002, T1114.002, T1550.001
 </div>
 </section>
@@ -65,7 +65,7 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <thead><tr><th>Time</th><th>Technique</th><th>Tool</th><th>Endpoint</th><th>Rows</th><th>Outcome</th></tr></thead>
 <tbody>
 <tr>
-<td><code>14:11:16 UTC</code></td>
+<td><code>12:18:17 UTC</code></td>
 <td>T1087.004 Account Discovery: Cloud Account</td>
 <td>tool_list_users</td>
 <td><code>/v1.0/users</code></td>
@@ -73,7 +73,7 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:18 UTC</code></td>
+<td><code>12:18:19 UTC</code></td>
 <td>T1087.004 Account Discovery: Cloud Account</td>
 <td>tool_list_applications</td>
 <td><code>/v1.0/applications</code></td>
@@ -81,15 +81,15 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:20 UTC</code></td>
+<td><code>12:18:21 UTC</code></td>
 <td>T1087.004 Account Discovery: Cloud Account</td>
 <td>tool_list_service_principals</td>
 <td><code>/v1.0/servicePrincipals</code></td>
-<td>439</td>
+<td>442</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:27 UTC</code></td>
+<td><code>12:18:28 UTC</code></td>
 <td>T1087.004 Account Discovery: Cloud Account</td>
 <td>tool_list_role_assignments</td>
 <td><code>/v1.0/roleManagement/directory/roleAssignments</code></td>
@@ -97,7 +97,7 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:30 UTC</code></td>
+<td><code>12:18:31 UTC</code></td>
 <td>T1087.004 Account Discovery: Cloud Account</td>
 <td>tool_list_oauth_grants</td>
 <td><code>/v1.0/oauth2PermissionGrants</code></td>
@@ -105,7 +105,15 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:32 UTC</code></td>
+<td><code>12:18:33 UTC</code></td>
+<td>T1087.004 Account Discovery: Cloud Account</td>
+<td>tool_list_pim_eligible_roles</td>
+<td><code>/v1.0/roleManagement/directory/roleEligibilityScheduleInstances</code></td>
+<td>2</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>12:18:35 UTC</code></td>
 <td>T1069.003 Permission Groups Discovery: Cloud Groups</td>
 <td>tool_list_groups</td>
 <td><code>/v1.0/groups</code></td>
@@ -113,7 +121,7 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:34 UTC</code></td>
+<td><code>12:18:37 UTC</code></td>
 <td>T1526 Cloud Service Discovery</td>
 <td>tool_list_ca_policies</td>
 <td><code>/v1.0/identity/conditionalAccess/policies</code></td>
@@ -121,7 +129,7 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:37 UTC</code></td>
+<td><code>12:18:40 UTC</code></td>
 <td>T1518.001 Software Discovery: Security Software Discovery</td>
 <td>tool_dfi_health</td>
 <td><code>/v1.0/security/identities/sensors</code></td>
@@ -129,7 +137,7 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:41 UTC</code></td>
+<td><code>12:18:44 UTC</code></td>
 <td>T1082 System Information Discovery</td>
 <td>tool_intune_devices</td>
 <td><code>/v1.0/deviceManagement/managedDevices</code></td>
@@ -137,7 +145,7 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:43 UTC</code></td>
+<td><code>12:18:46 UTC</code></td>
 <td>T1580 Cloud Infrastructure Discovery</td>
 <td>tool_purview_labels</td>
 <td><code>/v1.0/security/dataSecurityAndGovernance/sensitivityLabels</code></td>
@@ -145,15 +153,15 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:46 UTC</code></td>
+<td><code>12:18:49 UTC</code></td>
 <td>T1654 Log Enumeration</td>
 <td>tool_signin_logs</td>
 <td><code>/v1.0/auditLogs/signIns</code></td>
-<td>0</td>
+<td>51</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:49 UTC</code></td>
+<td><code>12:19:00 UTC</code></td>
 <td>T1654 Log Enumeration</td>
 <td>tool_list_security_alerts</td>
 <td><code>/v1.0/security/alerts_v2</code></td>
@@ -161,7 +169,7 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:53 UTC</code></td>
+<td><code>12:19:04 UTC</code></td>
 <td>T1213.002 Data from Information Repositories: Sharepoint</td>
 <td>tool_list_sharepoint_sites</td>
 <td><code>/v1.0/sites</code></td>
@@ -169,7 +177,7 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:56 UTC</code></td>
+<td><code>12:19:08 UTC</code></td>
 <td>T1114.002 Email Collection: Remote Email Collection</td>
 <td>tool_list_inbox_rules</td>
 <td><code>/v1.0/me/mailFolders/inbox/messageRules</code></td>
@@ -185,72 +193,77 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <thead><tr><th>Time</th><th>Technique</th><th>Outcome</th></tr></thead>
 <tbody>
 <tr>
-<td><code>14:11:16 UTC</code></td>
+<td><code>12:18:17 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:18 UTC</code></td>
+<td><code>12:18:19 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:20 UTC</code></td>
+<td><code>12:18:21 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:27 UTC</code></td>
+<td><code>12:18:28 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:30 UTC</code></td>
+<td><code>12:18:31 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:32 UTC</code></td>
+<td><code>12:18:33 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:34 UTC</code></td>
+<td><code>12:18:35 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:37 UTC</code></td>
+<td><code>12:18:37 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:41 UTC</code></td>
+<td><code>12:18:40 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:43 UTC</code></td>
+<td><code>12:18:44 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:46 UTC</code></td>
+<td><code>12:18:46 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:49 UTC</code></td>
+<td><code>12:18:49 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:53 UTC</code></td>
+<td><code>12:19:00 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
 <tr>
-<td><code>14:11:56 UTC</code></td>
+<td><code>12:19:04 UTC</code></td>
+<td>T1550.001 Application Access Token (refresh-token reuse)</td>
+<td><span class="badge-success">success</span></td>
+</tr>
+<tr>
+<td><code>12:19:08 UTC</code></td>
 <td>T1550.001 Application Access Token (refresh-token reuse)</td>
 <td><span class="badge-success">success</span></td>
 </tr>
@@ -267,63 +280,63 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 <td><span class="badge-medium">medium</span></td>
 <td>high</td>
 <td>open</td>
-<td class="notes">Permission-groups discovery: tool_list_groups enumerated 25 groups (R015 weekly full sweep), success. Severity medium per docs/finding-severity-rubric-v0.1.md v1.0 (B=2 tenant-wide, D=2 group/privilege map). Recurring (R010-R014). Cross-references CA-SIF001-SignInFrequency-8h.</td>
+<td class="notes">Permission-groups discovery: tool_list_groups enumerated 25 groups (R016 weekly full sweep), success. Severity medium per docs/finding-severity-rubric-v0.1.md v1.0 (B=2 tenant-wide, D=2 group/privilege map). Recurring (R010-R015). Cross-references CA-SIF001-SignInFrequency-8h.</td>
 </tr>
 <tr>
 <td>T1082 System Information Discovery</td>
 <td><span class="badge-medium">medium</span></td>
 <td>high</td>
 <td>open</td>
-<td class="notes">System information discovery: tool_intune_devices enumerated 3 Intune-managed devices (R015), success. Medium per rubric v1.0 (B=2 tenant-wide, D=2 endpoint-targeting inventory). Recurring. Cross-references Intune Service Administrator (RBAC).</td>
+<td class="notes">System information discovery: tool_intune_devices enumerated 3 Intune-managed devices (R016), success. Medium per rubric v1.0 (B=2 tenant-wide, D=2 endpoint-targeting inventory). Recurring. Cross-references Intune Service Administrator (RBAC).</td>
 </tr>
 <tr>
 <td>T1087.004 Account Discovery: Cloud Account</td>
 <td><span class="badge-medium">medium</span></td>
 <td>high</td>
 <td>open</td>
-<td class="notes">Account discovery across five surfaces in the R015 full sweep, all success: tool_list_users (9), tool_list_applications (10), tool_list_role_assignments (16), tool_list_service_principals (439), tool_list_oauth_grants (23). Service-principal count grew 432-&gt;439 since R014. Medium per rubric v1.0 (B=2 tenant-wide read, D=2 directory/identity target map). Recurring (R010-R014). Cross-references CA-COV008-BlockByLocation.</td>
+<td class="notes">Account discovery across six surfaces in the R016 full sweep, all success: tool_list_users (9), tool_list_applications (10), tool_list_service_principals (442), tool_list_role_assignments (16), tool_list_oauth_grants (23), and tool_list_pim_eligible_roles (2, Surface F, first committed run with Tool 15). The 2 PIM-eligible assignments are roles a principal can activate without holding them at rest; active-assignment enumeration (tool_list_role_assignments) does not show them. Service-principal count grew 439-&gt;442 since R015. Medium per rubric v1.0 (B=2 tenant-wide read, D=2 directory/identity target map). Recurring (R010-R015). Cross-references CA-COV008-BlockByLocation.</td>
 </tr>
 <tr>
 <td>T1213.002 Data from Information Repositories: SharePoint</td>
 <td><span class="badge-medium">medium</span></td>
 <td>high</td>
 <td>open</td>
-<td class="notes">SharePoint information-repository discovery: tool_list_sharepoint_sites enumerated 2 site collections (R015), success. Medium per rubric v1.0 (B=2 tenant-wide, D=2 repository target list). Recurring (first evidenced R013). Cross-references CA-SPO-001-RequireCompliantApp.</td>
+<td class="notes">SharePoint information-repository discovery: tool_list_sharepoint_sites enumerated 2 site collections (R016), success. Medium per rubric v1.0 (B=2 tenant-wide, D=2 repository target list). Recurring (first evidenced R013). Cross-references CA-SPO-001-RequireCompliantApp.</td>
 </tr>
 <tr>
 <td>T1518.001 Software Discovery: Security Software Discovery</td>
 <td><span class="badge-high">high</span></td>
 <td>high</td>
 <td>open</td>
-<td class="notes">Security-software discovery: tool_dfi_health enumerated 3 Defender for Identity sensors (R015), success. High per rubric v1.0 (defensive-evasion escalator: D=2 detection-coverage map, decision-table row 3). Recurring. Cross-references Security Reader (RBAC).</td>
+<td class="notes">Security-software discovery: tool_dfi_health enumerated 3 Defender for Identity sensors (R016), success. High per rubric v1.0 (defensive-evasion escalator: D=2 detection-coverage map, decision-table row 3). Recurring. Cross-references Security Reader (RBAC).</td>
 </tr>
 <tr>
 <td>T1526 Cloud Service Discovery</td>
 <td><span class="badge-high">high</span></td>
 <td>high</td>
 <td>open</td>
-<td class="notes">Cloud service discovery: tool_list_ca_policies enumerated 27 Conditional Access policies (R015), success. High per rubric v1.0 (defensive-evasion escalator: D=2 CA-policy posture map, decision-table row 3). Recurring. Cross-references Reports Reader (RBAC).</td>
+<td class="notes">Cloud service discovery: tool_list_ca_policies enumerated 27 Conditional Access policies (R016), success. High per rubric v1.0 (defensive-evasion escalator: D=2 CA-policy posture map, decision-table row 3). Recurring. Cross-references the CA policy read roles (Security Reader, Global Reader, Conditional Access Administrator; control corrected 2026-10-12, PR #125).</td>
 </tr>
 <tr>
 <td>T1550.001 Use Alternate Authentication Material: Application Access Token</td>
 <td><span class="badge-high">high</span></td>
 <td>high</td>
 <td>open</td>
-<td class="notes">Application access token reuse: the delegated bearer token was silently reused across all R015 tool calls via the MSAL encrypted cache (14 token events). High per rubric v1.0 (D=3 token material; operates through the authentication control). Recurring. Cross-references Directory Readers (RBAC).</td>
+<td class="notes">Application access token reuse: the delegated bearer token was silently reused across all R016 tool calls via the MSAL encrypted cache (15 token events, all success). High per rubric v1.0 (D=3 token material; operates through the authentication control). Recurring. Cross-references Directory Readers (RBAC).</td>
 </tr>
 <tr>
 <td>T1580 Cloud Infrastructure Discovery</td>
 <td><span class="badge-medium">medium</span></td>
 <td>high</td>
 <td>open</td>
-<td class="notes">Cloud infrastructure discovery: tool_purview_labels enumerated 4 Purview sensitivity labels (R015), success. Medium per rubric v1.0 (B=2 tenant-wide, D=2 data-classification taxonomy that steers Collection). Recurring. Cross-references CA-PUR-001-RequireCompliantApp.</td>
+<td class="notes">Cloud infrastructure discovery: tool_purview_labels enumerated 4 Purview sensitivity labels (R016), success. Medium per rubric v1.0 (B=2 tenant-wide, D=2 data-classification taxonomy that steers Collection). Recurring. Cross-references CA-PUR-001-RequireCompliantApp.</td>
 </tr>
 <tr>
 <td>T1654 Log Enumeration</td>
 <td><span class="badge-high">high</span></td>
 <td>high</td>
 <td>open</td>
-<td class="notes">Log enumeration across two surfaces in R015, both HTTP 200 but EMPTY this run: tool_signin_logs (0 sign-in records - R014 returned 9; this is tenant state, the window had no sign-ins) and tool_list_security_alerts (0 alerts). The enumeration capability is confirmed by the authorized 200 responses (not 403/denied); no telemetry was present to surface this run. High per rubric v1.0 (defensive-evasion escalator: the authorized read of the defender&#x27;s sign-in/alert surface is the high-value capability; row count is tenant state, not a change in authorization). Recurring. Cross-references Reports Reader (RBAC).</td>
+<td class="notes">Log enumeration across two surfaces in R016, both HTTP 200: tool_signin_logs returned 51 sign-in records (R015 returned 0; tenant state, the window had sign-ins this time) and tool_list_security_alerts returned 0 alerts (empty result, not an error). High per rubric v1.0 (defensive-evasion escalator: an authorized read of the defender&#x27;s sign-in/alert surface). Recurring. Cross-references Reports Reader (RBAC).</td>
 </tr>
 </tbody>
 </table>
@@ -453,6 +466,6 @@ Techniques: T1078.004, T1087.004, T1069.003, T1526, T1518.001, T1082, T1580, T16
 </tbody>
 </table>
 </section>
-<footer>29 entries — 14 graph_call · 14 token_event · 1 consent · 9 triaged finding(s)</footer>
+<footer>31 entries — 15 graph_call · 15 token_event · 1 consent · 9 triaged finding(s)</footer>
 </body>
 </html>

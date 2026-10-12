@@ -11,6 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **R016 — weekly end-to-end run, first with all 15 tools; canonical run moved to R016 (S6 W22 Sat,
+  makeup).** The Sat 2026-10-10 slot of the weekly cadence, run Mon 2026-10-12 as a makeup. One
+  consented, operator-authorized session against `cloudharbordemo` (G-1) exercising all 15 tool
+  surfaces, including Tool 15 (`tool_list_pim_eligible_roles`) for the first time in a committed run:
+  `samples/replay-log/R016.json` (31 entries: consent-first, 15 token_event + 15 graph_call; 14
+  success + 1 documented inbox block), nine `*-r016-*` finding-triage records, and
+  `docs/reports/replay-report-R016.html`, the first report rendered on ROI model v0.2 (no dollar
+  figure in any ROI line). **Honest count: 9 findings**, same technique set as R014/R015. Tool 15
+  adds a sixth T1087.004 surface (2 PIM-eligible assignments), not a new technique. Tenant-state
+  changes since R015: sign-in logs 0 → 51 rows, service principals 439 → 442. `samples/canonical-run.json`
+  and `docs/reports/canonical-report.html` now alias R016 (byte-identical copies, as with R015).
+  README usage example updated from the 14-surface R014 run to the 15-surface R016 run, and step 1
+  now points at the consent record rather than an interactive prompt.
+
 - **Tool 15 — PIM-eligible directory role assignment inventory (S6 W22).** New
   `scripts/tool_list_pim_eligible_roles.py` enumerates Entra ID PIM-eligible directory role
   assignments via `GET /roleManagement/directory/roleEligibilityScheduleInstances` (the

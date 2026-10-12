@@ -153,7 +153,7 @@ footer     { margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;
 </section>
 <section>
 <h2>ROI / business impact</h2>
-<p class="notes">Each finding is mapped to its baseline risk category and direction of risk from the §6 findings-to-ROI bridge in <code>docs/phs-security-roi-model-v0.1.md</code>. Per that model no per-finding dollar figure is assigned; the sole figure that appears (T1550.001) is the established fraction-of-$728K framing from §3.</p>
+<p class="notes">Each finding is mapped to its baseline risk category and direction of risk from the §6 findings-to-ROI bridge in <code>docs/phs-security-roi-model-v0.1.md</code>. Per that model no finding is assigned a dollar figure: breach-cost data does not support a per-finding number.</p>
 <table>
 <thead><tr><th>Technique</th><th>Risk category</th><th>Potential cost avoided (direction)</th></tr></thead>
 <tbody>
@@ -165,7 +165,7 @@ footer     { margin-top: 2em; padding-top: 1em; border-top: 1px solid #dee2e6;
 <tr>
 <td>T1550.001</td>
 <td>Credential / token theft</td>
-<td class="notes">Fraction of the $728K credential-breach exposure (§3); token reuse is the residual-0.8% path that survives MFA (§4–§5)</td>
+<td class="notes">Token reuse is the residual path that survives MFA (§4–§5); least-privilege on directory reads limits what a replayed token can see</td>
 </tr>
 </tbody>
 </table>

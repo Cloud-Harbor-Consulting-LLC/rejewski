@@ -1,6 +1,6 @@
 # Security ROI Business Case Model (v0.1)
 
-- **Status:** v0.1
+- **Status:** v0.2 (2026-10-12; file path kept at `-v0.1.md` because `scripts/generate_html_report.py` reads it by path)
 - **Pillar:** 2 — Security ROI and Business Case
 - **Backlog item:** B011 Pillar 2 Security ROI Sprint Build — Business Case Model
 - **Owner:** Derek Morgan (Cloud Harbor Consulting)
@@ -31,47 +31,48 @@ source and confidence band from `phs-security-roi-baseline-v0.1.md` §4.
 |---|---|---|---|
 | Organization size | 750 employees | — | Representative US mid-market (500–1,000) |
 | M365 license | E5 | — | Assumed; required for full Defender XDR + Entra ID P2 stack |
-| Breach cost reference | $3.31M (median) | **MODERATE** | IBM CODB 2024 — US mid-market (500–1,000 employees) |
-| Credential-driven breach share | 22% | **HIGH** | Verizon DBIR 2025 — credential-driven breach share (initial action) |
-| Mean time to identify (broad population) | 194 days | **HIGH** | IBM CODB 2024 — MTTI |
-| Mandiant dwell time (IR-engaged) | 11 days | **HIGH** (Mandiant population) | M-Trends 2025 — median dwell |
-| AI + automation savings (extensive) | $1.9M | **HIGH** | IBM CODB 2025 — AI + automation extensive-deployment savings |
+| Breach cost reference (context only) | $4.99M (global average) | **HIGH** | IBM CODB 2026 — global average, up 12%, a record |
+| Leading initial access vector | Exploitation of vulnerabilities, 31% of breaches, ahead of credential abuse | **HIGH** | Verizon DBIR 2026 |
+| Mandiant dwell time (IR-engaged) | 14 days (up from 11) | **HIGH** (Mandiant population) | M-Trends 2026 — global median dwell |
+| Exploits as initial infection vector (IR-engaged) | 32% of intrusions | **HIGH** (Mandiant population) | M-Trends 2026 |
+| MFA block rate | >99.2% of account compromise attacks | **HIGH** (vendor-published, corroborated) | Microsoft Learn, mandatory MFA page (updated 2026-10-06) |
+| AI + automation savings (extensive) | $1.9M | **HIGH** (2025 vintage, not refreshed) | IBM CODB 2025 — AI + automation extensive-deployment savings |
 
-Note on the breach-cost anchor: the mid-market $3.31M row is **MODERATE** confidence
-(single-vintage, IBM CODB 2024), not HIGH — the model uses it as the mid-market anchor
-but does not treat it as a replicated figure. Per baseline §6, the $1.9M AI-savings figure
-is the current 2025 baseline (the 2024 report published $1.88M / $2.20M / $2.22M under
-different framings).
+Note on the v0.2 refresh: every row above except the AI-savings row was re-verified against
+its primary source on 2026-10-12 (baseline §4a). v0.1 used a US mid-market breach cost
+($3.31M, IBM CODB 2024), a 22% credential-driven breach share (Verizon DBIR 2025), and IBM
+2024 time-to-identify and stolen-credential lifecycle figures. Those rows are retired from the
+scenario: the 2026 DBIR reversed the credential and vulnerability ranking, and the 2026
+equivalents of the other figures were found only in secondary sources. The $1.9M AI-savings
+figure is the 2025 baseline (baseline §6) and is not used in any finding's ROI line.
 
 ---
 
-## 3. Credential attack exposure
+## 3. Breach exposure
 
-**What does a credential-driven breach cost this scenario tenant?**
+**What does a breach cost, and why does this model not compute a credential-specific dollar
+figure?**
 
-- Expected credential breach cost = breach cost × credential-driven share
-- **$3.31M × 22% = ~$728K** expected credential-breach exposure for a 750-employee
-  mid-market E5 tenant.
-  - $3.31M — IBM CODB 2024, US mid-market median (**MODERATE**, baseline §4).
-  - 22% — Verizon DBIR 2025, credential-driven breach share (**HIGH**, baseline §4).
+- IBM CODB 2026 puts the global average breach at **$4.99M** (**HIGH**, baseline §4a). The
+  model cites it as context for the size of the problem. It does not multiply it by any share.
+- v0.1 computed **$3.31M × 22% = ~$728K** as an expected credential-breach exposure. v0.2
+  retires that figure. Both inputs are superseded: the 2026 DBIR puts exploitation of
+  vulnerabilities (31%) ahead of credential abuse as the leading initial access vector, and a
+  2026 credential share and a 2026 US mid-market cost were found only in secondary sources.
+  A product of an unconfirmed share and an unconfirmed segment cost would be false precision.
+- Consequence for §6: no finding's ROI line carries a dollar figure, including T1550.001,
+  which v0.1 expressed as a fraction of the $728K.
 
-**The exposure window.** The stolen-credential breach lifecycle is **292 days** (IBM CODB
-2024, a **MODERATE** single-source figure used as a *proxy* for credential-theft MTTR —
-no source reports credential-theft MTTR as its own metric; baseline §4 and gap #4).
-Against that, Mandiant's IR-engaged median dwell time is **11 days** (M-Trends 2025,
-**HIGH** within the Mandiant population). The **281-day delta (292 − 11)** is the surface
-area where a competent adversary operates undetected in most organizations but a
-top-tier IR capability does not — and it is exactly the window Rejewski's deterministic
-adversary emulation maps.
+**The exposure window.** Mandiant's IR-engaged global median dwell time is **14 days**,
+up from 11 (M-Trends 2026, **HIGH** within the Mandiant population). That is the time a
+foothold account has to read the tenant before containment, and it is the phase Rejewski
+emulates. v0.1 set this against IBM's 292-day stolen-credential lifecycle (2024) to derive a
+281-day window. v0.2 retires that delta because the 2026 IBM lifecycle figure was confirmed
+only in secondary sources.
 
-**Why 292/194 days and 11 days are not contradictory** (baseline §5 reconciliation): the
-IBM figures are computed across a broad population (misconfigurations, insider events,
-self-discovered compromises); the Mandiant 11-day figure is computed across IR
-engagements that skew toward larger, externally-notified intrusions where a top-tier IR
-firm was engaged. Mandiant 11 days is the *"what a competent adversary actually
-achieves"* baseline; IBM 194/292 days is the *"what most organizations actually detect
-at"* baseline. Averaging them would hide the business case; the baseline keeps them
-separate by design, and so does this model.
+**Population note** (baseline §5 reconciliation, still valid): Mandiant figures come from
+IR engagements, which skew toward larger, externally notified intrusions. IBM lifecycle
+figures cover a broader population. The two measure different things and are not averaged.
 
 ---
 
@@ -79,21 +80,27 @@ separate by design, and so does this model.
 
 MFA is the primary lever against the credential-driven share.
 
-- **99.2% MFA block rate against automated attacks** (**HIGH** confidence, baseline §4).
+- **MFA blocks more than 99.2% of account compromise attacks** (Microsoft Learn, mandatory
+  MFA page, updated 2026-10-06; **HIGH** confidence, baseline §4a).
   - **Vendor-bias disclosure:** the 99.2% figure is **Microsoft-published** (Microsoft
     Entra). It is rated HIGH because it has *independent corroboration*: Google's 2019
     account-takeover research reported a **>99% block rate for device-based 2FA**
     (baseline §7). The direction of the two vendors' incentives differs, which is why
     the figure survives triangulation.
-- Applied to the 22% credential-driven share: MFA blocks ~99.2% of those automated
-  credential attacks at the authentication boundary.
-- **Residual risk: ~0.8% of credential-driven attacks** get past MFA to reach the
+- Applied to credential-based entry: MFA stops more than 99.2% of those attacks at the
+  authentication boundary.
+- **Residual risk: under 0.8% of credential-based attacks** get past MFA to reach the
   post-authentication discovery phase.
-- **Rejewski emulates that residual 0.8%** — the attack surface that survives a correctly
-  deployed MFA control and is therefore invisible to a "we deployed MFA" posture.
+- **A second path MFA does not address:** the 2026 DBIR puts exploitation of
+  vulnerabilities (31%) ahead of credential abuse as the leading initial access vector, and
+  M-Trends 2026 puts exploits at 32% of intrusions. Either path ends with a foothold account
+  inside the tenant.
+- **Rejewski emulates what that foothold account can read**, whichever path produced it.
+  That surface is invisible to a "we deployed MFA" posture.
 
 The point of §4 is not that MFA is weak — it is that MFA is ~99.2% effective and the
-business question is *what happens in the 0.8%*. That residual is where §5 and §6 live.
+business question is *what a foothold account can read once it is inside*. That is where
+§5 and §6 live.
 
 ---
 
@@ -129,16 +136,16 @@ are later-evidenced techniques (R013 and R012 respectively) folded into the same
 every implemented, triaged technique has an ROI line. **"Potential cost avoided" assigns no
 dollar figure** — it maps the finding to the relevant baseline risk category and states the
 direction of the risk. Assigning a specific dollar avoided per finding would fabricate
-precision the data does not support (writing rules; baseline confidence bands). The single
-exception is **T1550.001**, which is expressed as a *fraction of* the §3 $728K
-credential-breach exposure, not a standalone number.
+precision the data does not support (writing rules; baseline confidence bands). v0.2 has no
+exceptions. v0.1 expressed **T1550.001** as a fraction of the §3 $728K figure; that figure is
+retired (§3), and T1550.001 now states a direction of risk like every other row.
 
 | Technique | Severity | Control mapped | Risk category | Potential cost avoided (direction) |
 |---|---|---|---|---|
-| T1078.004 | informational | CA-SIG003-Guests-RequireMFA | Initial access / valid accounts | Reduces the entry path that precedes the $728K credential-breach exposure (§3); guest-MFA closes the ROPC/legacy-auth gap (§5) |
+| T1078.004 | informational | CA-SIG003-Guests-RequireMFA | Initial access / valid accounts | Reduces the credential entry path into the tenant; guest-MFA closes the ROPC/legacy-auth gap, since ROPC cannot satisfy MFA (§5) |
 | T1087.004 | medium | CA-COV008-BlockByLocation | Account enumeration | Shrinks the phishing/targeting surface an adversary builds from a user directory |
-| T1069.003 | medium | CA-SIF001-SignInFrequency-8h | Group / privilege enumeration | Caps stolen-token lifetime, narrowing the 281-day exposure window (§3) |
-| T1550.001 | **high** | Directory Readers (RBAC) | Credential / token theft | Fraction of the $728K credential-breach exposure (§3); token reuse is the residual-0.8% path that survives MFA (§4–§5) |
+| T1069.003 | medium | CA-SIF001-SignInFrequency-8h | Group / privilege enumeration | Caps stolen-token lifetime, shortening the time a foothold account has to read the tenant (§3: 14-day median dwell) |
+| T1550.001 | **high** | Directory Readers (RBAC) | Credential / token theft | Token reuse is the residual path that survives MFA (§4–§5); least-privilege on directory reads limits what a replayed token can see |
 | T1526 | high [‡] | CA policy read roles (RBAC) | CA-policy exposure | Least-privilege on policy reads limits an adversary's map of where MFA/CA coverage is thin |
 | T1518.001 | high [‡] | Security Reader (RBAC) | Detection-coverage gap | Restricts who can read DfI sensor health — the map of where detection is degraded |
 | T1082 | medium | Intune Service Administrator (RBAC) | Endpoint targeting | Limits enumeration of non-compliant/unencrypted devices — the soft lateral-movement targets |
@@ -147,10 +154,10 @@ credential-breach exposure, not a standalone number.
 | T1213.002 | medium | CA-SPO-001-RequireCompliantApp | Information-repository exposure | Restricts the SharePoint site inventory that steers later Collection toward business-sensitive repositories (HR, Legal, Finance); a compliant-app CA policy blocks the unmanaged-host token path at the authorization boundary |
 | T1033 | medium | PIM-EligibleRoleAssignments | Privileged-account enumeration | Shrinks the standing set of Global Admin / Privileged Role Administrator holders an adversary can discover as always-on escalation targets; JIT eligibility makes each activation an auditable, time-bound event |
 
-Reading the bridge: the **T1550.001 (High)** finding is the one that ties most directly to
-the §3 dollar figure — token reuse is precisely the residual-0.8% credential-theft path
-that survives MFA — and its control (least-privilege on Directory Readers) reduces the
-blast radius of a replayed token. The rest map to *direction of risk*, not dollars.
+Reading the bridge: the **T1550.001 (High)** finding ties most directly to §4. Token reuse
+is the residual credential path that survives MFA, and its control (least-privilege on
+Directory Readers) reduces the blast radius of a replayed token. Every row maps to
+*direction of risk*; none carries a dollar figure.
 
 > **[†] Note (2026-08-29):** T1580 severity updated `low` → `medium` per
 > `docs/finding-severity-rubric-v0.1.md` (the label taxonomy is a Collection-targeting map,
@@ -170,9 +177,12 @@ blast radius of a replayed token. The rest map to *direction of risk*, not dolla
 
 Carried over from `phs-security-roi-baseline-v0.1.md` §8 where they affect this model:
 
-- **IBM 2025 PDF body not retrieved** (gap #1). The US mid-market anchor here is the 2024
-  figure ($3.31M); the 2025 mid-market segment split may differ. The $3.31M row is
-  MODERATE confidence for that reason.
+- **IBM 2026 segment splits and lifecycle figures not confirmed from a primary source**
+  (baseline gap #10). v0.2 therefore uses only the 2026 global average, as context, and
+  computes no segment-specific or credential-specific dollar exposure.
+- **2026 credential-abuse share not confirmed from a primary source** (baseline gap #11).
+  The 2026 DBIR ranking (vulnerability exploitation ahead of credential abuse) is primary;
+  the credential percentage is not used.
 - **Gartner SOC alert-volume figures are paywalled** (gap #3). Any SOC alert-load framing
   in downstream versions of this model rests on the 30–40 alerts/analyst/shift *planning
   assumption* (LOW confidence, vendor consensus, not research).
@@ -182,9 +192,9 @@ Carried over from `phs-security-roi-baseline-v0.1.md` §8 where they affect this
 - **Tines Voice of the SOC 2023 data is approaching 3 years old** (gap #6). Not used
   numerically in this v0.1 model, but flagged for any future SOC-efficiency extension.
 
-Additionally: the **292-day stolen-credential lifecycle is a proxy** for credential-theft
-MTTR, not a direct measurement (baseline gap #4), and the **242% Forrester TEI is
-vendor-commissioned** (baseline §7). Both are used above with those flags attached.
+Additionally: the **242% Forrester TEI is vendor-commissioned** (baseline §7) and is used
+above with that flag attached. The 292-day stolen-credential lifecycle (baseline gap #4) is
+no longer used.
 
 ---
 
@@ -207,4 +217,5 @@ vendor-commissioned** (baseline §7). Both are used above with those flags attac
 | v0.1 | 2026-08-15 | Initial model. Scenario: 750-employee mid-market M365 E5. Sources: IBM CODB 2024/2025, Verizon DBIR 2025, M-Trends 2025, Microsoft MFA research. |
 | v0.1 | 2026-08-29 | §6 findings-to-ROI bridge: T1580 severity `low` → `medium` per `docs/finding-severity-rubric-v0.1.md` (re-triage). Direction of risk unchanged; no figures affected. |
 | v0.1 | 2026-09-08 | §6 bridge extended with two later-evidenced techniques — **T1213.002** (CA-SPO-001-RequireCompliantApp, evidenced R013) and **T1033** (PIM-EligibleRoleAssignments, evidenced R012) — same style/rigor as the original nine, direction-of-risk only, no dollar figure. This is the grounding table consumed by the S5 W18 ROI section in `scripts/generate_html_report.py`. No baseline figures added or changed. |
+| v0.2 | 2026-10-12 | Refresh to 2026 primary sources (B032). §2 scenario: IBM CODB 2026 global average ($4.99M, context only), Verizon DBIR 2026 (vulnerability exploitation 31%, ahead of credential abuse), M-Trends 2026 (14-day median dwell, exploits 32%), Microsoft Learn (>99.2% MFA). Retired: the §3 $728K credential-exposure figure (US mid-market $3.31M × DBIR 2025 22%), the 281-day window, and the 194-day MTTI row. §6: T1550.001, T1078.004, and T1069.003 direction cells no longer cite $728K or 281 days; no row carries a dollar figure. T1526 control column corrected in B033 (2026-10-12). |
 | v0.1 | 2026-09-10 | §6 bridge: T1526, T1518.001, and T1654 severity `medium` → `high` [‡] per `docs/finding-severity-rubric-v0.1.md` **v1.0** (defensive-evasion escalator adopted; PM decision, S5 W18). Direction of risk unchanged for all three; only the severity column is refined. No figures affected. |

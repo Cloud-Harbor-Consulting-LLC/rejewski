@@ -16,10 +16,10 @@ finding per docs/finding-severity-rubric-v0.1.md v0.2), control mappings per fin
 ROI / business-impact section (S5 W18). The ROI section is computed by looking each finding's
 technique up in the §6 findings-to-ROI bridge table of docs/phs-security-roi-model-v0.1.md —
 the already-reviewed grounding source of truth — and rendering that technique's risk category
-and direction-of-risk verbatim. **No dollar figure is fabricated:** the only figure that can
-appear is the one already in the reviewed table (T1550.001, expressed as a fraction of the §3
-$728K exposure). A finding whose technique is not in the bridge renders an explicit
-"not yet in the ROI model" line rather than an invented one.
+and direction-of-risk verbatim. **No dollar figure is fabricated:** since ROI model v0.2
+(2026-10-12) no row in the reviewed table carries a dollar figure, so none can appear. A
+finding whose technique is not in the bridge renders an explicit "not yet in the ROI model"
+line rather than an invented one.
 
 G-6: the report reuses only fields already present (and already scrubbed) in the source
 records — the sandbox tenant is shown truncated to its first segment, the operator UPN is the
@@ -370,9 +370,9 @@ def _render_roi(findings: list[dict], bridge: dict) -> str:
     """One ROI line per finding: risk category + direction of risk from the §6 bridge.
 
     Every finding gets a line (AC1). A technique in the bridge renders its reviewed
-    risk-category / direction cells verbatim — the only dollar figure that can appear is the
-    one already in the reviewed table (T1550.001, a fraction of the §3 $728K). A technique not
-    in the bridge renders an explicit not-modeled line (AC4), never a fabricated one.
+    risk-category / direction cells verbatim; since ROI model v0.2 no reviewed cell carries a
+    dollar figure. A technique not in the bridge renders an explicit not-modeled line (AC4),
+    never a fabricated one.
     """
     rows = []
     for f in findings:
@@ -395,9 +395,9 @@ def _render_roi(findings: list[dict], bridge: dict) -> str:
     intro = (
         '<p class="notes">Each finding is mapped to its baseline risk category and '
         "direction of risk from the §6 findings-to-ROI bridge in "
-        "<code>docs/phs-security-roi-model-v0.1.md</code>. Per that model no per-finding "
-        "dollar figure is assigned; the sole figure that appears (T1550.001) is the "
-        "established fraction-of-$728K framing from §3.</p>"
+        "<code>docs/phs-security-roi-model-v0.1.md</code>. Per that model no finding is "
+        "assigned a dollar figure: breach-cost data does not support a per-finding "
+        "number.</p>"
     )
     return (
         "<section>\n<h2>ROI / business impact</h2>\n" + intro + "\n<table>\n"

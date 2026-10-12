@@ -1,6 +1,6 @@
 # Security ROI Baseline Assumptions (v0.1)
 
-**Status:** v0.1
+**Status:** v0.2 (2026-10-12; §4a 2026 refresh added, file path unchanged)
 **Pillar:** 2 — Security ROI and Business Case
 **Backlog item:** B004 Capture Security ROI baseline assumptions
 **Owner:** Derek Morgan (Cloud Harbor Consulting)
@@ -70,6 +70,23 @@ Vendor bias is disclosed inline whenever the source has commercial interest in t
 | Working planning assumption: alerts/analyst/shift actively investigated | 30 | 35 | 40 | n/a | LOW (no primary research) | Vendor consensus only |
 | MFA deployment cost (per user per month, mid-market typical) | $3 | $5 | $6 | 2025 list | LOW (no primary research) | Vendor pricing only |
 
+### 4a. 2026 refresh (v0.2, verified 2026-10-12)
+
+Each row was checked against its primary source. Rows in §4 that these supersede stay in
+the table above as history; the ROI model (v0.2) uses only the rows below for 2026 figures.
+
+| Assumption | Value | Vintage | Confidence | Source | Supersedes (§4) |
+|---|---|---|---|---|---|
+| Average breach cost — global | $4.99M (up 12%, record high) | 2026 report | HIGH | IBM CODB 2026 (source 18) | Average breach cost — global (2024–2025) |
+| Leading initial access vector | Exploitation of vulnerabilities, 31% of breaches, ahead of credential abuse | 2026 report | HIGH | Verizon DBIR 2026 (source 19) | Credential-driven breach share 22% (DBIR 2025) as the ranking anchor |
+| Global median dwell time — Mandiant IR engagements | 14 days (from 11) | 2025 engagements | HIGH (Mandiant population) | M-Trends 2026 (source 20) | Mean dwell time 11 days (M-Trends 2025) |
+| Exploits as initial infection vector — Mandiant IR engagements | 32% of intrusions, most common vector for the sixth year | 2025 engagements | HIGH (Mandiant population) | M-Trends 2026 (source 20) | — |
+| MFA block rate | >99.2% of account compromise attacks | Page updated 2026-10-06 | HIGH | Microsoft Learn (source 21) | MFA block rate 99.2% (Microsoft Entra blog) |
+
+Not adopted, because only secondary sources confirmed them on 2026-10-12: a 2026 DBIR
+credential-abuse share (reported as 13%), an IBM 2026 time to identify and contain (reported
+as 247 days), and an IBM 2026 US average (reported as $11.5M). See gaps #10 and #11.
+
 ---
 
 ## 5. Critical Reconciliation — Dwell Time
@@ -121,19 +138,22 @@ The following items are honest gaps in the v0.1 baseline. Each is tracked for re
 7. **Forrester TEI Sentinel December 2023 figure is aging.** Verify for a 2025 refresh before citation in any downstream artifact.
 8. **No IBM 2025 Zero Trust specific dollar.** Only the 2024 figure ($1.76M) is captured; the 2025 report has moved its headline narrative to AI/automation.
 9. **All Forrester TEI numbers are vendor-commissioned by Microsoft.** Independent ROI research (IDC Business Value studies, Gartner Magic Quadrant ROI commentary) was not retrieved in this pass.
+10. **IBM 2026 segment splits and lifecycle figures not confirmed from a primary source** (added v0.2). US, mid-market, and time-to-identify-and-contain figures for 2026 were found only in secondary summaries. Action: retrieve the IBM 2026 report body before any of them is cited.
+11. **2026 DBIR credential-abuse share not confirmed from a primary source** (added v0.2). The ranking (vulnerability exploitation ahead of credential abuse) is confirmed; the percentage is not. Action: retrieve the DBIR 2026 report body before citing a credential share.
 
 ---
 
 ## 9. Cross-References
 
 - **Pillar 1 (Zero Trust in Practice):** docs/phs-zt-scenarios-v0.1.md — Zero Trust baseline scenarios. The $1.76M ZT cost-saving figure in Section 4 is the business-case anchor for the device-compliance, identity-verification, and network-segmentation scenarios defined there.
-- **Threat model:** docs/threat-model.md — ATT&CK T1078.004 / T1087.004 / T1069.003 mappings for Sprint 1 technique runs. Credential-driven breach share (22%, Verizon) is the population-level anchor for the threat model's identity-emulation focus.
+- **Threat model:** docs/threat-model.md — ATT&CK T1078.004 / T1087.004 / T1069.003 mappings for Sprint 1 technique runs. Credential-driven breach share (22%, Verizon DBIR 2025) was the population-level anchor for the threat model's identity-emulation focus. As of v0.2 the 2026 DBIR puts vulnerability exploitation ahead of credential abuse (§4a); the foothold account the threat model emulates is reached by either path.
 - **Master Plan v1.5:** Section 10 Project Links. This baseline supports KPI Dashboard delta tracking (Section 3.1) and the Sprint Review Template financial-impact slot.
 
 ---
 
 ## 10. Change Log
 
+- **v0.2 — Mon Oct 12, 2026.** Added §4a 2026 refresh (IBM CODB 2026, Verizon DBIR 2026, M-Trends 2026, Microsoft Learn MFA), each verified against its primary source; gaps #10 and #11; sources 18–21. §4 rows kept as history. Backlog item B032.
 - **v0.1 — Sat May 16, 2026.** Initial publication. 12 grounded design questions, 27 assumption rows, 5 HIGH-confidence baselines, 9 honest gaps documented. Backlog item B004.
 
 ---
@@ -156,4 +176,8 @@ The following items are honest gaps in the v0.1 baseline. Each is tracked for re
 14. Microsoft Sentinel landing (Forrester TEI 234% ROI): [https://www.microsoft.com/en-us/security/business/siem-and-xdr/microsoft-sentinel](https://www.microsoft.com/en-us/security/business/siem-and-xdr/microsoft-sentinel)
 15. Tines Voice of the SOC 2023 — report: [https://www.tines.com/reports/voice-of-the-soc-2023/](https://www.tines.com/reports/voice-of-the-soc-2023/)
 16. Microsoft Security Copilot Randomized Controlled Trial: [https://www.microsoft.com/en-us/security/blog/2024/04/02/randomized-controlled-trial-for-microsoft-copilot-for-security/](https://www.microsoft.com/en-us/security/blog/2024/04/02/randomized-controlled-trial-for-microsoft-copilot-for-security/)
+18. IBM Cost of a Data Breach Report 2026 — landing: [https://www.ibm.com/reports/data-breach](https://www.ibm.com/reports/data-breach)
+19. Verizon Data Breach Investigations Report 2026 — landing: [https://www.verizon.com/business/resources/reports/dbir/](https://www.verizon.com/business/resources/reports/dbir/)
+20. M-Trends 2026: Data, Insights, and Strategies From the Frontlines — Google Cloud blog, 2026-03-23: [https://cloud.google.com/blog/topics/threat-intelligence/m-trends-2026](https://cloud.google.com/blog/topics/threat-intelligence/m-trends-2026)
+21. Microsoft Learn — Plan for mandatory Microsoft Entra multifactor authentication (updated 2026-10-06): [https://learn.microsoft.com/en-us/entra/identity/authentication/concept-mandatory-multifactor-authentication](https://learn.microsoft.com/en-us/entra/identity/authentication/concept-mandatory-multifactor-authentication)
 17. Veza summary clarifying the IBM AI savings framings: [https://veza.com/blog/ibm-2024-cost-of-a-data-breach-report-puts-identity-front-and-center/](https://veza.com/blog/ibm-2024-cost-of-a-data-breach-report-puts-identity-front-and-center/)

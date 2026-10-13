@@ -18,6 +18,16 @@ so no operator filesystem path can reach samples/ through this tool.
 
 Usage:
     python scripts/consolidate_run.py --run-id R007
+    python scripts/consolidate_run.py --run-id R007 --keep-session
+
+Session teardown (G-8): consolidation is the last step of a run, so after the
+run's evidence is written this utility ends the session for every account that
+acquired a token in the run, by deleting that account's local token cache
+(scripts/identity.end_session). The next run signs in again instead of
+silently reusing a refresh token from this one. Pass --keep-session to skip the
+teardown, for example when consolidating part of a run that is still going.
+Teardown is local only; see identity.end_session for why the refresh token is
+not revoked at Entra ID.
 
 Entry selection:
   * graph_call / token_event entries carry a `run_id` field; they are
@@ -102,7 +112,39 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         required=True,
         help="Run ID to consolidate (e.g. R007).",
     )
+    parser.add_argument(
+        "--keep-session",
+        action="store_true",
+        help="Skip the G-8 session teardown (leave the run's token caches in place).",
+    )
     return parser.parse_args(argv)
+
+
+def run_actor_upns(entries: list[dict[str, Any]]) -> list[str]:
+    """Accounts that acquired a token in the run (token_event actor_upn), in order."""
+    upns: list[str] = []
+    for entry in entries:
+        upn = entry.get("actor_upn")
+        if entry.get("kind") == "token_event" and upn and upn not in upns:
+            upns.append(upn)
+    return upns
+
+
+def end_run_sessions(entries: list[dict[str, Any]]) -> int:
+    """G-8 teardown: delete the local token cache of every account in the run.
+
+    Returns the number of files removed. Prints per-account counts only, never the
+    operator-local cache path (G-6).
+    """
+    import identity  # deferred: identity pulls in msal, which consolidation alone does not need
+
+    removed_total = 0
+    for upn in run_actor_upns(entries):
+        removed = identity.end_session(upn)
+        removed_total += len(removed)
+        state = "token cache deleted" if removed else "no token cache found"
+        print(f"G-8 session teardown for {upn}: {state}")
+    return removed_total
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -131,6 +173,10 @@ def main(argv: list[str] | None = None) -> int:
         encoding="utf-8",
     )
     print(f"wrote {len(entries)} entries for run {run_id} to {out_path}")
+    if args.keep_session:
+        print("G-8 session teardown skipped (--keep-session)")
+    else:
+        end_run_sessions(entries)
     return 0
 
 

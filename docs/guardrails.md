@@ -2,7 +2,7 @@
 
 Operational rules that bind every Rejewski technique and tool. Each guardrail has an ID, statement, rationale, enforcement, scope, and exceptions. Technique modules in docs/techniques/ cite these IDs by number. ADR 0001 (Rules of Engagement) authorizes the set.
 
-**Accuracy note (2026-10-12, B036).** The Enforcement paragraphs were rewritten against the shipped code. Several earlier paragraphs described checks in an SDK layer that was never built. Each Enforcement paragraph now names the mechanism in code, with file references, or says the guardrail is procedural. Four guardrails are enforced in code (G-1 tenant lock, G-3 GET-only, G-5 evidence writes, G-9 row caps). G-2 and G-6 are partly code and partly PR review. G-4, G-7, and G-8 are procedural.
+**Accuracy note (2026-10-12, B036).** The Enforcement paragraphs were rewritten against the shipped code. Several earlier paragraphs described checks in an SDK layer that was never built. Each Enforcement paragraph now names the mechanism in code, with file references, or says the guardrail is procedural. Five guardrails are enforced in code (G-1 tenant lock, G-3 GET-only, G-5 evidence writes, G-8 session teardown since 2026-10-13, G-9 row caps). G-2 and G-6 are partly code and partly PR review. G-4 and G-7 are procedural.
 
 ---
 
@@ -106,15 +106,15 @@ Operational rules that bind every Rejewski technique and tool. Each guardrail ha
 
 ## G-8 — Time-boxed sessions
 
-**Statement.** Refresh tokens persist across tool invocations and across runs in an encrypted MSAL token cache on the operator workstation, as decided in ADR 0005. That persistence is what produces the T1550.001 silent-reuse evidence. Rejewski does not end the session at run end; session lifetime is bounded by Microsoft Entra ID refresh-token lifetime and any Conditional Access sign-in frequency that applies to the account. (Corrected 2026-10-12, B036: earlier text said refresh tokens are not held beyond a session-keep-warm window and that sessions are torn down at the end of each run. R016 (2026-10-12) acquired all 15 tokens by silent reuse of a cached session.)
+**Statement.** Within a run, the refresh token persists across tool invocations in an encrypted MSAL token cache on the operator workstation, as decided in ADR 0005; that persistence produces the T1550.001 silent-reuse evidence. At the end of a run, Rejewski deletes the cache for every account that acquired a token in the run, so the next run signs in again instead of reusing a session from an earlier one. The teardown is local: a refresh token already issued stays valid at Microsoft Entra ID until it expires or an administrator revokes it, because revoking it would need a Graph write call that G-1 and G-3 forbid. (Updated 2026-10-13, ADR 0005 amendment: before this change the cache persisted across runs with no teardown; R016 on 2026-10-12 acquired all 15 tokens by silent reuse of a cached session.)
 
 **Rationale.** Long-lived token persistence is itself a Sprint 2+ technique (T1078.004 sub-scenarios, T1098.001). Holding tokens across runs would conflate the discovery emulations being shipped in Sprint 1 with persistence behaviors that have not been authorized yet. Time-boxing also bounds the blast radius if a refresh token cache ever leaks from the operator workstation.
 
-**Enforcement.** scripts/identity.py stores the cache with msal-extensions `PersistedTokenCache` over OS encryption (DPAPI on Windows, Keychain on macOS, libsecret on Linux) and refuses a plaintext fallback unless REJEWSKI_ALLOW_PLAINTEXT_CACHE=1 is set. Each token_event records the persistence kind. Teardown is procedural: delete the cache file (REJEWSKI_CACHE_PATH, or `%LOCALAPPDATA%\rejewski\<account>.bin` on Windows) to end the session. The session_keep_warm flag in rejewski.config.json is not read by any tool. (Corrected 2026-10-12, B036: earlier text said the SDK enforces an expiry and that a missed sign-out is flagged in an audit ledger; neither exists.)
+**Enforcement.** scripts/identity.py stores the cache with msal-extensions `PersistedTokenCache` over OS encryption (DPAPI on Windows, Keychain on macOS, libsecret on Linux) and refuses a plaintext fallback unless REJEWSKI_ALLOW_PLAINTEXT_CACHE=1 is set; each token_event records the persistence kind. scripts/consolidate_run.py, the last step of every run, calls `identity.end_session()` for each account in the run's token_event entries after the run's evidence is written. `end_session()` deletes the cache file and its lock file and makes no network call. The operator can skip teardown with `--keep-session` (for example when consolidating part of a run that is still going); the console output says when teardown was skipped. tests/test_consolidate_run.py and tests/test_identity.py cover deletion, the opt-out, ordering after the evidence write, no teardown on a failed consolidation, and no network call. The session_keep_warm flag in rejewski.config.json is not read by any tool.
 
 **Scope.** Every operator run, on the workstation that holds the token cache.
 
-**Exceptions.** None. ADR 0005 is the decision that authorizes cross-invocation persistence; any automated teardown would be a change to that ADR.
+**Exceptions.** `--keep-session` on consolidate_run.py. A run that is abandoned before consolidation leaves its cache in place; delete it by running consolidation for that run ID or by deleting the cache file (REJEWSKI_CACHE_PATH, or `%LOCALAPPDATA%\rejewski\<account>.bin` on Windows).
 
 ---
 

@@ -30,6 +30,21 @@ EXPECTED_ENTRY_IDS = {
 }
 
 
+@pytest.fixture(autouse=True)
+def _isolated_token_cache(monkeypatch, tmp_path):
+    """Point identity's token cache at a temp path for every test in this module.
+
+    main() now ends the run's sessions (G-8) by deleting each account's token cache.
+    The fixture run's token_events use the real sandbox UPN, so without this the
+    suite would delete the operator's real cache.
+    """
+    import identity
+
+    cache = tmp_path / "token-cache" / "rejewski.bin"
+    monkeypatch.setenv(identity.ENV_CACHE_PATH, str(cache))
+    return cache
+
+
 def _point_at(monkeypatch, *, replay_dir: Path, samples_dir: Path) -> None:
     monkeypatch.setattr(consolidate_run, "REPLAY_LOGS_DIR", replay_dir)
     monkeypatch.setattr(consolidate_run, "SAMPLES_DIR", samples_dir)
@@ -115,3 +130,88 @@ def test_run_id_not_found_exits_1(monkeypatch, tmp_path, capsys):
     assert consolidate_run.main(["--run-id", "R999"]) == 1
     assert "no entries found" in capsys.readouterr().err
     assert not (tmp_path / "R999.json").exists()
+
+
+# --- G-8 session teardown -------------------------------------------------------
+
+
+SANDBOX_UPN = "meganb@cloudharbor-demo.com"
+
+
+def _run_with_actor(tmp_path: Path) -> Path:
+    """Copy the fixture run and stamp actor_upn on its token_events, as real logs carry."""
+    run_dir = tmp_path / "replay-logs"
+    shutil.copytree(FIXTURE_RUN, run_dir)
+    for path in run_dir.glob("*.json"):
+        entry = json.loads(path.read_text(encoding="utf-8"))
+        if entry.get("kind") == "token_event":
+            entry["actor_upn"] = SANDBOX_UPN
+            path.write_text(json.dumps(entry), encoding="utf-8")
+    return run_dir
+
+
+def _seed_cache(cache: Path) -> Path:
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    cache.write_bytes(b"encrypted-cache-stand-in")
+    lock = Path(f"{cache}.lockfile")
+    lock.write_text("", encoding="utf-8")
+    return lock
+
+
+def test_teardown_deletes_run_token_cache(monkeypatch, tmp_path, capsys, _isolated_token_cache):
+    cache = _isolated_token_cache
+    lock = _seed_cache(cache)
+    _point_at(monkeypatch, replay_dir=_run_with_actor(tmp_path), samples_dir=tmp_path / "out")
+
+    assert consolidate_run.main(["--run-id", RUN_ID]) == 0
+
+    assert not cache.exists() and not lock.exists()
+    out = capsys.readouterr().out
+    assert f"G-8 session teardown for {SANDBOX_UPN}: token cache deleted" in out
+    assert str(cache) not in out, "operator-local cache path must not be printed (G-6)"
+
+
+def test_keep_session_leaves_token_cache(monkeypatch, tmp_path, capsys, _isolated_token_cache):
+    cache = _isolated_token_cache
+    lock = _seed_cache(cache)
+    _point_at(monkeypatch, replay_dir=_run_with_actor(tmp_path), samples_dir=tmp_path / "out")
+
+    assert consolidate_run.main(["--run-id", RUN_ID, "--keep-session"]) == 0
+
+    assert cache.exists() and lock.exists()
+    assert "teardown skipped (--keep-session)" in capsys.readouterr().out
+
+
+def test_teardown_runs_after_evidence_is_written(monkeypatch, tmp_path, _isolated_token_cache):
+    _seed_cache(_isolated_token_cache)
+    out_dir = tmp_path / "out"
+    _point_at(monkeypatch, replay_dir=FIXTURE_RUN, samples_dir=out_dir)
+    seen = {}
+
+    def _spy(entries):
+        seen["evidence_written"] = (out_dir / f"{RUN_ID}.json").is_file()
+        return 0
+
+    monkeypatch.setattr(consolidate_run, "end_run_sessions", _spy)
+    assert consolidate_run.main(["--run-id", RUN_ID]) == 0
+    assert seen == {"evidence_written": True}
+
+
+def test_failed_consolidation_does_not_end_session(monkeypatch, tmp_path, _isolated_token_cache):
+    cache = _isolated_token_cache
+    _seed_cache(cache)
+    _point_at(monkeypatch, replay_dir=_run_with_actor(tmp_path), samples_dir=tmp_path / "out")
+
+    assert consolidate_run.main(["--run-id", "R-NOT-THERE"]) == 1
+    assert cache.exists()
+
+
+def test_run_actor_upns_dedupes_token_event_accounts():
+    entries = [
+        {"kind": "token_event", "actor_upn": "a@x.test"},
+        {"kind": "graph_call", "actor_upn": "b@x.test"},
+        {"kind": "token_event", "actor_upn": "a@x.test"},
+        {"event": "consent.granted", "run_id": "R1"},
+        {"kind": "token_event", "actor_upn": "c@x.test"},
+    ]
+    assert consolidate_run.run_actor_upns(entries) == ["a@x.test", "c@x.test"]

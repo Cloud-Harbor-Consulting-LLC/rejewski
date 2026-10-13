@@ -293,3 +293,28 @@ class TestPersistenceKindPropagatesToReplayLog:
 
         events = _read_token_events(replay_dir)
         assert events[0]["response"]["persistence_kind"] == identity.PERSISTENCE_PLAINTEXT
+
+
+class TestEndSession:
+    """G-8 teardown: end_session deletes the local cache and its lock file only."""
+
+    def test_removes_cache_and_lockfile(self, cache_path: Path) -> None:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache_path.write_bytes(b"x")
+        lock = Path(f"{cache_path}.lockfile")
+        lock.write_text("", encoding="utf-8")
+
+        removed = identity.end_session(ACTOR_UPN)
+
+        assert set(removed) == {cache_path, lock}
+        assert not cache_path.exists() and not lock.exists()
+
+    def test_no_cache_is_a_no_op(self, cache_path: Path) -> None:
+        assert identity.end_session(ACTOR_UPN) == []
+
+    def test_makes_no_network_call(self, cache_path: Path) -> None:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache_path.write_bytes(b"x")
+        with mock.patch.object(identity.msal, "PublicClientApplication") as pca:
+            identity.end_session(ACTOR_UPN)
+        pca.assert_not_called()

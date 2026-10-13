@@ -73,6 +73,14 @@ Every token acquisition — silent reuse or interactive ROPC — emits a `token_
 - **Custom file-based token store with operator-supplied key.** Rejected because (a) reinvents what DPAPI / Keychain / libsecret already do; (b) operator-supplied keys turn into operational gotchas (lost keys, wrong keys, keys in git); (c) ADR-0001 §7 prefers OS-native protection over operator-managed protection. Revisit window: never for Sprint 1/2; possibly Sprint 3+ if a customer engagement requires HSM-backed key storage.
 - **Pre-issued long-lived refresh token written by an operator-controlled bootstrap step.** Rejected for the same reasons ADR-0004 §6 rejected the pre-issued-RT alternative — sidesteps the credential-theft tradecraft Rejewski exists to exercise. Revisit window: Sprint 3+.
 
+### 5.4 Amendment (2026-10-13): end-of-run session teardown
+
+The cache in §2 was meant to carry one session across the tools of a run. It also carried sessions across runs: R016 (2026-10-12) acquired all 15 tokens silently from a session cached days earlier, and guardrail G-8 says sessions do not outlive a run. Decision: `scripts/consolidate_run.py`, the last step of every run, calls `identity.end_session()` for each account in the run's token_event entries after the run's evidence is written, deleting that account's cache file and lock file. `--keep-session` skips it. Consequences:
+
+- Each run starts with an ROPC sign-in (a `token_event` with flow `ropc`, technique T1078.004) and reuses that session silently for the rest of the run (T1550.001). Within-run tradecraft from §1 is unchanged.
+- Teardown is local. Revoking the refresh token at Entra ID needs `POST /users/{id}/revokeSignInSessions`, a write call the GET-only floor forbids. The issued refresh token stays valid at Entra ID until it expires; Rejewski no longer holds a copy.
+- The seeded password is used once per run instead of once per cache lifetime.
+
 ## 7. Compliance and Verification
 
 - **Module entry point.** All token acquisition routes through `scripts/identity.acquire_token(...)`. Inline MSAL usage in technique tools is forbidden after PR 3 (Sprint 1 W2). CI grep check (B008+ slot): `git grep "PublicClientApplication\|acquire_token_by_username_password" -- scripts/ techniques/ ':!scripts/identity.py'` returns zero matches.
@@ -84,4 +92,5 @@ Every token acquisition — silent reuse or interactive ROPC — emits a `token_
 
 | Date | Version | Change | Author |
 |------|---------|--------|--------|
+| 2026-10-13 | v0.2 | §5.4 amendment: end-of-run session teardown in `scripts/consolidate_run.py` via `identity.end_session()`, `--keep-session` opt-out; local only (no revocation call). Closes the G-8 gap documented in B036. | Derek Morgan |
 | 2026-05-19 | v0.1 | Initial decision. `PersistedTokenCache` over `build_encrypted_persistence` as default; `REJEWSKI_ALLOW_PLAINTEXT_CACHE=1` opt-in for headless Linux; CP1 client capability; `acquire_token_silent_with_error` exclusive; `token_event` replay-log emission at every acquisition. Refines ADR-0004 persistence layer. | Derek Morgan |

@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **G-8 end-of-run session teardown (S6 W23, ADR 0005 v0.2 §5.4).** The encrypted MSAL token cache
+  carried sessions across runs: R016 acquired all 15 tokens silently from a session cached days
+  earlier. New `identity.end_session(actor_upn)` deletes an account's cache file and its lock file and
+  makes no network call. `scripts/consolidate_run.py`, the last step of every run, now calls it for each
+  account in the run's token_event entries **after** the run's evidence is written. A new
+  `--keep-session` flag skips teardown, and a failed consolidation leaves the cache alone. Console output
+  names the account and never prints the cache path (G-6). Teardown is local only: revoking the refresh
+  token at Entra ID would need a Graph write call (`revokeSignInSessions`), which the GET-only floor
+  forbids, so an issued token stays valid at Entra ID until it expires. Effect on evidence: each run now
+  starts with one ROPC sign-in (T1078.004 token_event) and reuses it silently for the rest of the run.
+  `docs/guardrails.md` G-8 Statement, Enforcement, and Exceptions updated (G-8 is now enforced in code);
+  README step 3 and Guardrails summary updated. Tests: 8 new (deletion, opt-out, ordering after the
+  evidence write, no teardown on failure, account de-duplication, `end_session` no-op and no network
+  call); `tests/test_consolidate_run.py` now points the token cache at a temp path for every test,
+  because its fixture run uses the real sandbox UPN. Suite 197 → 205.
+
 - **R016 — weekly end-to-end run, first with all 15 tools; canonical run moved to R016 (S6 W22 Sat,
   makeup).** The Sat 2026-10-10 slot of the weekly cadence, run Mon 2026-10-12 as a makeup. One
   consented, operator-authorized session against `cloudharbordemo` (G-1) exercising all 15 tool

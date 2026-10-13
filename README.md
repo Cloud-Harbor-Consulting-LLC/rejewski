@@ -80,7 +80,7 @@ for tool in tool_list_users tool_list_applications tool_list_service_principals 
 done
 ```
 
-**3. Consolidate the run** into one replay log. `consolidate_run.py` reads every `replay-logs/` entry whose `run_id` matches, writes `samples/replay-log/<run-id>.json`, and unconditionally redacts the operator-local cache path (G-6):
+**3. Consolidate the run** into one replay log. `consolidate_run.py` reads every `replay-logs/` entry whose `run_id` matches, writes `samples/replay-log/<run-id>.json`, and unconditionally redacts the operator-local cache path (G-6). It then ends the run's session by deleting the token cache of each account that signed in (G-8); pass `--keep-session` to skip that:
 
 ```bash
 python scripts/consolidate_run.py --run-id R016
@@ -104,7 +104,7 @@ The self-test consent mechanic is specified in [docs/roe-consent-flow.md](docs/r
 
 ## Guardrails
 
-Rejewski runs under nine operational guardrails (**G-1 through G-9**), cited by number from the technique modules. Some are enforced in code and some by procedure and PR review; each one's Enforcement paragraph says which. In brief: every replay-log entry is locked to the `cloudharbordemo` sandbox tenant (**G-1**, code); there is no tenant app registration, and a single borrowed Microsoft first-party client is recorded on every entry (**G-2**, **G-4**, code plus review); Graph requests are GET only (**G-3**, code); every call writes a replay-log entry (**G-5**, code); published evidence carries per-call counts, not directory payloads (**G-6**, code plus review); the sandbox holds only seeded test accounts (**G-7**, procedure); the encrypted token cache persists between runs and teardown is manual (**G-8**, procedure); and enumeration is capped per call (**G-9**, code).
+Rejewski runs under nine operational guardrails (**G-1 through G-9**), cited by number from the technique modules. Some are enforced in code and some by procedure and PR review; each one's Enforcement paragraph says which. In brief: every replay-log entry is locked to the `cloudharbordemo` sandbox tenant (**G-1**, code); there is no tenant app registration, and a single borrowed Microsoft first-party client is recorded on every entry (**G-2**, **G-4**, code plus review); Graph requests are GET only (**G-3**, code); every call writes a replay-log entry (**G-5**, code); published evidence carries per-call counts, not directory payloads (**G-6**, code plus review); the sandbox holds only seeded test accounts (**G-7**, procedure); consolidating a run deletes its encrypted token cache, so sessions do not carry over between runs (**G-8**, code); and enumeration is capped per call (**G-9**, code).
 
 Full rule text — statement, rationale, enforcement, scope, and exceptions for each — is in [docs/guardrails.md](docs/guardrails.md); the guardrail set is authorized by [ADR 0001](docs/adr/0001-rules-of-engagement.md).
 

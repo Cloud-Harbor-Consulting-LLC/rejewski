@@ -81,6 +81,31 @@ def _resolve_cache_path(actor_upn: str) -> Path:
     return _default_cache_path(actor_upn)
 
 
+def end_session(actor_upn: str) -> list[Path]:
+    """End the operator-local session for actor_upn (G-8 teardown).
+
+    Deletes the encrypted MSAL token cache for the account and the msal-extensions
+    lock file beside it, so the next run must sign in again (ROPC) instead of
+    silently reusing a refresh token held from an earlier run.
+
+    Local only. Revoking the refresh token at Entra ID would need a write call
+    (POST /users/{id}/revokeSignInSessions), which the GET-only floor (G-1, G-3)
+    forbids. A refresh token already issued stays valid at Entra ID until it
+    expires or an administrator revokes it; this removes the only copy Rejewski holds.
+
+    Returns the paths removed (empty if there was no cache).
+    """
+    cache_path = _resolve_cache_path(actor_upn)
+    removed: list[Path] = []
+    for path in (cache_path, Path(f"{cache_path}.lockfile")):
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            continue
+        removed.append(path)
+    return removed
+
+
 def _build_cache(cache_path: Path) -> tuple[Any, str]:
     """Return (token_cache, persistence_kind).
 

@@ -25,6 +25,12 @@ CLIENT_ID    = os.environ["FOCI_CLIENT_ID"]
 USERNAME     = os.environ["COMPROMISED_USER_UPN"]
 PASSWORD     = os.environ["COMPROMISED_USER_PASSWORD"]
 
+# G-1 (ADR 0008): this Sprint 1 smoke test calls MSAL directly and bypasses the
+# consent gate in identity.acquire_token, so it stays sandbox-only.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from roe_gate import require_sandbox  # noqa: E402
+require_sandbox(TENANT_ID, "step4-token-smoke.py")
+
 AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 SCOPES    = ["https://graph.microsoft.com/.default"]
 

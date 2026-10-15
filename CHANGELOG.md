@@ -11,6 +11,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **G-1 consent-bound tenant lock: Rejewski can run against any tenant with Rules of Engagement
+  consent (ADR 0008, S6 W23).** Until now G-1 locked every run to the `cloudharbordemo` sandbox through a
+  constant, and consent was a record no code checked. New `scripts/roe_gate.py` (`authorize_run`) binds
+  each run to the one tenant its consent record names. The rules: a run ID is required; the run's
+  replay-log directory must hold a `consent.granted` record for that run ID naming that tenant (and no
+  conflicting record); the sandbox needs only the v1 record; any other tenant needs a v2 durable record
+  with `engagement.status` `active`, today inside the authorization window (inclusive), and, for a
+  third-party assessment, `counterparty.is_self_test` false and a signature method other than
+  `self_test_attestation`. Every check can only deny. `identity.acquire_token` calls the gate before it
+  builds an MSAL client, so a refused run makes no token request and no Graph call;
+  `replay_log.write_entry` calls it for any non-sandbox entry and refuses non-GUID tenants (backstop).
+  `step4-token-smoke.py` and `demo_b007_device_compliance.py`, which call MSAL directly and previously
+  bypassed G-1 entirely, are now sandbox-only (`roe_gate.require_sandbox`). `SANDBOX_TENANT_ID` moves to
+  `roe_gate.py`. Docs: new `docs/adr/0008-consent-bound-tenant-lock.md`; `docs/guardrails.md` G-1 rewritten
+  and G-6/G-7 scope notes (real-tenant evidence is never committed); README What it does, Prerequisites,
+  Configure, Run (consent record first), Rules of Engagement, and Guardrails summary; `docs/external-auth.md`
+  v0.2 (third-party runs can now execute); ADR 0001 §1 marked superseded in part; consent schema
+  descriptions; the G-1 line in 21 technique modules; release notes. Tests: new `tests/test_roe_gate.py`
+  (29 tests); `tests/test_identity.py` now seeds the run's consent record. Suite 205 → 234. Live check
+  2026-10-15 on the sandbox: an unconsented run was refused with no sign-in and no token cache; a consented
+  run signed in with ROPC and read 9 users. Known gaps (ADR 0008 §5.2): the gate checks the record, not the
+  signature behind it, and technique scope is not yet checked against the consented list.
+
 - **Release notes v1.0 draft (S6 W23).** New `docs/release-notes-v1.0.md`. It becomes the GitHub
   Release body when v1.0 is published on Mon Oct 26, 2026, and is finalized at the private v1.0 tag on
   Sat Oct 24. It covers the 15 tools (script, Graph endpoint, ATT&CK technique), the 20 mapped

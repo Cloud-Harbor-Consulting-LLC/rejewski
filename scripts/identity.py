@@ -23,7 +23,9 @@ from typing import Any
 
 import msal
 
+import roe_gate
 from replay_log import (
+    DEFAULT_LOG_DIR,
     ReplayLogEntry,
     make_error,
     utc_now_iso,
@@ -159,7 +161,17 @@ def acquire_token(
     calls re-use the cached refresh token via acquire_token_silent_with_error.
     Every invocation emits a token_event replay-log entry; tokens themselves
     are never written to the log.
+
+    G-1 (ADR 0008): before anything else, and before any network call, the run
+    must hold a consent record in the replay-log directory that names tenant_id
+    for run_id. roe_gate.ConsentError (a RuntimeError) is raised otherwise, and
+    no token is requested.
     """
+    roe_gate.authorize_run(
+        run_id=run_id,
+        tenant_id=tenant_id,
+        log_dir=replay_log_dir if replay_log_dir is not None else DEFAULT_LOG_DIR,
+    )
     requested_scopes = list(scopes) if scopes else list(GRAPH_SCOPE_DEFAULT)
     cache_path = _resolve_cache_path(actor_upn)
     started_at = utc_now_iso()

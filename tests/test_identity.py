@@ -21,10 +21,22 @@ ACTOR_UPN = "meganb@cloudharbor-demo.com"
 CLIENT_ID = identity.DEFAULT_CLIENT_ID
 
 
+RUN_ID = "R-TEST"
+
+
+def _write_consent(d: Path, *, run_id: str = RUN_ID, tenant_id: str = TENANT_ID) -> None:
+    """G-1 (ADR 0008): acquire_token needs the run's consent record in the log dir."""
+    (d / f"consent-{run_id}.json").write_text(
+        json.dumps({"event": "consent.granted", "run_id": run_id, "tenant_id": tenant_id}),
+        encoding="utf-8",
+    )
+
+
 @pytest.fixture
 def replay_dir(tmp_path: Path) -> Path:
     d = tmp_path / "replay-logs"
     d.mkdir()
+    _write_consent(d)
     return d
 
 
@@ -133,6 +145,7 @@ class TestAcquireToken:
                 tenant_id=TENANT_ID,
                 client_id=CLIENT_ID,
                 replay_log_dir=replay_dir,
+                run_id=RUN_ID,
             )
 
         assert result["access_token"] == "AT_silent"
@@ -171,6 +184,7 @@ class TestAcquireToken:
                 client_id=CLIENT_ID,
                 password="P@ssword!",
                 replay_log_dir=replay_dir,
+                run_id=RUN_ID,
             )
 
         assert result["access_token"] == "AT_ropc"
@@ -202,6 +216,7 @@ class TestAcquireToken:
                     tenant_id=TENANT_ID,
                     client_id=CLIENT_ID,
                     replay_log_dir=replay_dir,
+                    run_id=RUN_ID,
                 )
 
         events = _read_token_events(replay_dir)
@@ -234,6 +249,7 @@ class TestAcquireToken:
                     client_id=CLIENT_ID,
                     password="wrong",
                     replay_log_dir=replay_dir,
+                    run_id=RUN_ID,
                 )
 
         events = _read_token_events(replay_dir)
@@ -289,6 +305,7 @@ class TestPersistenceKindPropagatesToReplayLog:
                 tenant_id=TENANT_ID,
                 client_id=CLIENT_ID,
                 replay_log_dir=replay_dir,
+                run_id=RUN_ID,
             )
 
         events = _read_token_events(replay_dir)

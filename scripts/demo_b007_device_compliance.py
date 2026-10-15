@@ -28,6 +28,7 @@ from datetime import datetime, timezone
 import msal
 
 from replay_log import redact_tenant_id
+from roe_gate import require_sandbox
 
 
 BORROWED_CLIENT_ID = "14d82eec-204b-4c2f-b7e8-296a70dab67e"  # Microsoft Graph Command Line Tools
@@ -61,6 +62,9 @@ def classify(error_codes: list[int]) -> str:
 
 
 def run(actor_upn: str, password: str, tenant_id: str, scopes: list[str]) -> dict:
+    # G-1 (ADR 0008): this demo calls MSAL directly and bypasses the consent gate
+    # in identity.acquire_token, so it stays sandbox-only.
+    require_sandbox(tenant_id, "demo_b007_device_compliance.py")
     authority = f"https://login.microsoftonline.com/{tenant_id}"
     app = msal.PublicClientApplication(
         client_id=BORROWED_CLIENT_ID,

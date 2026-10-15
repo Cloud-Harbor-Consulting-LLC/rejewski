@@ -6,7 +6,7 @@ Read-only Microsoft 365 adversary-emulation toolkit. A friendly threat actor tha
 
 ## What it does
 
-Rejewski is a set of read-only Microsoft Graph tools. They sign in as a seeded test account in a sandbox tenant and record what that account can read. Each run:
+Rejewski is a set of read-only Microsoft Graph tools. They sign in as a test account in a tenant the operator owns or is authorized to assess, and record what that account can read. Every run needs a Rules of Engagement consent record for that tenant before the first token request (G-1). The evidence in this repo comes from the `cloudharbordemo` sandbox. Each run:
 
 1. Starts with a Rules of Engagement consent record, written as the first entry of the run's replay log.
 2. Executes read-only Microsoft Graph and Defender / Purview queries against the target tenant.
@@ -21,7 +21,7 @@ An agent layer built on the Claude Agent SDK ships alongside the tools. `scripts
 **Prerequisites**
 
 - Python 3.11+ and `git`.
-- Access to the `cloudharbordemo` Azure sandbox tenant with a seeded operator account. Guardrail G-1 locks every run to that tenant; Rejewski runs read-only against it only (see [Rules of Engagement](#rules-of-engagement)).
+- A Microsoft 365 tenant you own or have written authorization to assess, with a test account for Rejewski to sign in as. The evidence in this repo uses the `cloudharbordemo` sandbox. Guardrail G-1 binds every run to the tenant named in its consent record (see [Rules of Engagement](#rules-of-engagement)).
 
 **Install**
 
@@ -35,18 +35,30 @@ pip install -r requirements.txt
 
 **Configure**
 
-Create a `.env` file in the repo root (it is gitignored — never commit it) with the sandbox operator's credentials:
+Create a `.env` file in the repo root (it is gitignored — never commit it) with the target tenant and the test account's credentials:
 
 ```
-AZURE_TENANT_ID=76b87c33-6178-4ff9-94a7-164792c8e4c6
-COMPROMISED_USER_UPN=<seeded-operator>@cloudharbordemo.onmicrosoft.com
+AZURE_TENANT_ID=<target-tenant-guid>
+COMPROMISED_USER_UPN=<test-account>@<tenant-domain>
 COMPROMISED_USER_PASSWORD=<password>
 # FOCI_CLIENT_ID is optional; defaults to Microsoft Graph Command Line Tools (14d82eec).
 ```
 
 **Run**
 
-Each tool acquires a delegated, read-only Graph token on its first call (against the borrowed FOCI client), caches it, and writes a structured replay-log entry:
+Write the run's consent record first. Without it, every tool refuses to request a token (G-1). For an operator-owned tenant:
+
+```bash
+python scripts/write_consent_record.py --engagement-type self_test --tenant-id <target-tenant-guid> \
+  --run-id demo-001 --techniques T1087.004 --engagement-name "Quickstart" --status active \
+  --scope-surface "M365 tenant" --scope-summary "Read-only account discovery" \
+  --signed-date 2026-10-26 --effective-date 2026-10-26 --expiry-date 2026-10-26 \
+  --record-id roe-selftest-demo-001 --output replay-logs/consent-demo-001.json
+```
+
+For a third-party tenant, use `--engagement-type third_party_assessment` with the counterparty fields and a counter-signed `--signature-method`, as described in [docs/external-auth.md](docs/external-auth.md).
+
+Each tool then acquires a delegated, read-only Graph token on its first call (against the borrowed FOCI client), caches it, and writes a structured replay-log entry:
 
 ```bash
 python scripts/tool_list_users.py --run-id demo-001
@@ -59,7 +71,7 @@ python scripts/consolidate_run.py --run-id demo-001
 python scripts/generate_html_report.py --replay-log <consolidated-log>.json --output report.html
 ```
 
-`scripts/rejewski_runtime.py` loads `rejewski.config.json` into Claude Agent SDK options and refuses a config that names an out-of-scope technique. The G-1 sandbox-tenant lock is enforced by `scripts/replay_log.py`, which refuses any entry whose tenant is not `cloudharbordemo`. Each tool writes its token event before its Graph call, so a tool pointed at another tenant stops after token acquisition and before its first Graph call.
+`scripts/rejewski_runtime.py` loads `rejewski.config.json` into Claude Agent SDK options and refuses a config that names an out-of-scope technique. The G-1 consent-bound tenant lock is enforced by `scripts/roe_gate.py`: `scripts/identity.py` checks the run's consent record before any token request, and `scripts/replay_log.py` refuses evidence for any tenant the run is not consented for.
 
 ## Usage example — a full comprehensive run
 
@@ -98,13 +110,13 @@ The committed result is **[docs/reports/replay-report-R016.html](docs/reports/re
 
 ## Rules of Engagement
 
-Every run starts with a consent record. [docs/roe-consent-flow.md](docs/roe-consent-flow.md) specifies the consent prompt: it summarizes the target tenant, the techniques in scope, the expected duration, and the operator identity, and the operator confirms by echoing a generated run ID back verbatim. In v1.0 the prompt is specified but not yet wired into the tools. The operator writes the record before running the tools (`scripts/write_consent_record.py` builds a schema-valid one), and no tool refuses to run without one, so the record is a procedural control checked at review. The consent record is the first entry of the run's replay log and binds every downstream entry by `run_id`. Sprint 1's exit floor is five consented runs logged end-to-end.
+Every run starts with a consent record, and the code enforces it (G-1, [ADR 0008](docs/adr/0008-consent-bound-tenant-lock.md)). A tool refuses to request a token unless the run's replay-log directory holds a consent record for its run ID that names the tenant it is about to use. The `cloudharbordemo` sandbox needs the run-level record. Any other tenant needs an active v2 durable record whose authorization window includes today, counter-signed by the tenant's owner for a third-party assessment. `scripts/write_consent_record.py` builds a schema-valid record. [docs/roe-consent-flow.md](docs/roe-consent-flow.md) specifies an interactive consent prompt (the operator confirms by echoing a generated run ID back verbatim); in v1.0 that prompt is not yet wired in, so the operator writes the record before running the tools. The gate checks the record's fields, not the signature on the letter behind it. The consent record is the first entry of the run's replay log and binds every downstream entry by `run_id`. Sprint 1's exit floor is five consented runs logged end-to-end.
 
 The self-test consent mechanic is specified in [docs/roe-consent-flow.md](docs/roe-consent-flow.md); the authorization flow for a third-party tenant assessment (and the durable long-term consent-record archive) is in [docs/external-auth.md](docs/external-auth.md); the governing decision is [ADR 0001 — Rules of Engagement](docs/adr/0001-rules-of-engagement.md).
 
 ## Guardrails
 
-Rejewski runs under nine operational guardrails (**G-1 through G-9**), cited by number from the technique modules. Some are enforced in code and some by procedure and PR review; each one's Enforcement paragraph says which. In brief: every replay-log entry is locked to the `cloudharbordemo` sandbox tenant (**G-1**, code); there is no tenant app registration, and a single borrowed Microsoft first-party client is recorded on every entry (**G-2**, **G-4**, code plus review); Graph requests are GET only (**G-3**, code); every call writes a replay-log entry (**G-5**, code); published evidence carries per-call counts, not directory payloads (**G-6**, code plus review); the sandbox holds only seeded test accounts (**G-7**, procedure); consolidating a run deletes its encrypted token cache, so sessions do not carry over between runs (**G-8**, code); and enumeration is capped per call (**G-9**, code).
+Rejewski runs under nine operational guardrails (**G-1 through G-9**), cited by number from the technique modules. Some are enforced in code and some by procedure and PR review; each one's Enforcement paragraph says which. In brief: every run is bound to the one tenant its consent record names, checked before the first token request (**G-1**, code); there is no tenant app registration, and a single borrowed Microsoft first-party client is recorded on every entry (**G-2**, **G-4**, code plus review); Graph requests are GET only (**G-3**, code); every call writes a replay-log entry (**G-5**, code); published evidence carries per-call counts, not directory payloads (**G-6**, code plus review); the sandbox holds only seeded test accounts (**G-7**, procedure); consolidating a run deletes its encrypted token cache, so sessions do not carry over between runs (**G-8**, code); and enumeration is capped per call (**G-9**, code).
 
 Full rule text — statement, rationale, enforcement, scope, and exceptions for each — is in [docs/guardrails.md](docs/guardrails.md); the guardrail set is authorized by [ADR 0001](docs/adr/0001-rules-of-engagement.md).
 

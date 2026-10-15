@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Release notes v1.0 draft (S6 W23).** New `docs/release-notes-v1.0.md`. It becomes the GitHub
+  Release body when v1.0 is published on Mon Oct 26, 2026, and is finalized at the private v1.0 tag on
+  Sat Oct 24. It covers the 15 tools (script, Graph endpoint, ATT&CK technique), the 20 mapped
+  techniques (13 implemented, 7 catalogued), guardrails G-1 to G-9 with what enforces each, the 8
+  program principles, the Rules of Engagement consent record, replay log schema v0.5, reports
+  (severity rubric v1.0, control mappings, ROI model v0.2), the evidence shipped (canonical run R016:
+  15 surfaces, 9 findings), and a known-limitations section: single-tenant lock, consent as a record
+  rather than a gate, offline agent layer, inbox-rules block in the sandbox, local-only teardown,
+  procedural client allowlist, ROPC deprecation in MSAL Python, and published sandbox identifiers.
+
 - **G-8 end-of-run session teardown (S6 W23, ADR 0005 v0.2 §5.4).** The encrypted MSAL token cache
   carried sessions across runs: R016 acquired all 15 tokens silently from a session cached days
   earlier. New `identity.end_session(actor_upn)` deletes an account's cache file and its lock file and

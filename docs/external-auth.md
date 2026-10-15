@@ -1,12 +1,12 @@
 # Project Harbor Sonar — Rejewski External Authorization Flow
 
-- Version: v0.1
-- Last updated: 2026-09-15
+- Version: v0.2
+- Last updated: 2026-10-15
 - Status: Baseline (Sprint 5 W18 deliverable) — process/authorization document
 - Authors: Derek Morgan
 - Related: docs/roe-consent-flow.md v0.2 (self-test consent mechanic), ADR 0001 (Rules of
   Engagement) §1 no-tenant-app-reg, §2 consent floor, §7 credential handling, §8 operator
-  identity; docs/guardrails.md G-1 (Sandbox Tenant Lock), G-6 (Data Redaction);
+  identity; docs/guardrails.md G-1 (Consent-bound tenant lock), G-6 (Data Redaction); ADR 0008;
   schemas/roe-consent/v2.json; samples/roe-consent/
 
 ---
@@ -26,15 +26,7 @@ It reuses the roe-consent-flow.md §2 consent-prompt mechanic as its runtime bas
 authorization, and how scope is bounded to only the agreed surfaces — is new and is treated
 here.
 
-> ⛔ **This is a process/authorization document, not a guardrail change and not an ADR.**
-> Guardrail **G-1 (Sandbox Tenant Lock) continues to govern all actual Rejewski code
-> execution.** As of this version, every tool still refuses any tenant other than
-> `cloudharbordemo`; nothing in this document enables a live third-party run today. A first
-> real third-party engagement requires a **superseding ADR** that explicitly relaxes G-1 for a
-> named, time-boxed engagement — until then, the third-party consent record (schemas/roe-consent/v2.json,
-> `engagement.type = third_party_assessment`) is an **authorization artifact prepared and
-> archived ahead of that ADR**, not a licence to run. The `samples/roe-consent/thirdparty-example.json`
-> record is explicitly illustrative.
+> **Update 2026-10-15 (v0.2): third-party runs can now execute.** [ADR 0008](adr/0008-consent-bound-tenant-lock.md) replaced the sandbox-only G-1 lock with a consent-bound tenant lock. A run may now target the counterparty's tenant when the run's replay-log directory holds a v2 record (`schemas/roe-consent/v2.json`) for that run ID and tenant, with `engagement.type` `third_party_assessment`, `engagement.status` `active`, today inside the authorization window, `counterparty.is_self_test` false, and a signature method other than `self_test_attestation`. `scripts/roe_gate.py` checks these fields before the first token request. It does not verify the signed letter itself, so the authorization chain in §2 stays a precondition the operator must meet before writing the record. `samples/roe-consent/thirdparty-example.json` remains illustrative.
 
 ---
 
@@ -69,8 +61,8 @@ itself is the machine-readable index into that evidence.
 A third-party run is bounded to its agreed **Scope Surface** by three independent checks, each
 of which can only *deny*, never widen:
 
-- **Tenant lock.** The run's `tenant_id` must equal the single tenant named in the engagement's
-  `scope.surface`. (Today, G-1 narrows this further to `cloudharbordemo` for *execution* — §1.)
+- **Tenant lock.** The run's `tenant_id` must equal the tenant named in the run's consent record.
+  Enforced in code by `scripts/roe_gate.py` before the first token request (G-1, ADR 0008).
 - **Technique subset.** The run's confirmed `techniques` MUST be a subset of the technique
   classes enumerated in `scope.surface`. A technique not in the agreed surface is refused at the
   consent prompt, exactly as an out-of-allowlist technique is refused for a self-test
@@ -90,7 +82,7 @@ scenario, self-test or third-party.
 
 | Dimension | Self-test (roe-consent-flow.md) | Third-party (this doc) |
 |---|---|---|
-| Target tenant | `cloudharbordemo` (G-1 locked) | The counterparty's named tenant (authorization only; G-1 still blocks execution today) |
+| Target tenant | `cloudharbordemo`, or a tenant the operator owns | The counterparty's named tenant (G-1 consent-bound lock, ADR 0008) |
 | Who authorizes | CHC, self-authorized under the standing ROE | Counterparty's signatory **and** CHC, counter-signed |
 | Evidence of authorization | The standing ROE / `docs/roe-consent-flow.md` | A signed engagement letter, retained and referenced by `evidence_ref` |
 | Signature method | `self_test_attestation` | Counter-signed method (wet/e-signature/email), never `self_test_attestation` |
@@ -172,9 +164,8 @@ records.
 
 Deliberately **not** enabled by this document:
 
-- **Live execution against any non-`cloudharbordemo` tenant.** Blocked by G-1 until a superseding
-  ADR authorizes a specific engagement (§1). This document prepares the authorization and archive
-  process; it does not relax the tenant lock.
+- **Technique-scope enforcement in code.** §3's technique-subset check is a review step today;
+  `scripts/roe_gate.py` enforces the tenant and the authorization window, not the technique list.
 - **Writing to SharePoint directly.** The workbook remains Derek's manual system of record; the
   v2 record is a JSON artifact a human transcribes from (or into) it.
 - **Any write, credential-modification, or tenant-app-registration capability.** Barred for all
@@ -193,4 +184,5 @@ Deliberately **not** enabled by this document:
 - samples/roe-consent/ — self-test and third-party illustrative records
 - ADR 0001 — Rules of Engagement (§1 no tenant app reg, §2 consent floor, §3 technique allowlist,
   §7 credential handling, §8 operator identity)
-- docs/guardrails.md — G-1 (Sandbox Tenant Lock), G-6 (Data Redaction)
+- docs/guardrails.md — G-1 (Consent-bound tenant lock), G-6 (Data Redaction)
+- docs/adr/0008-consent-bound-tenant-lock.md — the decision that lets a consented run execute against a third-party tenant

@@ -43,12 +43,14 @@ from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
 
+import roe_gate
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_VERSION = "0.5"
 SCHEMA_PATH = REPO_ROOT / "schemas" / "replay-log" / "v0.5.json"
 DEFAULT_LOG_DIR = REPO_ROOT / "samples" / "replay-log"
 
-SANDBOX_TENANT_ID = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
+from roe_gate import SANDBOX_TENANT_ID  # noqa: E402  (single source for the sandbox GUID)
 REDACTED = "00000000-0000-0000-0000-000000000000"
 
 ALLOWED_KINDS = ("graph_call", "token_event")
@@ -246,11 +248,23 @@ def write_entry(entry: ReplayLogEntry, *, log_dir: Path | None = None) -> Path:
         raise ValueError(
             "borrowed_client_id is required (no-tenant-app-reg posture, G-3)"
         )
-    if entry.tenant_id != SANDBOX_TENANT_ID:
+    # G-1 consent-bound tenant lock (ADR 0008). The sandbox tenant may always be
+    # recorded (offline paths, tests); any other tenant only for a run whose consent
+    # record in this log directory authorizes it. identity.acquire_token checks the
+    # same consent before any token request, so this is the backstop.
+    if not roe_gate.is_tenant_guid(entry.tenant_id):
         raise ValueError(
-            f"tenant lock (G-1): tenant_id must be {SANDBOX_TENANT_ID}, "
-            f"got {entry.tenant_id!r}"
+            f"tenant lock (G-1): tenant_id must be a tenant GUID, got {entry.tenant_id!r}"
         )
+    if not roe_gate.is_sandbox(entry.tenant_id):
+        try:
+            roe_gate.authorize_run(
+                run_id=entry.run_id,
+                tenant_id=entry.tenant_id,
+                log_dir=log_dir if log_dir is not None else DEFAULT_LOG_DIR,
+            )
+        except roe_gate.ConsentError as exc:
+            raise ValueError(f"tenant lock (G-1): {exc}") from exc
     # G-1 read-only enforcement: a graph_call must be a GET. A token_event carries
     # the legitimate POST to the OAuth token endpoint and is exempt. This is the
     # active write-verb guard — a graph_call recorded with POST/PATCH/PUT/DELETE is

@@ -217,18 +217,18 @@ class TestProhibitedTechniqueRouting:
 
 
 # ---------------------------------------------------------------------------
-# Category 3 — Sandbox tenant lock (G-3)
+# Category 3 — Consent-bound tenant lock (G-1, ADR 0008)
 # ---------------------------------------------------------------------------
 class TestSandboxTenantLock:
     def test_write_entry_rejects_wrong_tenant(self, tmp_path):
-        """G-1/G-3 tenant lock: a replay entry for any tenant other than the
-        cloudharbordemo sandbox is refused before it is written."""
+        """G-1 consent-bound tenant lock: a replay entry for a tenant other than the
+        cloudharbordemo sandbox is refused when the run has no consent record for it."""
         entry = _entry(tenant_id="11111111-2222-3333-4444-555555555555")
         with pytest.raises(ValueError, match="tenant"):
             write_entry(entry, log_dir=tmp_path)
 
     def test_write_entry_rejects_empty_tenant(self, tmp_path):
-        """An empty tenant_id is not the sandbox tenant, so it is refused."""
+        """An empty tenant_id is not a tenant GUID, so it is refused."""
         entry = _entry(tenant_id="")
         with pytest.raises(ValueError, match="tenant"):
             write_entry(entry, log_dir=tmp_path)

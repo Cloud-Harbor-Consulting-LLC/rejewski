@@ -119,5 +119,5 @@ The following are deliberately deferred:
 
 - ADR 0001 — Rules of Engagement, §2 Consent floor, §5 Replay-log immutability, §7 Credential handling, §8 Operator identity
 - docs/threat-model.md v0.3 — §3 Adversary model, §5 Sprint 1 technique scope
-- docs/guardrails.md — G-1 (Sandbox Tenant Lock), G-3 (Scope Allowlist), G-5 (Audit Capture), G-8 (Session Keep-Warm Bound)
+- docs/guardrails.md — G-1 (Consent-bound tenant lock, ADR 0008), G-3 (Scope Allowlist), G-5 (Audit Capture), G-8 (Session Keep-Warm Bound)
 - MITRE ATT&CK Enterprise — <https://attack.mitre.org/matrices/enterprise/>

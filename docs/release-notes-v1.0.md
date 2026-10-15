@@ -5,14 +5,14 @@
 
 ## What Rejewski is
 
-Rejewski is a read-only Microsoft 365 adversary-emulation toolkit. Its tools sign in as a seeded test account in a sandbox tenant and read what a compromised account can read through Microsoft Graph. Every call is written to a replay log, and each run ends in an HTML report where every finding carries a severity, a mapped Microsoft 365 control, and an ROI line.
+Rejewski is a read-only Microsoft 365 adversary-emulation toolkit. Its tools sign in as a test account in a tenant the operator owns or is authorized to assess, and read what a compromised account can read through Microsoft Graph. Every run needs a Rules of Engagement consent record for that tenant before the first token request. Every call is written to a replay log, and each run ends in an HTML report where every finding carries a severity, a mapped Microsoft 365 control, and an ROI line.
 
 ## Highlights
 
 - 15 read-only tools covering identity, Conditional Access, privileged roles, security posture, data governance, logs, and collaboration.
 - 20 MITRE ATT&CK techniques mapped: 13 implemented, 7 catalogued.
 - 9 operational guardrails (G-1 to G-9). Five are enforced in code.
-- A consent record on every run, written as the first entry of the run's replay log.
+- Consent enforced in code: a run can target any tenant, but only the tenant its consent record names (G-1, ADR 0008).
 - Replay log schema v0.5, with run consolidation, redaction, a viewer, and an archive policy.
 - HTML reports scored by the severity rubric v1.0 and the ROI model v0.2. No ROI line carries a dollar figure.
 - Canonical run R016: 15 tool surfaces, 9 findings, 4 rated high.
@@ -58,7 +58,7 @@ Full text, with file references for each enforcement mechanism, is in [docs/guar
 
 | ID | Rule | Enforced by |
 |---|---|---|
-| G-1 | Sandbox tenant lock: every replay-log entry must carry the `cloudharbordemo` tenant ID | Code (`scripts/replay_log.py`) |
+| G-1 | Consent-bound tenant lock: a run may target only the tenant named in its consent record | Code (`scripts/roe_gate.py`, checked in `identity.acquire_token` and `replay_log.write_entry`) |
 | G-2 | No tenant app registration | Code (GET-only guard) and PR review |
 | G-3 | Read-only: Graph requests are GET only | Code (`write_entry()` and `tests/test_autonomy_boundary.py`) |
 | G-4 | One borrowed first-party client, Microsoft Graph Command Line Tools (14d82eec) | Procedure (recorded on every entry, checked in review) |
@@ -73,6 +73,7 @@ The project also runs under 8 program principles, G1 to G8 (Read-only, No creden
 ## Rules of Engagement
 
 - Every run starts with a consent record that names the tenant, the techniques in scope, the expected duration, the operator, and the run ID. It is the first entry of the run's replay log, and every later entry is bound to it by `run_id`.
+- The code enforces it. Before any token request, `scripts/roe_gate.py` checks that the run's replay-log directory holds a consent record for its run ID that names the tenant the run is about to use. The `cloudharbordemo` sandbox needs the run-level record. Any other tenant needs an active v2 durable record whose authorization window includes today, and a counter-signed record for a third-party assessment.
 - `scripts/write_consent_record.py` builds a schema-valid record. Schema v1 is the replay-log-embedded shape; schema v2 adds the fields for a durable long-term archive record.
 - The consent prompt is specified in [docs/roe-consent-flow.md](roe-consent-flow.md). The authorization flow for a third-party assessment is in [docs/external-auth.md](external-auth.md). The governing decision is ADR 0001.
 
@@ -104,8 +105,10 @@ Python 3.11 or later, the packages in `requirements.txt`, and a `.env` file with
 
 ## Known limitations
 
-- **Locked to one tenant.** G-1 locks every run to the `cloudharbordemo` sandbox through a constant in `scripts/replay_log.py`. Running Rejewski against any other tenant requires changing that lock in code, and the written authorization described in `docs/external-auth.md`. v1.0 does not support that configuration.
-- **Consent is a record, not a gate.** The interactive consent prompt is specified but not wired into the tools. The operator writes the consent record, and no tool refuses to run without one.
+- **The consent gate checks the record, not the signature.** It verifies the record's tenant, run ID, status, and authorization window. The signed letter behind a third-party record is referenced by `authorization.evidence_ref` and checked by the operator.
+- **Technique scope is not enforced against the consent record yet.** The gate enforces the tenant and the authorization window; a run's techniques are not yet checked against the consented list.
+- **No interactive consent prompt.** The prompt in `docs/roe-consent-flow.md` is not wired in; the operator writes the record with `scripts/write_consent_record.py` before the tools run.
+- **Evidence from real tenants stays private.** Only sandbox evidence is committed to this repo. Output from a run against any other tenant, including its consent record with counterparty contact details, belongs in the operator's private archive.
 - **The agent layer runs offline.** `scripts/reasoning_loop.py` routes each recon step to a Claude model and stamps the replay log with the model it chose. It does not call Graph. Connecting the tools to the agent needs a Graph MCP server, which v1.0 does not configure.
 - **Inbox rules return no data in the sandbox.** With delegated `Mail.Read`, the inbox-rules tool reaches only the signed-in account's own mailbox. The sandbox operator account has no mailbox enabled for the REST API, so the call returns a documented block.
 - **Teardown is local only.** Consolidation deletes the token cache. The issued refresh token stays valid at Microsoft Entra ID until it expires, because revoking it would need a Graph write call that G-3 forbids.

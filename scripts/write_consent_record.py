@@ -14,7 +14,7 @@ Backward compatibility (additive, non-breaking):
 
 Read-only / offline: builds and writes local JSON. No Microsoft Graph calls. G-1 is unchanged
 by this script — a v2 record for a third-party engagement is an authorization artifact only;
-all actual Rejewski code execution remains sandbox-locked to cloudharbordemo (docs/external-auth.md).
+the record it writes is what G-1 checks before a run may target a tenant (scripts/roe_gate.py, ADR 0008).
 
 CLI:
     python scripts/write_consent_record.py --engagement-type self_test \

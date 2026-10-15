@@ -41,7 +41,7 @@
     "tenant_id": {
       "type": "string",
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-      "description": "Target tenant GUID (v1 core). For engagement.type=self_test this MUST equal the G-1 sandbox tenant. For third_party_assessment it is the counterparty tenant — recorded here as authorization metadata only; G-1 still locks all actual Rejewski code execution to the sandbox today (docs/external-auth.md §2)."
+      "description": "Target tenant GUID (v1 core). The run may only target this tenant (G-1 consent-bound tenant lock, ADR 0008). For a tenant other than the cloudharbordemo sandbox, engagement.status must be active and the current date must fall inside the authorization window; for engagement.type=third_party_assessment the record must also be counter-signed (counterparty.is_self_test false, signature_method not self_test_attestation)."
     },
     "operator_object_id": {
       "type": "string",

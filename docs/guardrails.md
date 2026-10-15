@@ -6,17 +6,17 @@ Operational rules that bind every Rejewski technique and tool. Each guardrail ha
 
 ---
 
-## G-1 — Sandbox Tenant Lock
+## G-1 — Consent-bound tenant lock
 
-**Statement.** All technique runs target the cloudharbordemo Azure sandbox tenant (tenant ID 76b87c33-6178-4ff9-94a7-164792c8e4c6) exclusively. No technique module, smoke test, or replay session may issue a Graph call against any other tenant.
+**Statement.** A run may target any Microsoft 365 tenant, but only the one tenant named in that run's consent record, and the record must exist in the run's replay-log directory before the first token request. For the cloudharbordemo sandbox (76b87c33-6178-4ff9-94a7-164792c8e4c6) the run-level consent record is enough. Any other tenant needs an active v2 durable consent record whose authorization window includes the current date, counter-signed for a third-party assessment (docs/external-auth.md). (Changed 2026-10-15 by ADR 0008; until then G-1 locked every run to the sandbox.)
 
-**Rationale.** Rejewski is a defensive-research agent. Operating outside the sandbox tenant carries blast-radius risk against real users, real data, and real tenant configuration. The sandbox tenant is purpose-built with synthetic users and isolated data; the Planner host tenant (where Project Harbor Sonar tracking lives) is a program-management surface and is not a valid target. Conflation between the two tenants is a documented historical hazard (ADR 0001 v0.1 carried the Planner host tenant ID in error; corrected to cloudharbordemo in v0.2).
+**Rationale.** Rejewski is built to assess tenants other than CHC's sandbox, and only with the owner's authorization. Binding the tenant to the run's consent record means the code checks that authorization before any token request, so a missing or mismatched record stops the run with no sign-in or Graph trace in the target tenant. The sandbox remains the source of all evidence committed to this repo. The Planner host tenant (where Project Harbor Sonar tracking lives) is a program-management surface and is never a target; conflating the two is a documented historical hazard (ADR 0001 v0.1 carried the Planner host tenant ID in error).
 
-**Enforcement.** `write_entry()` in scripts/replay_log.py refuses any replay-log entry whose tenant_id is not 76b87c33-6178-4ff9-94a7-164792c8e4c6 and raises before the entry is written. Every tool acquires its token through scripts/identity.py, which writes a token_event entry before it returns the token, so a tool pointed at any other tenant fails after token acquisition and before its first Graph call. tests/test_autonomy_boundary.py (Category 3) covers the refusal. scripts/rejewski_runtime.py does not compare tenant IDs; it refuses out-of-scope techniques at config load (ADR 0001 §3). (Corrected 2026-10-12: earlier text described a runtime-loader pre-flight check and a TenantScopeViolation exception that the code does not contain.)
+**Enforcement.** scripts/roe_gate.py holds the rules (`authorize_run`) and reads local JSON only. `identity.acquire_token()` calls it first, before it builds an MSAL client, and raises `ConsentError` when the run has no consent record for its run ID and tenant, so a refused run makes no token request and no Graph call. `write_entry()` in scripts/replay_log.py calls it again for any entry whose tenant is not the sandbox, and refuses any entry whose tenant_id is not a GUID; this is the backstop for any path that reaches the writer without going through identity. scripts/step4-token-smoke.py and scripts/demo_b007_device_compliance.py call MSAL directly, so `roe_gate.require_sandbox()` restricts them to the sandbox. tests/test_roe_gate.py covers every refusal and both enforcement points; tests/test_autonomy_boundary.py (Category 3) still asserts that an unconsented non-sandbox entry is refused. scripts/rejewski_runtime.py does not compare tenant IDs; it refuses out-of-scope techniques at config load (ADR 0001 §3).
 
 **Scope.** Binds every technique module under docs/techniques/, every tool and smoke-test script under scripts/, and the replay-log and per-tool tests under tests/ (test_replay_log.py, test_tool_*.py). Binds the Claude Agent SDK runtime when invoked by an operator and the headless runtime when invoked by CI.
 
-**Exceptions.** None at Sprint 1. Future cross-tenant techniques (e.g., guest-account enumeration patterns) will require their own guardrail and an ADR amendment before any cross-tenant target ID is added to the allowlist.
+**Exceptions.** None. The gate checks that a consent record exists and that its fields authorize the run; it does not verify signatures. The signed letter behind a v2 record is referenced by `authorization.evidence_ref` and is checked by the operator and reviewer. Technique scope (a run's techniques as a subset of the agreed scope, docs/external-auth.md §3) is not yet enforced by the gate.
 
 ---
 
@@ -84,7 +84,7 @@ Operational rules that bind every Rejewski technique and tool. Each guardrail ha
 
 **Enforcement.** Tools write only response metadata to graph_call entries (status, page_count, row_count, row_cap, row_cap_hit), never response bodies. `write_entry()` keeps only an allowlist of request headers, so no Authorization header is logged. scripts/consolidate_run.py unconditionally replaces the token cache path with `<redacted>`. scripts/tool_list_sharepoint_sites.py scrubs the tenant GUID from site URLs. The redact_secrets flag in rejewski.config.json is not read by any tool. PR review checks committed evidence for any UPN, display name, or object ID other than those published values. (Corrected 2026-10-12, B036: earlier text said the SDK hashes named fields into logs/rejewski-audit.jsonl.)
 
-**Scope.** All evidence content committed to the Rejewski repo (samples/, docs/reports/).
+**Scope.** All evidence content committed to the Rejewski repo (samples/, docs/reports/). Only sandbox evidence is committed; output from a run against any other tenant stays in the operator's private archive (G-1, ADR 0008).
 
 **Exceptions.** The cloudharbordemo tenant ID (76b87c33-6178-4ff9-94a7-164792c8e4c6), the Graph Command Line Tools client ID (14d82eec), and sandbox test-account UPNs that a tool signs in as or targets are not redacted. The two IDs identify a sandbox and a public Microsoft client; the UPNs belong to sandbox test accounts (G-7).
 
@@ -98,7 +98,7 @@ Operational rules that bind every Rejewski technique and tool. Each guardrail ha
 
 **Enforcement.** Procedural; no code checks for real accounts. scripts/seed-cloudharbordemo.ps1 creates the seeded accounts, which use Microsoft's fictional demo personas (for example Megan Bowen and Adele Vance), and it is the roster of record. Any account added to the sandbox goes through that script or is recorded in it. (Corrected 2026-10-12, B036: earlier text cited a rejewski-test-NN naming pattern and a quarterly roster audit; the seeded accounts use the demo-persona names, and no audit record exists in the repo.)
 
-**Scope.** All users, all groups, all calendar events, all SharePoint content, all Teams chats inside the sandbox tenant.
+**Scope.** All users, all groups, all calendar events, all SharePoint content, all Teams chats inside the sandbox tenant. A tenant assessed under G-1 with its owner's consent holds real data by definition; G-7 does not apply to it, and G-6 keeps its evidence out of this repo.
 
 **Exceptions.** None.
 
@@ -138,7 +138,7 @@ Operational rules that bind every Rejewski technique and tool. Each guardrail ha
 
 | Guardrail | T1078.004 | T1087.004 | T1069.003 |
 |-----------|-----------|-----------|-----------|
-| G-1 sandbox tenant | yes | yes | yes |
+| G-1 consent-bound tenant | yes | yes | yes |
 | G-2 no app reg | yes | inherited | inherited |
 | G-3 consent floor | yes | yes | yes |
 | G-4 FOCI allowlist | yes | inherited | inherited |

@@ -50,7 +50,7 @@ Write the run's consent record first. Without it, every tool refuses to request 
 
 ```bash
 python scripts/write_consent_record.py --engagement-type self_test --tenant-id <target-tenant-guid> \
-  --run-id demo-001 --techniques T1087.004 --engagement-name "Quickstart" --status active \
+  --operator-object-id <your-entra-object-id> --run-id demo-001 --techniques T1087.004 --engagement-name "Quickstart" --status active \
   --scope-surface "M365 tenant" --scope-summary "Read-only account discovery" \
   --signed-date 2026-10-26 --effective-date 2026-10-26 --expiry-date 2026-10-26 \
   --record-id roe-selftest-demo-001 --output replay-logs/consent-demo-001.json

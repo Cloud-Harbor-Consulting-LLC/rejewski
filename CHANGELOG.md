@@ -11,6 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **R017: weekly end-to-end run, first under the G-1 consent gate and the G-8 teardown; canonical run
+  moved to R017 (S6 W23 Sat slot, run Mon 2026-10-19 with the internal dry run).** One consented session
+  against `cloudharbordemo`, all 15 tool surfaces. The consent record is a v2 self-test record built with
+  `scripts/write_consent_record.py`, the path the README documents, and the gate checked it before the
+  first token request. `samples/replay-log/R017.json`: 31 entries (consent first; 15 token_event: 1 ROPC
+  sign-in, T1078.004, then 14 silent reuses, T1550.001; 15 graph_call: 14 success plus the documented
+  inbox 404). Consolidation then deleted the token cache (G-8). **Honest count: 10 findings, 5 high,
+  5 medium.** The tenth is new: because the session now starts fresh, the run evidences T1078.004
+  directly (the seeded password alone got a token through ROPC, with no MFA challenge possible), rated
+  high under rubric v1.0. R014 to R016 reused a cached session and never showed it. Tenant drift since
+  R016: applications 10 → 11, service principals 442 → 448, role assignments 16 → 17, OAuth grants
+  23 → 25, groups 25 → 30, sign-ins 51 → 67. Report `docs/reports/replay-report-R017.html`;
+  `samples/canonical-run.json` and `docs/reports/canonical-report.html` now alias R017; README usage
+  example updated to R017 and 10 findings.
+
 - **G-1 consent-bound tenant lock: Rejewski can run against any tenant with Rules of Engagement
   consent (ADR 0008, S6 W23).** Until now G-1 locked every run to the `cloudharbordemo` sandbox through a
   constant, and consent was a record no code checked. New `scripts/roe_gate.py` (`authorize_run`) binds

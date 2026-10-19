@@ -135,7 +135,9 @@ def load_replay_log(path: Path) -> dict:
     for e in entries:
         if not isinstance(e, dict):
             continue
-        if "event" in e and "schema_version" not in e:
+        if "event" in e and "kind" not in e:
+            # Consent records carry `event` and no `kind`. A v2 durable record also
+            # carries `schema_version`, so that key cannot be used to tell them apart.
             consent.append(e)
         elif e.get("kind") == "token_event":
             token_events.append(e)

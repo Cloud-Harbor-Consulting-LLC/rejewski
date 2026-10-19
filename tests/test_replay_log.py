@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator, FormatChecker
 
 from replay_log import (
     REDACTED,
@@ -16,6 +17,13 @@ from replay_log import (
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SAMPLES = REPO_ROOT / "samples" / "replay-log"
+_CONSENT_VALIDATORS = {
+    v: Draft202012Validator(
+        json.loads((REPO_ROOT / "schemas" / "roe-consent" / f"{v}.json").read_text(encoding="utf-8")),
+        format_checker=FormatChecker(),
+    )
+    for v in ("v1", "v2")
+}
 GOOD_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "entries"
 BAD_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "bad-entries"
 
@@ -59,8 +67,11 @@ class TestSchemaFidelity:
             if isinstance(payload, list):
                 # R00N.json arrays: skip consent records, validate replay entries
                 for item in payload:
-                    if isinstance(item, dict) and "event" in item and "schema_version" not in item:
-                        continue  # consent.granted / consent.declined — separate schema
+                    if isinstance(item, dict) and "event" in item and "kind" not in item:
+                        # Consent record (v1 run-level, or v2 durable): its own schema.
+                        version = "v2" if "engagement" in item else "v1"
+                        _CONSENT_VALIDATORS[version].validate(item)
+                        continue
                     _VALIDATOR.validate(item)
             else:
                 _VALIDATOR.validate(payload)

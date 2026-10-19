@@ -221,3 +221,16 @@ def test_roi_empty_bridge_degrades_to_not_modeled(tmp_path, fixture_set):
     html = out.read_text(encoding="utf-8")
     assert gen.ROI_NOT_MODELED in html
     assert "Account enumeration" not in html  # bridge content absent when the doc is gone
+
+
+def test_v2_consent_record_is_rendered_as_consent(tmp_path):
+    """A v2 durable consent record carries schema_version; it must still be treated as consent
+    (dry-run finding 2026-10-19: R017's report showed 0 consent records)."""
+    replay = tmp_path / "R901.json"
+    replay.write_text(json.dumps([
+        {"event": "consent.granted", "run_id": "R901", "schema_version": "2.0",
+         "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+         "engagement": {"name": "x", "type": "self_test", "mvp_pillar": "x", "status": "active"}},
+    ]), encoding="utf-8")
+    meta = gen.load_replay_log(replay)
+    assert len(meta["consent"]) == 1

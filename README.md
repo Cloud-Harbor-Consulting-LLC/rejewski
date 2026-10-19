@@ -2,7 +2,7 @@
 
 Read-only Microsoft 365 adversary-emulation toolkit. A friendly threat actor that emulates recon and discovery TTPs against a tenant the operator owns or has written authorization to assess, and produces findings mapped to specific M365 controls.
 
-> **Status:** Private build through Sat Oct 24, 2026. Public launch Mon Oct 26, 2026. See [Project Harbor Sonar Master Plan](https://cloudharborconsulting.sharepoint.com/:t:/s/CHC-Ops/IQBCENuicazZQK8l9Z4XeVFKAQNQEEy11y6ehgv9eb__az0?e=9rw5oh) for build cadence and milestones.
+> **Status:** Private build through Sat Oct 24, 2026. Public launch Mon Oct 26, 2026. Build cadence and milestones are tracked in the internal Project Harbor Sonar Master Plan.
 
 ## What it does
 
@@ -122,7 +122,7 @@ Full rule text — statement, rationale, enforcement, scope, and exceptions for 
 
 ## Design principles
 
-These are the program-level **operating principles** from the [Project Harbor Sonar Master Plan](https://cloudharborconsulting.sharepoint.com/:t:/s/CHC-Ops/IQBCENuicazZQK8l9Z4XeVFKAQNQEEy11y6ehgv9eb__az0?e=9rw5oh) §2 — the *why* behind how the project is run (scope, cadence, launch strategy).
+These are the program-level **operating principles** from the internal Project Harbor Sonar Master Plan §2 — the *why* behind how the project is run (scope, cadence, launch strategy).
 
 > **Different numbering scheme from the Guardrails above.** These principles use the Master Plan's own `G1`–`G8` labels; they are **not** the operational `G-1` through `G-9` in the [Guardrails](#guardrails) section above. Guardrails answer "what does the code enforce"; these principles answer "why does the project operate the way it does." Don't conflate `G4` here (Threat Actor Emulation) with `G-4` above (FOCI client allowlist), etc.
 
@@ -135,7 +135,7 @@ These are the program-level **operating principles** from the [Project Harbor So
 - **G7 — M365-Wide Control Inventory Mapping.** Every finding maps to a specific M365 control (Conditional Access policy, Defender setting, Purview label, Intune compliance check, and so on); the agent does not surface findings without a control mapping.
 - **G8 — Measure at Sprint Boundaries.** Build KPIs are collected weekly and sprint-checkpoint KPIs reviewed every four weeks; v1.1 backlog grooming happens at sprint checkpoints, never mid-sprint.
 
-Source: Project Harbor Sonar Master Plan §2 (Operating Guardrails), linked in the status banner above.
+Source: Project Harbor Sonar Master Plan §2 (Operating Guardrails), an internal document.
 
 ## Naming
 

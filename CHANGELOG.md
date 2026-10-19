@@ -388,6 +388,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **v1.0 internal dry-run blockers (S6 W23 dry run, run 2026-10-19).** Found by rehearsing the release
+  from a fresh clone, a clean virtual environment, and a draft pre-release of tag `v1.0-rc.1`:
+  - `requirements.txt` did not list `claude-agent-sdk`, which `scripts/rejewski_runtime.py` imports. A
+    fresh install failed to collect `tests/test_autonomy_boundary.py` and `tests/test_reasoning_loop.py`;
+    local runs passed only because the SDK was installed globally. Added `claude-agent-sdk>=0.1.81,<0.2`
+    (MIT). With it, a clean install passes the full suite.
+  - `scripts/generate_html_report.py` classified consent records as entries without `schema_version`.
+    A v2 durable record, which `scripts/write_consent_record.py` writes and the README now documents,
+    carries `schema_version`, so its report showed no consent section. Consent is now detected as `event`
+    without `kind`, the rule `consolidate_run.py` and `roe_gate.py` already use. The committed-samples test
+    had the same rule; it now validates each consent record against its own schema (v1 or v2). New test
+    for a v2 record.
+  - `docs/release-notes-v1.0.md`: its 11 relative links broke when rendered as a GitHub Release body
+    (they resolve against the tag root). Now absolute links to `main`.
+  - `README.md`: removed the two links to the private CHC SharePoint Master Plan, which public visitors
+    cannot open.
+  - `.github/CODEOWNERS`: the owner `@dmorgan-chc` is not a GitHub account (GitHub reported "Unknown
+    owner" on every line). Now `@dermo-blast`.
+  Suite 234 → 235.
+
 - **`tool_list_security_alerts` (T1654 Surface B) — second invalid `$select` field
   (`lastModifiedDateTime` → `lastUpdateDateTime`).** After the `alertType` removal, the clean
   R013 re-run returned a further HTTP 400: `lastModifiedDateTime` is not a property of

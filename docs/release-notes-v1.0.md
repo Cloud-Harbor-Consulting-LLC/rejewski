@@ -43,7 +43,7 @@ Token acquisition is shared: `scripts/identity.py` signs in with ROPC on a cache
 
 ## ATT&CK coverage
 
-The full map is in [docs/attck-coverage.md](attck-coverage.md).
+The full map is in [docs/attck-coverage.md](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/blob/main/docs/attck-coverage.md).
 
 | Status | Count | Techniques |
 |---|---|---|
@@ -54,7 +54,7 @@ The full map is in [docs/attck-coverage.md](attck-coverage.md).
 
 ## Guardrails
 
-Full text, with file references for each enforcement mechanism, is in [docs/guardrails.md](guardrails.md).
+Full text, with file references for each enforcement mechanism, is in [docs/guardrails.md](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/blob/main/docs/guardrails.md).
 
 | ID | Rule | Enforced by |
 |---|---|---|
@@ -75,21 +75,21 @@ The project also runs under 8 program principles, G1 to G8 (Read-only, No creden
 - Every run starts with a consent record that names the tenant, the techniques in scope, the expected duration, the operator, and the run ID. It is the first entry of the run's replay log, and every later entry is bound to it by `run_id`.
 - The code enforces it. Before any token request, `scripts/roe_gate.py` checks that the run's replay-log directory holds a consent record for its run ID that names the tenant the run is about to use. The `cloudharbordemo` sandbox needs the run-level record. Any other tenant needs an active v2 durable record whose authorization window includes today, and a counter-signed record for a third-party assessment.
 - `scripts/write_consent_record.py` builds a schema-valid record. Schema v1 is the replay-log-embedded shape; schema v2 adds the fields for a durable long-term archive record.
-- The consent prompt is specified in [docs/roe-consent-flow.md](roe-consent-flow.md). The authorization flow for a third-party assessment is in [docs/external-auth.md](external-auth.md). The governing decision is ADR 0001.
+- The consent prompt is specified in [docs/roe-consent-flow.md](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/blob/main/docs/roe-consent-flow.md). The authorization flow for a third-party assessment is in [docs/external-auth.md](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/blob/main/docs/external-auth.md). The governing decision is ADR 0001.
 
 ## Replay log
 
 - Schema v0.5 (`schemas/replay-log/v0.5.json`). Entry kinds are `token_event` and `graph_call`, plus the consent record. Each entry records the run ID, timestamps, operator, tenant, borrowed client, technique, request, and outcome. A `graph_call` entry records status, page and row counts, and the row cap. A `token_event` records the flow (ROPC or silent) and the requested scopes. Since v0.5, entries can carry the model ID chosen by the reasoning-loop router.
 - `write_entry()` validates each entry before writing it: tenant, borrowed client, outcome, and HTTP method.
 - `scripts/consolidate_run.py` gathers a run's entries into `samples/replay-log/<run-id>.json`, redacts the operator-local cache path, and ends the run's session.
-- `scripts/replay_log_viewer.py` renders a log as text or a self-contained HTML page. `scripts/rotate_replay_logs.py` compresses aged working logs under the policy in [docs/replay-archive.md](replay-archive.md).
+- `scripts/replay_log_viewer.py` renders a log as text or a self-contained HTML page. `scripts/rotate_replay_logs.py` compresses aged working logs under the policy in [docs/replay-archive.md](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/blob/main/docs/replay-archive.md).
 
 ## Reports and findings
 
 - `scripts/generate_html_report.py` renders a self-contained report with sections for the consent summary, graph calls, token events, findings with severity badges, control mappings, and ROI lines.
-- Severity follows the rubric in [docs/finding-severity-rubric-v0.1.md](finding-severity-rubric-v0.1.md) (v1.0, tied to CIS Controls v8). A read that maps the defender's own coverage, such as Conditional Access policies, sensor health, or sign-in and alert logs, rates high.
+- Severity follows the rubric in [docs/finding-severity-rubric-v0.1.md](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/blob/main/docs/finding-severity-rubric-v0.1.md) (v1.0, tied to CIS Controls v8). A read that maps the defender's own coverage, such as Conditional Access policies, sensor health, or sign-in and alert logs, rates high.
 - Each finding maps to a Microsoft 365 control through a schema-validated record in `samples/finding-to-control/`.
-- ROI lines come from the ROI model v0.2 ([docs/phs-security-roi-model-v0.1.md](phs-security-roi-model-v0.1.md)), which uses 2026 figures each checked against its primary source. Each line names a risk category and a direction of risk, with no dollar figure.
+- ROI lines come from the ROI model v0.2 ([docs/phs-security-roi-model-v0.1.md](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/blob/main/docs/phs-security-roi-model-v0.1.md)), which uses 2026 figures each checked against its primary source. Each line names a risk category and a direction of risk, with no dollar figure.
 
 ## Evidence in this release
 
@@ -118,8 +118,8 @@ Python 3.11 or later, the packages in `requirements.txt`, and a `.env` file with
 
 ## Contributing and security
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md), [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md), and [SECURITY.md](../SECURITY.md). Report a vulnerability through the process in SECURITY.md, not in a public issue.
+See [CONTRIBUTING.md](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/blob/main/CONTRIBUTING.md), [CODE_OF_CONDUCT.md](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/blob/main/CODE_OF_CONDUCT.md), and [SECURITY.md](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/blob/main/SECURITY.md). Report a vulnerability through the process in SECURITY.md, not in a public issue.
 
 ## Changes
 
-[CHANGELOG.md](../CHANGELOG.md) lists every change in this release.
+[CHANGELOG.md](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/blob/main/CHANGELOG.md) lists every change in this release.

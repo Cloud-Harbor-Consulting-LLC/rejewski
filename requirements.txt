@@ -6,5 +6,6 @@ msal-extensions>=1.1,<2
 requests>=2.31,<3
 python-dotenv>=1.0,<2
 jsonschema>=4.21,<5
+claude-agent-sdk>=0.1.81,<0.2  # scripts/rejewski_runtime.py (SDK options); 0.x, so the upper bound is the next minor
 
 pytest>=8.0,<9

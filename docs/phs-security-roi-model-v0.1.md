@@ -142,7 +142,7 @@ retired (§3), and T1550.001 now states a direction of risk like every other row
 
 | Technique | Severity | Control mapped | Risk category | Potential cost avoided (direction) |
 |---|---|---|---|---|
-| T1078.004 | informational | CA-SIG003-Guests-RequireMFA | Initial access / valid accounts | Reduces the credential entry path into the tenant; guest-MFA closes the ROPC/legacy-auth gap, since ROPC cannot satisfy MFA (§5) |
+| T1078.004 | high [§] | CA-RequireMFA-AllUsers | Initial access / valid accounts | Reduces the credential entry path into the tenant; MFA for all users closes the ROPC gap, since ROPC cannot satisfy MFA (§5) |
 | T1087.004 | medium | CA-COV008-BlockByLocation | Account enumeration | Shrinks the phishing/targeting surface an adversary builds from a user directory |
 | T1069.003 | medium | CA-SIF001-SignInFrequency-8h | Group / privilege enumeration | Caps stolen-token lifetime, shortening the time a foothold account has to read the tenant (§3: 14-day median dwell) |
 | T1550.001 | **high** | Directory Readers (RBAC) | Credential / token theft | Token reuse is the residual path that survives MFA (§4–§5); least-privilege on directory reads limits what a replayed token can see |
@@ -163,6 +163,11 @@ Directory Readers) reduces the blast radius of a replayed token. Every row maps 
 > `docs/finding-severity-rubric-v0.1.md` (the label taxonomy is a Collection-targeting map,
 > D=2). The bridge's *direction of risk* for T1580 is unchanged; only the severity level is
 > refined. See §9.
+>
+> **[§] Note (2026-10-20):** T1078.004 severity `informational` → `high` and control `CA-SIG003-Guests-RequireMFA` →
+> `CA-RequireMFA-AllUsers`. R017 is the first run to evidence the technique (a member account's password alone got a
+> token through ROPC), which rubric v1.0 rates high (D=3); the guest-only policy does not cover member accounts.
+> Direction of risk unchanged in substance.
 >
 > **[‡] Note (2026-09-10):** T1526, T1518.001, and T1654 severity updated `medium` → `high`
 > per `docs/finding-severity-rubric-v0.1.md` **v1.0**, which adopted the defensive-evasion

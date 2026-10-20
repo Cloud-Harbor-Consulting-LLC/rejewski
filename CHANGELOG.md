@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **CI: `tests` workflow (S6 W24, B040).** New `.github/workflows/tests.yml` runs the full suite from a
+  clean install (`pip install -r requirements-dev.txt`) on every pull request, every push to `main`, and on
+  demand. It runs on Ubuntu with Python 3.11 (the README minimum) and 3.13, and on Windows with Python 3.13
+  (the platform the evidence runs use). Read-only token permissions, no secrets, no Graph calls. Added after
+  the internal dry run found a missing requirement that a developer machine masked (#132).
+  `CONTRIBUTING.md` testing section updated (baseline 192 → 235, plus the workflow).
+
 - **R017: weekly end-to-end run, first under the G-1 consent gate and the G-8 teardown; canonical run
   moved to R017 (S6 W23 Sat slot, run Mon 2026-10-19 with the internal dry run).** One consented session
   against `cloudharbordemo`, all 15 tool surfaces. The consent record is a v2 self-test record built with

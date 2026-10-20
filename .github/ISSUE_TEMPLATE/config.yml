@@ -2,4 +2,4 @@ blank_issues_enabled: false
 contact_links:
   - name: Question or discussion
     url: https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/discussions
-    about: For open-ended questions, design discussion, or help running Rejewski against a sandbox tenant.
+    about: For open-ended questions, design discussion, or help running Rejewski against a tenant you own or are authorized to assess.

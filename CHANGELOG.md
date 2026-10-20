@@ -231,6 +231,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Dependency license audit v0.2 (S6 W24, B042).** `docs/dependency-license-audit.md` v0.1 (May 16) covered
+  jsonschema and pytest only. v0.2 covers all 7 direct dependencies (msal, msal-extensions, requests,
+  python-dotenv, jsonschema, claude-agent-sdk, pytest) and the 37 transitive packages a clean install pulls in,
+  each with SPDX identifier, version, and parent. Verdict: all 44 are compatible with MIT distribution. One
+  file-level copyleft package, `certifi` (MPL-2.0, via requests), is reviewed as compatible because it is used
+  unmodified and not bundled; no GPL, LGPL, or AGPL. `scripts/audit_licenses.py`: expected set updated to the
+  44-package baseline, Windows-only packages (pywin32, colorama) and the audit tool ignored for drift, MPL-2.0
+  listed as an explicit reviewed exception, MIT-0 and dual Apache/BSD expressions mapped. The clean-install run
+  passed; its JSON matrix stays local (`evidence/` is gitignored) and the doc's §4 table is the committed record. Lockfile decision
+  recorded: none for v1.0, with CI (B040) catching breaking upstream releases; a constraints file is a v1.1
+  candidate.
+
 - **SECURITY.md launch version; Discussions on (S6 W24, B041).** SECURITY.md replaces the private-build policy
   with the public one it said it would become at launch: two private reporting routes (GitHub private
   vulnerability reporting, enabled at the Oct 26 flip, and email), an in-scope list centred on Rejewski's

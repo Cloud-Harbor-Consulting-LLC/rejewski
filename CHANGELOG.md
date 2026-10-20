@@ -231,6 +231,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **SECURITY.md launch version; Discussions on (S6 W24, B041).** SECURITY.md replaces the private-build policy
+  with the public one it said it would become at launch: two private reporting routes (GitHub private
+  vulnerability reporting, enabled at the Oct 26 flip, and email), an in-scope list centred on Rejewski's
+  safety controls (consent gate, GET-only, secret leakage, token teardown), an out-of-scope list (assessed-tenant
+  findings, Microsoft service issues to MSRC), response commitments (acknowledgement in 3 business days, updates
+  every 14 days, a GitHub advisory per fix, 90-day disclosure fallback), and a supported-versions table. Repo
+  settings: description and topics set, and GitHub Discussions enabled, so the issue-template Question link now
+  resolves; its text now says "a tenant you own or are authorized to assess" instead of "a sandbox tenant".
+
 - **T1078.004 control mapping corrected (S6 W24, B043).** T1078.004 mapped to `CA-SIG003-Guests-RequireMFA`,
   a guest-only policy, but the sign-in R017 evidences is a member account (its password alone got a token
   through ROPC). New `samples/finding-to-control/t1078.004-conditional_access-ca-require-mfa-all-users.json`

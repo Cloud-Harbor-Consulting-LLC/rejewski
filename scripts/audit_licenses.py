@@ -18,20 +18,40 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 EVIDENCE_ROOT = REPO_ROOT / "evidence"
 
+# Direct dependencies (requirements.txt + requirements-dev.txt) and every package a clean install of
+# them pulls in. Audit v0.2 (2026-10-20); see docs/dependency-license-audit.md Sections 3 and 4.
 EXPECTED_PACKAGES = {
-    "jsonschema",
+    # direct, runtime
+    "msal", "msal-extensions", "requests", "python-dotenv", "jsonschema", "claude-agent-sdk",
+    # direct, development
     "pytest",
-    "attrs",
-    "referencing",
-    "rpds-py",
-    "jsonschema-specifications",
-    "iniconfig",
-    "packaging",
-    "pluggy",
+    # transitive
+    "annotated-types", "anyio", "attrs", "certifi", "cffi", "charset-normalizer", "click",
+    "cryptography", "h11", "httpcore2", "httpx2", "idna", "iniconfig", "jsonschema-specifications",
+    "mcp", "mcp-types", "opentelemetry-api", "packaging", "pluggy", "pycparser", "pydantic",
+    "pydantic-core", "pygments", "pyjwt", "python-multipart", "referencing", "rpds-py", "sniffio",
+    "sse-starlette", "starlette", "truststore", "typing-extensions", "typing-inspection", "urllib3",
+    "uvicorn",
 }
+
+# Installed only on some platforms (pywin32 via mcp, colorama via pytest on Windows). Not drift
+# when absent.
+PLATFORM_PACKAGES = {"pywin32", "colorama"}
+
+# The audit tool and its own dependencies, present in the audit environment only.
+AUDIT_TOOLING = {"pip-licenses", "prettytable", "wcwidth", "tomli"}
+
+# Weak (file-level) copyleft licenses reviewed as compatible with MIT distribution of Rejewski
+# because the package is used unmodified as an installed dependency and is not bundled or
+# vendored (docs/dependency-license-audit.md Section 5). certifi is the only current case.
+REVIEWED_FILE_LEVEL_COPYLEFT = {"MPL-2.0"}
 
 SPDX_MAP = {
     "MIT License": "MIT",
+    "MIT-0": "MIT-0",
+    "MIT No Attribution": "MIT-0",
+    "Apache-2.0 OR BSD-3-Clause": "Apache-2.0 OR BSD-3-Clause",
+    "PSF-2.0": "PSF-2.0",
     "MIT": "MIT",
     "Apache Software License": "Apache-2.0",
     "Apache 2.0": "Apache-2.0",
@@ -49,6 +69,8 @@ SPDX_MAP = {
 
 PERMISSIVE_SPDX = {
     "MIT",
+    "MIT-0",
+    "Apache-2.0 OR BSD-3-Clause",
     "Apache-2.0",
     "BSD-2-Clause",
     "BSD-3-Clause",
@@ -96,7 +118,7 @@ def resolve_spdx(raw_license: str) -> tuple[str, str]:
 
 
 def mit_inbound_compatible(spdx_id: str) -> bool:
-    return spdx_id in PERMISSIVE_SPDX
+    return spdx_id in PERMISSIVE_SPDX or spdx_id in REVIEWED_FILE_LEVEL_COPYLEFT
 
 
 def build_records(raw_entries: list[dict]) -> list[dict]:
@@ -123,9 +145,13 @@ def build_records(raw_entries: list[dict]) -> list[dict]:
 
 
 def detect_transitive_drift(records: list[dict]) -> dict:
-    observed = {r["name"].lower() for r in records}
-    expected = {p.lower() for p in EXPECTED_PACKAGES}
-    extras = sorted(observed - expected)
+    def norm(name: str) -> str:
+        return name.lower().replace("_", "-").replace(".", "-")
+
+    observed = {norm(r["name"]) for r in records} - {norm(p) for p in AUDIT_TOOLING}
+    expected = {norm(p) for p in EXPECTED_PACKAGES}
+    platform = {norm(p) for p in PLATFORM_PACKAGES}
+    extras = sorted(observed - expected - platform)
     missing = sorted(expected - observed)
     drift = bool(extras or missing)
     return {

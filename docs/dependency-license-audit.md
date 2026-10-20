@@ -1,8 +1,8 @@
 # Dependency License Audit (Rejewski)
 
-Version: v0.1
+Version: v0.2
 Owner: Cloud Harbor Consulting LLC
-Last updated: 2026-05-16
+Last updated: 2026-10-20
 
 ## 1. Purpose
 
@@ -12,87 +12,94 @@ The audit is reproducible, offline, and re-runs on demand via scripts/audit_lice
 
 ## 2. Scope
 
-In scope for v0.1:
+In scope for v0.2:
 
-- Direct runtime dependency: jsonschema>=4.26,<5
-- Direct development dependency: pytest>=8,<9
-- All transitive dependencies pulled by the above (7 packages, see Section 4)
-- Downstream license: MIT (Cloud Harbor Consulting LLC, 2026)
+- Direct runtime dependencies: msal, msal-extensions, requests, python-dotenv, jsonschema, claude-agent-sdk (Section 3).
+- Direct development dependency: pytest.
+- All transitive dependencies a clean install pulls in (37 packages, Section 4).
+- Downstream license: MIT (Cloud Harbor Consulting LLC, 2026).
 
-Out of scope for v0.1, deferred to future B-IDs:
+Out of scope, deferred:
 
-- Vulnerability scanning (pip-audit). Belongs to a future security-scanning B-ID.
+- Vulnerability scanning (pip-audit). Belongs to a future security-scanning item.
 - SBOM emission (SPDX 2.3 or CycloneDX 1.6+). Evidence field names in Section 7 preserve forward compatibility.
-- Vendored or bundled distribution scenarios. Rejewski v0.1 ships source only; users pip install from PyPI.
+- Vendored or bundled distribution. Rejewski v1.0 ships source only; users install dependencies from PyPI.
 
 ## 3. Direct Dependencies
 
-### 3.1 jsonschema (runtime)
+Versions are those resolved by a clean install on 2026-10-20 (Windows, Python 3.14.5).
 
-| Field | Value |
-|---|---|
-| SPDX identifier | MIT |
-| Version pin | >=4.26,<5 |
-| Upstream | <https://github.com/python-jsonschema/jsonschema> |
-| License file | dist-info/licenses/COPYING (MIT text) |
-| MIT-inbound compatible | yes |
+| Package | Kind | Pin | Resolved | SPDX | Used for | MIT-inbound compatible |
+|---|---|---|---|---|---|---|
+| msal | runtime | `>=1.28,<2` | 1.39.0 | MIT | Token acquisition (scripts/identity.py) | yes |
+| msal-extensions | runtime | `>=1.1,<2` | 1.3.1 | MIT | Encrypted token cache (ADR 0005) | yes |
+| requests | runtime | `>=2.31,<3` | 2.34.2 | Apache-2.0 | Microsoft Graph HTTP calls | yes |
+| python-dotenv | runtime | `>=1.0,<2` | 1.2.4 | BSD-3-Clause | Loads .env | yes |
+| jsonschema | runtime | `>=4.21,<5` | 4.26.0 | MIT | Replay-log, consent, finding schema validation | yes |
+| claude-agent-sdk | runtime | `>=0.1.81,<0.2` | 0.1.81 | MIT | Agent SDK options (scripts/rejewski_runtime.py) | yes |
+| pytest | development | `>=8,<9` | 8.4.2 | MIT | Test suite | yes |
 
-Source corroboration (4 independent signals):
-
-1. PyPI Trove classifier: License :: OSI Approved :: MIT License
-2. LICENSE file in wheel: dist-info/licenses/COPYING containing canonical MIT text
-3. Maintainer statement (Julian Berman, python-jsonschema Discussion #961, June 2022): MIT
-4. Distro reconciliation (MSYS2, piwheels): both label License(s): MIT
-
-Extras note (non-binding for v0.1):
-
-jsonschema exposes two optional extras, format and format-nongpl. The split exists because one optional format-validator dependency (rfc3987) is GPL-2.0+. format-nongpl is the curated permissive subset. Rejewski installs neither extra (we use Draft 2020-12 structural validation only), so this is non-binding for v0.1. If a future version pulls in either extra, this audit must re-evaluate.
-
-### 3.2 pytest (development)
-
-| Field | Value |
-|---|---|
-| SPDX identifier | MIT |
-| Version pin | >=8,<9 |
-| Upstream | <https://github.com/pytest-dev/pytest> |
-| License file | LICENSE (MIT text, Copyright 2004 Holger Krekel and others) |
-| MIT-inbound compatible | yes |
-
-Source corroboration (3 independent signals):
-
-1. LICENSE file: verbatim MIT text
-2. Project docs: "Distributed under the terms of the MIT license"
-3. PyPI project description: MIT attribution
-
-Single license root-to-leaf. No sub-module split.
+`claude-agent-sdk` was missing from `requirements.txt` until 2026-10-19 (PR #132); the v1.0 dry run found it. Before that, a clean install failed two test modules.
 
 ## 4. Transitive Dependencies
 
-Transitive surface for v0.1 is small (7 packages) and audited in full from day one. Direct-only scope would miss the packaging dual-license, which is the only non-MIT element in the tree and exactly the kind of finding this audit exists to surface.
+37 packages, pulled in by the direct dependencies above. `pywin32` and `colorama` install on Windows only.
 
-| Package | Pulled by | SPDX identifier | MIT-inbound compatible | Notes |
-|---|---|---|---|---|
-| attrs | jsonschema | MIT | yes | |
-| referencing | jsonschema | MIT | yes | |
-| rpds-py | jsonschema (via referencing) | MIT | yes | Direct PyPI verification pending (Gap 2) |
-| jsonschema-specifications | jsonschema | MIT | yes | |
-| iniconfig | pytest | MIT | yes | |
-| packaging | pytest | Apache-2.0 OR BSD-2-Clause | yes | Non-MIT canary. Both options permissive and MIT-compatible. Direct LICENSE-file verification pending (Gap 1) |
-| pluggy | pytest | MIT | yes | |
+| Package | Version | Pulled by | SPDX | MIT-inbound compatible | Notes |
+|---|---|---|---|---|---|
+| annotated-types | 0.8.0 | pydantic | MIT | yes |  |
+| anyio | 4.15.1 | claude-agent-sdk, mcp, httpx2, starlette, sse-starlette | MIT | yes |  |
+| attrs | 26.1.0 | jsonschema, referencing | MIT | yes |  |
+| certifi | 2026.10.18 | requests | MPL-2.0 | yes | File-level copyleft; reviewed as compatible (Section 5) |
+| cffi | 2.1.1 | cryptography | MIT-0 | yes | MIT No Attribution |
+| charset-normalizer | 3.5.2 | requests | MIT | yes |  |
+| click | 8.5.0 | uvicorn | BSD-3-Clause | yes |  |
+| colorama | 0.4.6 | pytest (Windows only) | BSD-3-Clause-or-similar (manual review) | yes | BSD-3-Clause per its LICENSE.txt; classifier reads only 'BSD License' |
+| cryptography | 50.0.2 | msal | Apache-2.0 OR BSD-3-Clause | yes |  |
+| h11 | 0.16.0 | httpcore2, uvicorn | MIT | yes |  |
+| httpcore2 | 2.14.0 | httpx2 | BSD-3-Clause | yes |  |
+| httpx2 | 2.14.0 | mcp | BSD-3-Clause | yes |  |
+| idna | 3.20 | requests, anyio, httpx2 | BSD-3-Clause | yes |  |
+| iniconfig | 2.3.1 | pytest | MIT | yes |  |
+| jsonschema-specifications | 2025.9.1 | jsonschema | MIT | yes |  |
+| mcp | 2.3.0 | claude-agent-sdk | MIT | yes |  |
+| mcp-types | 2.3.0 | mcp | MIT | yes |  |
+| opentelemetry-api | 1.45.1 | mcp | Apache-2.0 | yes |  |
+| packaging | 26.3 | pytest | Apache-2.0 OR BSD-2-Clause | yes |  |
+| pluggy | 1.7.0 | pytest | MIT | yes |  |
+| pycparser | 3.11 | cffi | BSD-3-Clause | yes |  |
+| pydantic | 2.14.1 | mcp, mcp-types | MIT | yes |  |
+| pydantic_core | 2.50.1 | pydantic | MIT | yes |  |
+| Pygments | 2.21.0 | pytest | BSD-2-Clause | yes |  |
+| PyJWT | 2.15.1 | msal, mcp | MIT | yes |  |
+| python-multipart | 0.0.32 | mcp | Apache-2.0 | yes |  |
+| pywin32 | 312 | mcp (Windows only) | PSF-2.0 | yes | Windows only |
+| referencing | 0.37.0 | jsonschema | MIT | yes |  |
+| rpds-py | 2026.9.1 | jsonschema, referencing | MIT | yes |  |
+| sniffio | 1.3.1 | claude-agent-sdk | MIT | yes | Dual MIT OR Apache-2.0; resolved from metadata |
+| sse-starlette | 3.5.0 | mcp | BSD-3-Clause | yes |  |
+| starlette | 1.9.0 | mcp, sse-starlette | BSD-3-Clause | yes |  |
+| truststore | 0.10.5 | httpx2, httpcore2 | MIT | yes |  |
+| typing_extensions | 4.16.0 | pydantic, anyio, mcp, and 11 others | PSF-2.0 | yes | PSF-2.0, permissive |
+| typing-inspection | 0.4.4 | pydantic, mcp | MIT | yes |  |
+| urllib3 | 2.8.0 | requests | MIT | yes |  |
+| uvicorn | 0.54.0 | mcp | BSD-3-Clause | yes |  |
 
-Total surface: 2 direct + 7 transitive = 9 packages.
-
-This Section 4 table is the human-readable mirror of evidence/<YYYY-MM-DD>/dependency-licenses.json. The audit script regenerates this table on every run.
+This Section 4 table is the committed record of the 2026-10-20 run. The audit script also writes a machine-readable matrix to `evidence/<YYYY-MM-DD>/dependency-licenses.json`; `evidence/` is gitignored, so that file stays local and is regenerated on every run.
 
 ## 5. MIT-Inbound Compatibility Verdict
 
-All 9 packages are MIT-inbound compatible with Rejewski's MIT downstream license. MIT is permissive, OSI-approved, FSF-libre, and combinable with any other MIT-licensed work without re-licensing constraints. The single non-MIT element (packaging, Apache-2.0 OR BSD-2-Clause) is permissive on either branch and combines cleanly with MIT downstream.
+All 44 packages are compatible with distributing Rejewski under the MIT license.
+
+- **Permissive:** MIT, MIT-0, Apache-2.0, BSD-2-Clause, BSD-3-Clause, PSF-2.0, and the dual `Apache-2.0 OR BSD-2-Clause` and `Apache-2.0 OR BSD-3-Clause` expressions.
+- **One file-level copyleft package: `certifi` (MPL-2.0).** MPL-2.0 obligations attach to modified MPL-covered files. Rejewski installs certifi unmodified from PyPI as a dependency of `requests` and does not bundle, vendor, or modify it, so no obligation reaches Rejewski's own code. The audit script lists MPL-2.0 in `REVIEWED_FILE_LEVEL_COPYLEFT` so this review is explicit, and any other copyleft license still fails the gate.
+- **No GPL, LGPL, or AGPL** package is present.
 
 ### 5.1 Attribution Guardrail (forward-looking)
 
-MIT requires that "the above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software." For Rejewski v0.1, we do not redistribute jsonschema, pytest, or any transitive package binary. Users run pip install -r requirements.txt and fetch directly from PyPI, so attribution is satisfied at the package-manager layer.
+MIT requires that "the above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software." For Rejewski v1.0, we do not redistribute jsonschema, pytest, or any transitive package binary. Users run pip install -r requirements.txt and fetch directly from PyPI, so attribution is satisfied at the package-manager layer.
 
-If v0.2 or later ever ships a wheel, vendored copy, Docker image, PyInstaller bundle, or any other artifact that bundles these packages, the LICENSE files of every bundled package MUST travel with the artifact. This guardrail is binding on any future redistribution scenario.
+If a later release ever ships a wheel, vendored copy, Docker image, PyInstaller bundle, or any other artifact that bundles these packages, the LICENSE files of every bundled package MUST travel with the artifact. This guardrail is binding on any future redistribution scenario.
 
 ## 6. Tool Selection
 
@@ -151,17 +158,15 @@ When PyPI metadata reads only "License :: OSI Approved" with no specific OSI sub
 
 ## 8. Version-Pin Policy
 
-Current posture: jsonschema>=4.26,<5 and pytest>=8,<9 (loose lower bound, major-version upper cap).
+Posture: each direct dependency has a loose lower bound and an upper cap at its next major version (next minor for `claude-agent-sdk`, which is still 0.x). This accepts patch and minor security updates from PyPI without breaking on a major API change.
 
-This is conventional for security-framework tooling that wants to accept patch and minor security updates from PyPI without breaking on a hypothetical major-version API change.
+Lockfile decision for v1.0: no lockfile. v0.1 said to reconsider once the transitive set passed about 15 packages; it is now 37, mostly from `claude-agent-sdk` and `mcp`. The surface is still permissive apart from the reviewed certifi case, and the `tests` CI workflow (B040) now installs from scratch on every pull request, so a breaking upstream release shows up as a failed check. A constraints file for reproducible installs is a v1.1 candidate.
 
-Lockfile decision for v0.1: no uv.lock, no pip-compile-generated requirements.lock. Justification: 9 total packages, MIT-uniform surface (with the permissive packaging exception). Marginal value of a lockfile for v0.1 is low; tooling surface (uv install in CI) is not earned yet.
+Reconsider when any of the following occurs:
 
-Reconsider at v0.2 when any of the following occurs:
-
-- Transitive surface grows beyond approximately 15 packages.
-- A non-permissive transitive license appears (current canary: packaging Apache-2.0 / BSD-2-Clause stays permissive; watch for any LGPL, GPL, or AGPL appearance).
+- A copyleft license other than the reviewed MPL-2.0 case appears (any GPL, LGPL, or AGPL).
 - A new direct dependency introduces extras that pull in copyleft transitives.
+- An upstream release breaks a clean install in CI.
 
 ## 9. How to Run
 
@@ -178,15 +183,16 @@ Outputs:
 
 - evidence/<YYYY-MM-DD>/dependency-licenses.json (machine-readable matrix).
 - Section 4 Markdown table (regenerated for human review).
-- Non-zero exit code if any package resolves to license_spdx = "UNKNOWN", any non-permissive license appears, or the observed transitive set drifts from the 7-package baseline in Section 4.
+- Non-zero exit code if any package resolves to license_spdx = "UNKNOWN", any license outside the permissive set and the reviewed MPL-2.0 exception appears, or the installed set drifts from `EXPECTED_PACKAGES` in the script (direct plus transitive; Windows-only packages and the audit tool itself are ignored).
 
 ## 10. Gaps
 
-1. packaging direct LICENSE-file verification. Listed as Apache-2.0 OR BSD-2-Clause per PyPA documentation; not yet fetched directly from packaging's own LICENSE file. The audit script's first run on a clean install must surface the resolved value and fail loud if it does not match Apache-2.0 OR BSD-2-Clause.
-2. rpds-py direct PyPI verification. Inferred MIT from the piwheels listing under jsonschema's transitive dependencies. Direct PyPI metadata fetch will strengthen.
-3. PEP 639 adoption status for jsonschema 4.26 and pytest 8.x. Neither was confirmed to emit License-Expression core metadata as of 2026-05-16. The audit script handles both PEP 639 and legacy classifier paths (Tier 1 then Tier 3 in Section 7.1) until adoption is universal.
-4. Pip-resolved transitive set not verified live in this audit document. Task rules at v0.1 grounding time forbade running pip in the research environment. The audit_licenses.py first run on a clean install will emit the actual resolved set. If the observed set differs from the 7-package baseline in Section 4, the script flags requires_first_run_verification = true and fails the release gate. Update this document on first run.
-5. LICENSE-text hash-matching feasibility (Tier 4). Hash-matching the first 500 bytes of dist-info/licenses/LICENSE or COPYING against canonical SPDX license templates depends on a vendored template set. If implementation difficulty is high, vendor licensecheck's template set or skip Tier 4 and surface a manual-review flag instead.
+1. **Linux and macOS sets not audited separately.** The v0.2 run used Windows. The expected set excludes only the two Windows-only packages, so a run on Linux or macOS should pass; running the audit in CI on each platform would confirm it.
+2. **Raw-classifier BSD entries.** `colorama` reports only "BSD License" in its classifier; its LICENSE file is BSD-3-Clause. The script records it as `BSD-3-Clause-or-similar (manual review)`.
+3. **PEP 639 adoption is partial.** Some packages emit a `License-Expression` field and others only classifiers; the script handles both (Section 7.1).
+4. **LICENSE-text hash matching (Tier 4) not implemented.** It depends on a vendored set of SPDX templates.
+
+Resolved since v0.1: the transitive set is now verified by a live clean install (v0.1 Gap 4); `packaging` (Apache-2.0 OR BSD-2-Clause) and `rpds-py` (MIT) now resolve from their own package metadata (v0.1 Gaps 1 and 2).
 
 ## 11. References
 

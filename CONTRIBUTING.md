@@ -40,7 +40,7 @@ These are Rejewski's **standing PR conventions** — follow them for every chang
 
 ## Testing expectations
 
-Rejewski ships with a Python test suite (`pytest`). Every PR must keep it **fully green** — the current baseline is **192 passing**.
+Rejewski ships with a Python test suite (`pytest`). Every PR must keep it **fully green** — the current baseline is **235 passing**. The `tests` workflow (`.github/workflows/tests.yml`) runs the suite from a clean install on every pull request and every push to `main`, on Ubuntu (Python 3.11 and 3.13) and Windows (Python 3.13). It needs no secrets and makes no Graph calls.
 
 ```bash
 python -m venv .venv

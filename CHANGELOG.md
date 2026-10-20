@@ -224,6 +224,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **T1078.004 control mapping corrected (S6 W24, B043).** T1078.004 mapped to `CA-SIG003-Guests-RequireMFA`,
+  a guest-only policy, but the sign-in R017 evidences is a member account (its password alone got a token
+  through ROPC). New `samples/finding-to-control/t1078.004-conditional_access-ca-require-mfa-all-users.json`
+  maps it to Conditional Access requiring MFA for all users on all resources (Microsoft Learn "Require MFA
+  for all users"), which ROPC cannot satisfy. The old record is marked `deprecated` with a pointer, so the R011
+  triage record still resolves. The R017 triage record now points at the new mapping. ROI model §6: T1078.004
+  is now `high` with the new control and a dated [§] note. `docs/finding-coverage-report.md`, the R017 report,
+  and `docs/reports/canonical-report.html` are regenerated. Suite 235 → 235.
+
 - **Guardrails G-2 to G-9 Enforcement text audited against the code (S6 W23, B036).** `docs/guardrails.md`
   Enforcement paragraphs for G-2 through G-9 described checks in an SDK layer that was never built: a
   client-ID allowlist refusal, a scope list and client ID pinned in `rejewski.config.json`, an audit

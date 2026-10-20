@@ -7,7 +7,7 @@
       "samples/replay-log/R011.json"
     ],
     "severity": "high",
-    "rationale": "Guest and external accounts in M365 tenants frequently lack MFA enforcement because default CA policies target only member users. An adversary who obtains a guest credential can acquire a delegated bearer token via ROPC without triggering a secondary factor, then pivot to discovery techniques. Requiring MFA for all guest sign-ins regardless of network location closes this initial-access gap."
+    "rationale": "Guest and external accounts in M365 tenants frequently lack MFA enforcement because default CA policies target only member users. An adversary who obtains a guest credential can acquire a delegated bearer token via ROPC without triggering a secondary factor, then pivot to discovery techniques. Requiring MFA for all guest sign-ins regardless of network location closes this initial-access gap. Deprecated 2026-10-20: superseded for T1078.004 by ft1078-004-ca-require-mfa-all-users-001, because the evidenced sign-in (R017) is a member account, which a guest-only policy does not cover. Kept so the R011 triage record still resolves."
   },
   "control": {
     "control_family": "conditional_access",
@@ -21,6 +21,6 @@
     "created_utc": "2026-05-27T12:30:00Z",
     "author": "rejewski",
     "schema_version": "0.1",
-    "status": "active"
+    "status": "deprecated"
   }
 }

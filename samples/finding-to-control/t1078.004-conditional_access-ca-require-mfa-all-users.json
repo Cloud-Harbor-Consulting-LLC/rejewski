@@ -1,0 +1,26 @@
+{
+  "mapping_id": "ft1078-004-ca-require-mfa-all-users-001",
+  "finding": {
+    "technique_id": "T1078.004",
+    "technique_name": "Valid Accounts: Cloud Accounts",
+    "observed_in": [
+      "samples/replay-log/R017.json"
+    ],
+    "severity": "high",
+    "rationale": "A member account's password alone yielded a delegated Graph token through ROPC (R017: token_event flow=ropc, success). ROPC cannot satisfy MFA, so a Conditional Access policy that requires MFA for all users on all resources makes this sign-in fail instead of issuing a token. Microsoft recommends that baseline for every tenant; the guest-only policy previously mapped here (CA-SIG003-Guests-RequireMFA) does not cover member accounts. Exclusions should be limited to emergency-access accounts, and any user account used for automation should move to a workload identity."
+  },
+  "control": {
+    "control_family": "conditional_access",
+    "control_id": "CA-RequireMFA-AllUsers (Require MFA for all users, all resources)",
+    "control_type": "preventive",
+    "microsoft_pillar": "Identities",
+    "nist_800_207_tenets": ["T4", "T6"],
+    "reference_url": "https://learn.microsoft.com/en-us/entra/identity/conditional-access/policy-all-users-mfa-strength"
+  },
+  "mapping_metadata": {
+    "created_utc": "2026-10-20T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1",
+    "status": "active"
+  }
+}

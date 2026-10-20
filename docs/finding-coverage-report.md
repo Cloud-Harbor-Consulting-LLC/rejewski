@@ -1,7 +1,7 @@
 # Rejewski Finding-to-Control Coverage Report
 
-- Generated: 2026-08-29T21:51:58Z
-- ATT&CK coverage source: docs/attck-coverage.md (v0.8)
+- Generated: 2026-10-20T14:36:04Z
+- ATT&CK coverage source: docs/attck-coverage.md (v0.10)
 - Implemented techniques: 13
 - Covered: 13 (100.0%)
 - Gap: 0 (0.0%)
@@ -10,7 +10,7 @@
 
 | Technique | Name | Mapping record |
 |---|---|---|
-| T1078.004 | Valid Accounts: Cloud Accounts | t1078.004-conditional_access-ca-sig003-guests-requiremfa.json |
+| T1078.004 | Valid Accounts: Cloud Accounts | t1078.004-conditional_access-ca-require-mfa-all-users.json |
 | T1087.004 | Account Discovery: Cloud Account | t1087.004-conditional_access-ca-cov008-blockbylocation.json |
 | T1069.003 | Permission Groups Discovery: Cloud Groups | t1069.003-conditional_access-ca-sif001-signinfrequency-8h.json |
 | T1550.001 | Use Alternate Authentication Material: Application Access Token | t1550.001-rbac-directory-readers.json |
@@ -35,3 +35,4 @@
 |---|---|---|---|
 | 2026-08-14 | 13 | 9 | 69.2% |
 | 2026-08-29 | 13 | 13 | 100.0% |
+| 2026-10-20 | 13 | 13 | 100.0% |

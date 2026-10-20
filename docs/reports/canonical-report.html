@@ -287,7 +287,7 @@ Techniques: T1078.004, T1550.001, T1087.004, T1069.003, T1526, T1518.001, T1082,
 <td><span class="badge-high">high</span></td>
 <td>high</td>
 <td>open</td>
-<td class="notes">Valid cloud account: the run&#x27;s first token request used ROPC with the seeded account&#x27;s password and succeeded (token_event flow=ropc, HTTP 200, outcome success), with no MFA challenge possible on that flow and no Conditional Access policy blocking it. First committed run to evidence T1078.004 directly: R014-R016 reused a cached session, and the G-8 end-of-run teardown (ADR 0005 §5.4, from R017) now forces a fresh sign-in each run. High per docs/finding-severity-rubric-v0.1.md v1.0 (D=3: a working credential yields a token; the sign-in completed without an MFA control). Control note: the mapped control (CA-SIG003-Guests-RequireMFA) targets guests, and the seeded account is a member, so a require-MFA policy covering members, which ROPC cannot satisfy, is the closer control; flagged for the final polish.</td>
+<td class="notes">Valid cloud account: the run&#x27;s first token request used ROPC with the seeded account&#x27;s password and succeeded (token_event flow=ropc, HTTP 200, outcome success), with no MFA challenge possible on that flow and no Conditional Access policy blocking it. First committed run to evidence T1078.004 directly: R014-R016 reused a cached session, and the G-8 end-of-run teardown (ADR 0005 §5.4, from R017) now forces a fresh sign-in each run. High per docs/finding-severity-rubric-v0.1.md v1.0 (D=3: a working credential yields a token; the sign-in completed without an MFA control). Control: Conditional Access requiring MFA for all users on all resources, which ROPC cannot satisfy (mapping corrected 2026-10-20 from the guest-only CA-SIG003-Guests-RequireMFA, B043). Severity reviewed and kept at high (2026-10-19).</td>
 </tr>
 <tr>
 <td>T1082 System Information Discovery</td>
@@ -362,10 +362,10 @@ Techniques: T1078.004, T1550.001, T1087.004, T1069.003, T1526, T1518.001, T1082,
 </tr>
 <tr>
 <td>T1078.004</td>
-<td>CA-SIG003-Guests-RequireMFA</td>
+<td>CA-RequireMFA-AllUsers (Require MFA for all users, all resources)</td>
 <td>conditional_access / preventive</td>
 <td>Identities · T4, T6</td>
-<td><a class="ref-link" href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-access-policy-all-users-mfa" target="_blank" rel="noopener">Microsoft Docs ↗</a></td>
+<td><a class="ref-link" href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/policy-all-users-mfa-strength" target="_blank" rel="noopener">Microsoft Docs ↗</a></td>
 </tr>
 <tr>
 <td>T1082</td>
@@ -440,7 +440,7 @@ Techniques: T1078.004, T1550.001, T1087.004, T1069.003, T1526, T1518.001, T1082,
 <tr>
 <td>T1078.004</td>
 <td>Initial access / valid accounts</td>
-<td class="notes">Reduces the credential entry path into the tenant; guest-MFA closes the ROPC/legacy-auth gap, since ROPC cannot satisfy MFA (§5)</td>
+<td class="notes">Reduces the credential entry path into the tenant; MFA for all users closes the ROPC gap, since ROPC cannot satisfy MFA (§5)</td>
 </tr>
 <tr>
 <td>T1082</td>

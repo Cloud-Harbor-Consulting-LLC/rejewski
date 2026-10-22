@@ -449,6 +449,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **README R017 finding count explained correctly (S6 W24 final audit).** The usage example said R017's 14
+  data-returning surfaces map to 9 techniques, plus the sign-in as a tenth. They map to 8; authentication adds 2
+  (T1078.004 sign-in, T1550.001 token reuse). The total of 10 was right; the breakdown was not.
+
 - **v1.0 internal dry-run blockers (S6 W23 dry run, run 2026-10-19).** Found by rehearsing the release
   from a fresh clone, a clean virtual environment, and a draft pre-release of tag `v1.0-rc.1`:
   - `requirements.txt` did not list `claude-agent-sdk`, which `scripts/rejewski_runtime.py` imports. A

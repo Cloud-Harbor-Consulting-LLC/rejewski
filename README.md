@@ -108,7 +108,7 @@ python scripts/generate_html_report.py \
   --output docs/reports/replay-report-R017.html
 ```
 
-The committed result is **[docs/reports/replay-report-R017.html](docs/reports/replay-report-R017.html)** (also at [docs/reports/canonical-report.html](docs/reports/canonical-report.html)): a single self-contained report — graph calls, token events, findings, control mappings, and a per-finding ROI section — from one 15-surface run, with **10 distinct findings, each carrying a severity score and an ROI line**. The 14 surfaces that returned data map to 9 ATT&CK techniques (six surfaces to T1087.004 account discovery, two to T1654 log enumeration), and the run's own sign-in adds a tenth: the seeded password alone got a token (T1078.004). `tool_list_inbox_rules` is a documented block (the delegated self-mailbox boundary), not a finding.
+The committed result is **[docs/reports/replay-report-R017.html](docs/reports/replay-report-R017.html)** (also at [docs/reports/canonical-report.html](docs/reports/canonical-report.html)): a single self-contained report — graph calls, token events, findings, control mappings, and a per-finding ROI section — from one 15-surface run, with **10 distinct findings, each carrying a severity score and an ROI line**. The 14 surfaces that returned data map to 8 ATT&CK techniques (six surfaces to T1087.004 account discovery, two to T1654 log enumeration), and authentication adds 2: the password-only sign-in (T1078.004) and the silent reuse of its token for the other 14 tools (T1550.001). `tool_list_inbox_rules` is a documented block (the delegated self-mailbox boundary), not a finding.
 
 ## Rules of Engagement
 

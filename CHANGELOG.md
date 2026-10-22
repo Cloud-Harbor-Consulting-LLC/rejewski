@@ -231,6 +231,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **README: finding triage is a documented manual step; token wording corrected (S6 W24 final audit).** The
+  Oct 22 ROE consent flow check followed the README Quickstart end to end on the sandbox (consent record, fresh
+  sign-in, read, consolidation, teardown, report). It worked, and the report had an empty findings table, because
+  finding-triage records are written by an analyst and no script generates them. README now says so: the "What it
+  does" list names triage as an analyst step, and the full-run example gains step 4, "Triage the findings" (rubric
+  severity, control mapping, the R017 records as worked examples). "read-only Graph token" is now "Graph token":
+  tools request `.default`, and read-only is enforced by the GET-only guard (G-3). Release notes gain a "Finding
+  triage is manual" limitation.
+
 - **Dependency license audit v0.2 (S6 W24, B042).** `docs/dependency-license-audit.md` v0.1 (May 16) covered
   jsonschema and pytest only. v0.2 covers all 7 direct dependencies (msal, msal-extensions, requests,
   python-dotenv, jsonschema, claude-agent-sdk, pytest) and the 37 transitive packages a clean install pulls in,

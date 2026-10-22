@@ -10,8 +10,8 @@ Rejewski is a set of read-only Microsoft Graph tools. They sign in as a test acc
 
 1. Starts with a Rules of Engagement consent record, written as the first entry of the run's replay log.
 2. Executes read-only Microsoft Graph and Defender / Purview queries against the target tenant.
-3. Maps each finding to a specific M365 control (Conditional Access policy, Defender setting, Purview label, Intune compliance check, and so on).
-4. Emits a structured replay log so every run reproduces.
+3. Emits a structured replay log so every run reproduces.
+4. Is triaged by an analyst: each finding gets a rubric severity and a specific M365 control (Conditional Access policy, Defender setting, Purview label, Intune compliance check, and so on).
 5. Renders an HTML report with severity scores and business-impact lines per finding.
 
 An agent layer built on the Claude Agent SDK ships alongside the tools. `scripts/rejewski_runtime.py` loads the SDK options from `rejewski.config.json`, and `scripts/reasoning_loop.py` routes each recon step to a model and stamps the replay-log entry with the model it chose. In v1.0 that layer runs offline: the operator runs the tools, and connecting them to the agent needs a Graph MCP server, which `rejewski.config.json` does not configure.
@@ -58,7 +58,7 @@ python scripts/write_consent_record.py --engagement-type self_test --tenant-id <
 
 For a third-party tenant, use `--engagement-type third_party_assessment` with the counterparty fields and a counter-signed `--signature-method`, as described in [docs/external-auth.md](docs/external-auth.md).
 
-Each tool then acquires a delegated, read-only Graph token on its first call (against the borrowed FOCI client), caches it, and writes a structured replay-log entry:
+Each tool then acquires a delegated Graph token on its first call (against the borrowed FOCI client), caches it, and writes a structured replay-log entry:
 
 ```bash
 python scripts/tool_list_users.py --run-id demo-001
@@ -98,7 +98,9 @@ done
 python scripts/consolidate_run.py --run-id R017
 ```
 
-**4. Render the HTML report** from the consolidated log plus the committed finding records (`--finding-dir`/`--mapping-dir`/`--roi-model` default to the `samples/` sets):
+**4. Triage the findings.** Rejewski does not write finding records itself. For each ATT&CK technique the run evidenced, write a finding-triage record (`schemas/finding-triage/v0.1.json`) with a severity from [docs/finding-severity-rubric-v0.1.md](docs/finding-severity-rubric-v0.1.md) and a `control_mapping_id` from `samples/finding-to-control/`. The committed `*-r017-*` records in `samples/finding-triage/` are worked examples. A run with no triage records still renders its consent, graph calls, and token events, with an empty findings table.
+
+**5. Render the HTML report** from the consolidated log plus the committed finding records (`--finding-dir`/`--mapping-dir`/`--roi-model` default to the `samples/` sets):
 
 ```bash
 python scripts/generate_html_report.py \

@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1518-001-r018-dfi-sensor-health-001",
+  "technique_id": "T1518.001",
+  "technique_name": "Software Discovery: Security Software Discovery",
+  "run_id": "R018",
+  "severity": "high",
+  "confidence": "high",
+  "control_mapping_id": "ft1518-001-rbac-security-reader-001",
+  "evidence": [
+    "samples/replay-log/R018.json"
+  ],
+  "triage_status": "open",
+  "notes": "Security-software discovery: tool_dfi_health enumerated 3 Defender for Identity sensors (R018), success. High per rubric v1.0 (defensive-evasion escalator: D=2 detection-coverage map, decision-table row 3). Recurring. Cross-references Security Reader (RBAC).",
+  "triage_metadata": {
+    "created_utc": "2026-10-26T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

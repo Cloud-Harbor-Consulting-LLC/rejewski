@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1078-004-r018-valid-accounts-001",
+  "technique_id": "T1078.004",
+  "technique_name": "Valid Accounts: Cloud Accounts",
+  "run_id": "R018",
+  "severity": "high",
+  "confidence": "high",
+  "control_mapping_id": "ft1078-004-ca-require-mfa-all-users-001",
+  "evidence": [
+    "samples/replay-log/R018.json"
+  ],
+  "triage_status": "open",
+  "notes": "Valid cloud account: the run's first token request used ROPC with the seeded account's password and succeeded (token_event flow=ropc, HTTP 200, outcome success), with no MFA challenge possible on that flow and no Conditional Access policy blocking it. First committed run to evidence T1078.004 directly: R014-R016 reused a cached session, and the G-8 end-of-run teardown (ADR 0005 §5.4, from R018) now forces a fresh sign-in each run. High per docs/finding-severity-rubric-v0.1.md v1.0 (D=3: a working credential yields a token; the sign-in completed without an MFA control). Control: Conditional Access requiring MFA for all users on all resources, which ROPC cannot satisfy.",
+  "triage_metadata": {
+    "created_utc": "2026-10-26T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

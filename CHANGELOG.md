@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **R018: Sprint 6 Checkpoint end-to-end run (Sat Oct 24 slot, run Mon Oct 26).** All 15 tool surfaces against
+  `cloudharbordemo` under the G-1 consent gate (v2 self-test record from `scripts/write_consent_record.py`) and the
+  G-8 teardown. `samples/replay-log/R018.json`: 31 entries (consent first; 1 ROPC sign-in + 14 silent reuses; 14
+  graph calls success + the documented inbox 404). Same 10 findings as R017 (5 high, 5 medium); 10 triage records
+  and `docs/reports/replay-report-R018.html`. Tenant drift since R017: service principals 448 → 451, sensitivity
+  labels 4 → 5, sign-ins 67 → 32. The canonical aliases stay on R017 through launch, because the launch article
+  cites R017. `docs/release-notes-v1.0.md` stale references corrected (canonical run R016 → R017 with its 10-finding
+  breakdown; evidence ranges to R018).
+
 - **CI: `tests` workflow (S6 W24, B040).** New `.github/workflows/tests.yml` runs the full suite from a
   clean install (`pip install -r requirements-dev.txt`) on every pull request, every push to `main`, and on
   demand. It runs on Ubuntu with Python 3.11 (the README minimum) and 3.13, and on Windows with Python 3.13

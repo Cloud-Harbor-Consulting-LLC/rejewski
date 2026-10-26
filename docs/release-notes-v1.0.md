@@ -15,7 +15,7 @@ Rejewski is a read-only Microsoft 365 adversary-emulation toolkit. Its tools sig
 - Consent enforced in code: a run can target any tenant, but only the tenant its consent record names (G-1, ADR 0008).
 - Replay log schema v0.5, with run consolidation, redaction, a viewer, and an archive policy.
 - HTML reports scored by the severity rubric v1.0 and the ROI model v0.2. No ROI line carries a dollar figure.
-- Canonical run R016: 15 tool surfaces, 9 findings, 4 rated high.
+- Canonical run R017: 15 tool surfaces, 10 findings, 5 rated high.
 
 ## Tools
 
@@ -93,9 +93,9 @@ The project also runs under 8 program principles, G1 to G8 (Read-only, No creden
 
 ## Evidence in this release
 
-- Replay logs for runs R002 to R016 in `samples/replay-log/`, with finding-triage records in `samples/finding-triage/`.
-- HTML reports for R012 to R016 in `docs/reports/`.
-- The canonical run, R016, at `samples/canonical-run.json` and `docs/reports/canonical-report.html`. It covers 15 tool surfaces and has 9 findings (4 high, 5 medium). Several surfaces map to the same technique, so 15 surfaces produce 9 findings. The inbox-rules tool's block is recorded and not counted.
+- Replay logs for runs R002 to R018 in `samples/replay-log/`, with finding-triage records in `samples/finding-triage/`.
+- HTML reports for R012 to R018 in `docs/reports/`.
+- The canonical run, R017, at `samples/canonical-run.json` and `docs/reports/canonical-report.html`. It covers 15 tool surfaces and has 10 findings (5 high, 5 medium). The 14 surfaces that returned data map to 8 techniques, because several share one, and authentication adds 2: the password-only sign-in (T1078.004) and the reuse of its token (T1550.001). The inbox-rules tool's block is recorded and not counted. R018 (2026-10-26) repeats the same 10 findings.
 
 All evidence comes from a sandbox tenant with seeded accounts.
 

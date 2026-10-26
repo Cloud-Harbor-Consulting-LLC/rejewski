@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/tool_intune_devices.py (Tool 8, T1082 Intune devices).
 
 Mocks the Graph HTTP layer (requests.get) and the token helper

@@ -1,6 +1,6 @@
 # Rejewski v1.0 release notes
 
-- **Status:** Draft (2026-10-15). Final at the v1.0 tag in the private repo on Sat Oct 24, 2026; published as the GitHub Release on Mon Oct 26, 2026.
+- **Status:** Final. Tagged `v1.0` and published as the GitHub Release on Mon Oct 26, 2026.
 - **License:** MIT
 
 ## What Rejewski is

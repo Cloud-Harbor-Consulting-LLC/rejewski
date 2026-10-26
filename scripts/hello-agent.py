@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """
 Claude Agent SDK hello-world smoke test for Rejewski.
 

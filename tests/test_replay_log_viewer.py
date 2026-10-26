@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/replay_log_viewer.py.
 
 Covers the v0.2 --format html output mode (render_html) plus a regression

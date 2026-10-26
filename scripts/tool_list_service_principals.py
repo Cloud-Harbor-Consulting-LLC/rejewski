@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Sprint 2 W5 (pull-forward) Tool 6 — list_service_principals
 ATT&CK T1087.004 Account Discovery: Cloud Account — Surface D (service principal layer)

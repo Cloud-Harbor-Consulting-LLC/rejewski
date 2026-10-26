@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Sprint 1 Tool 3 — list_applications
 ATT&CK T1087.004 Account Discovery: Cloud Account

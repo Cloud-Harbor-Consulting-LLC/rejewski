@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Sprint 4 W14 — finding_dedup
 

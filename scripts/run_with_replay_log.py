@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski — external subprocess wrapper that guarantees a replay-log entry
 even if the wrapped tool crashes mid-run.

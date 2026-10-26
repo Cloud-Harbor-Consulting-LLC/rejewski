@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Agent autonomy boundary tests — verify the G-1..G-9 guardrails hold when the
 Rejewski layer is pushed toward write / persistence / lateral-movement / defense-
 evasion actions.

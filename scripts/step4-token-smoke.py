@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """
 Step 4 smoke test: token acquisition as the compromised user, against the
 Microsoft Graph Command Line Tools FOCI public client ID.

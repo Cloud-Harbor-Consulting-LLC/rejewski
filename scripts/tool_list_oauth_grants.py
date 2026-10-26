@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Sprint 3 W11 Tool 11 — list_oauth_grants
 ATT&CK T1087.004 Account Discovery: Cloud Account (Surface E — delegated grants)

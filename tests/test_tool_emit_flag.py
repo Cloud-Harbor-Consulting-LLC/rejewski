@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Emit-flag contract tests for the tools that gained --emit/--no-emit in W16 (N3).
 
 The dry-run toggle was backported to the seven tools that lacked it: the Sprint 1

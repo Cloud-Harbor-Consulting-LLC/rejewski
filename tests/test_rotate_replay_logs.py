@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/rotate_replay_logs.py (Sprint 5 W17 replay-log rotation).
 
 Local-filesystem tool — no Graph mocking needed. Covers the age boundary (only entries

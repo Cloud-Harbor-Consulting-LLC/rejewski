@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """Rejewski dependency license audit.
 
 Reproducible, offline. Emits JSON evidence matrix and Markdown table.

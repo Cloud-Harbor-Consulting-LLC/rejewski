@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/generate_html_report.py (Sprint 5 W17 template; W18 ROI section).
 
 Renders against a self-contained fixture set (incl. a consent record) and against the

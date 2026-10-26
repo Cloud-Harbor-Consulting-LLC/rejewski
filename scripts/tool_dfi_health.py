@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Tool 7 — dfi_health
 ATT&CK T1518.001 Software Discovery: Security Software Discovery

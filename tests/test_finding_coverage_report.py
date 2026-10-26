@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/finding_coverage_report.py (Sprint 4 W14 coverage report).
 
 Read-only coverage report over implemented ATT&CK techniques and

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 <#
 .SYNOPSIS
     Seeds the cloudharbordemo Entra ID tenant for Project Harbor Sonar Sprint 1:

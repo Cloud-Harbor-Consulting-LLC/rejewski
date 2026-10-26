@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Tool 9 — purview_labels
 ATT&CK T1580 Cloud Infrastructure Discovery

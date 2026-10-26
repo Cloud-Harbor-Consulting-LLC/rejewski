@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/tool_list_role_assignments.py (Tool 5, T1087.004 Surface C).
 
 Covers the B030 fix: Graph v1.0 rejects $expand=principal,roleDefinition with

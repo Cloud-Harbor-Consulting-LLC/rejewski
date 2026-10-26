@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Sprint 4 W14 Tool 14 — list_sharepoint_sites
 ATT&CK T1213.002 Data from Information Repositories: SharePoint (Surface A)

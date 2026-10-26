@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/consolidate_run.py (B022 + B023).
 
 B022: the consolidator must read *every* file in replay-logs/, not the last

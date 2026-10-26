@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/finding_dedup.py (Sprint 4 W14 finding dedup classifier).
 
 Read-only classifier over finding-triage records. Covers new_technique /

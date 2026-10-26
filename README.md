@@ -2,7 +2,7 @@
 
 Read-only Microsoft 365 adversary-emulation toolkit. A friendly threat actor that emulates recon and discovery TTPs against a tenant the operator owns or has written authorization to assess, and produces findings mapped to specific M365 controls.
 
-> **Status:** Private build through Sat Oct 24, 2026. Public launch Mon Oct 26, 2026. Build cadence and milestones are tracked in the internal Project Harbor Sonar Master Plan.
+> **Status:** v1.0, released Mon Oct 26, 2026. See the [release notes](docs/release-notes-v1.0.md) and the [CHANGELOG](CHANGELOG.md).
 
 ## What it does
 
@@ -151,7 +151,7 @@ Contribution guidelines are in [CONTRIBUTING.md](CONTRIBUTING.md): the branching
 
 ## License
 
-MIT. See LICENSE.
+MIT. Copyright (c) 2026 Cloud Harbor Consulting LLC. See [LICENSE](LICENSE). Source files carry an `SPDX-License-Identifier: MIT` header.
 
 ---
 

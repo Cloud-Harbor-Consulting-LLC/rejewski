@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Tool 8 — intune_devices
 ATT&CK T1082 System Information Discovery

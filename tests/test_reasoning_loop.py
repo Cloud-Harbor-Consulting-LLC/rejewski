@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import json
 
 from replay_log import SANDBOX_TENANT_ID, _VALIDATOR

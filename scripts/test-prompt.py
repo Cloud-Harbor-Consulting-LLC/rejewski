@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Smoke test: send a one-shot prompt to the Rejewski agent via the Claude Agent SDK.
 
 Usage from the repo root:

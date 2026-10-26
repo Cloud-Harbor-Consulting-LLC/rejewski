@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/tool_list_sharepoint_sites.py (Tool 14, T1213.002 Surface A).
 
 Mocks the Graph HTTP layer (requests.get) and the token helper (identity.acquire_token)

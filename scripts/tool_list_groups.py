@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Sprint 1 Tool 2 — list_groups
 ATT&CK T1069.003 Permission Groups Discovery: Cloud Groups

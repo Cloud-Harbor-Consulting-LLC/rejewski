@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Sprint 3 W12 Tool 12 — list_security_alerts
 ATT&CK T1654 Log Enumeration (Surface B — Security Alerts)

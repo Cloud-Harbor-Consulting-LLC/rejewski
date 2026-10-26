@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/tool_list_oauth_grants.py (Tool 11, T1087.004 Surface E).
 
 Mocks the Graph HTTP layer (requests.get) and the token helper

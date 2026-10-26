@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Tool 10 — signin_logs
 ATT&CK T1654 Log Enumeration

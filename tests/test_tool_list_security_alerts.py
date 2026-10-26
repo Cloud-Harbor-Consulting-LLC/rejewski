@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/tool_list_security_alerts.py (Tool 12, T1654 Surface B).
 
 Mocks the Graph HTTP layer (requests.get) and the token helper

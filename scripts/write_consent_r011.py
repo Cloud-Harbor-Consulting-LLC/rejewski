@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """One-time helper: write R011 consent.granted record to replay-logs/."""
 import json, uuid, time
 from datetime import datetime, timezone

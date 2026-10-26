@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/tool_list_pim_eligible_roles.py (Tool 15, T1087.004 Surface F).
 
 Covers the PIM-eligible role enumeration tool: a single paginated GET against

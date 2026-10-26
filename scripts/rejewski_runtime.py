@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """
 Rejewski runtime config loader.
 

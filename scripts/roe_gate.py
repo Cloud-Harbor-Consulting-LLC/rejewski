@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski: Rules of Engagement gate (G-1 consent-bound tenant lock, ADR 0008).
 

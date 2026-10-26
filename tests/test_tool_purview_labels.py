@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/tool_purview_labels.py (Tool 9, T1580 Purview labels).
 
 Mocks the Graph HTTP layer (requests.get) and the token helper

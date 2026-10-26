@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/roe_gate.py: the G-1 consent-bound tenant lock (ADR 0008).
 
 The gate lets a run target any tenant, but only the tenant its consent record names.

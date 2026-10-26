@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for the ROE consent record schemas (v1 embedded, v2 durable archive) and the
 scripts/write_consent_record.py emitter.
 

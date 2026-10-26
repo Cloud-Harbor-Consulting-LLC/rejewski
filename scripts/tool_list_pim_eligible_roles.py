@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Sprint 6 W22 Tool 15 — list_pim_eligible_roles
 ATT&CK T1087.004 Account Discovery: Cloud Account (Surface F)

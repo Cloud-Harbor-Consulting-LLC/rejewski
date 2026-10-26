@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/identity.py (B021 token persistence helper, ADR-0005)."""
 
 from __future__ import annotations

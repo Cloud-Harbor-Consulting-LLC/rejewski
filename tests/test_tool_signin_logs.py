@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/tool_signin_logs.py (Tool 10, T1654 sign-in logs).
 
 Mocks the Graph HTTP layer (requests.get) and the token helper

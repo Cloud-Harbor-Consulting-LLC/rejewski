@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Sprint 2 W5 (pull-forward) Tool 5 — list_role_assignments
 ATT&CK T1087.004 Account Discovery: Cloud Account

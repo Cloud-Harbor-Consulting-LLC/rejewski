@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski — write_consent_record (ROE consent record v2, S5 W18)
 

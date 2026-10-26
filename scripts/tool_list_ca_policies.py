@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Sprint 2 W5 (pull-forward) Tool 4 — list_ca_policies
 ATT&CK T1526 Cloud Service Discovery

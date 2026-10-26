@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/tool_dfi_health.py (Tool 7, T1518.001 DfI sensor health).
 
 Mocks the Graph HTTP layer (requests.get) and the token helper

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 Rejewski Sprint 4 W13 Tool 13 — list_inbox_rules
 ATT&CK T1114.002 Email Collection: Remote Email Collection (Surface A — inbox rules)

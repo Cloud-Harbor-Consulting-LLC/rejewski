@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for scripts/tool_list_inbox_rules.py (Tool 13, T1114.002 Surface A).
 
 Mocks the Graph HTTP layer (requests.get) and the token helper

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **CONTRIBUTING.md: post-launch status.** The Status section no longer says the repo is private through Oct 24; it
+  states the repo is public since Oct 26 (v1.0), that external contributions are open, and points idea discussions
+  to GitHub Discussions. Two "once public" qualifiers on the issue templates removed.
+
 ## [1.0.0] - 2026-10-26
 
 First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-notes-v1.0.md).

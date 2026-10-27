@@ -4,7 +4,7 @@ Thanks for your interest in Rejewski. This project is developed under Project Ha
 
 ## Status
 
-The repo is **private through Sat Oct 24, 2026** and goes **public Mon Oct 26, 2026**. During the private phase, contributions come from the Cloud Harbor Consulting build team; external contributions open at the public flip. The conventions below apply now and carry into the public phase.
+The repo has been **public since Mon Oct 26, 2026** (v1.0), and external contributions are open. Before the flip, contributions came from the Cloud Harbor Consulting build team only. The conventions below apply to every contributor. To discuss an idea before writing code, such as which attack stage Rejewski should emulate next, start a thread in [GitHub Discussions](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/discussions).
 
 ## Code of Conduct
 
@@ -31,7 +31,7 @@ There is **no DCO `Signed-off-by` requirement**. AI-assisted commits carry a `Co
 These are Rejewski's **standing PR conventions** — follow them for every change:
 
 - **Squash and merge**, then delete the branch. One PR is one squashed commit on `main`.
-- **No GitHub Issues.** Work is tracked in the PHS Master Plan / Planner, not GitHub Issues. Do not open Issues to track tasks. (GitHub *issue templates* still exist for external bug/doc/policy reports once public — see [Issue templates](#issue-templates).)
+- **No GitHub Issues.** Work is tracked in the PHS Master Plan / Planner, not GitHub Issues. Do not open Issues to track tasks. (GitHub *issue templates* still exist for external bug/doc/policy reports — see [Issue templates](#issue-templates).)
 - **No `Closes #N` / `Fixes #N`** auto-close keywords in commits or PR descriptions — there are no tracking Issues to close.
 - Keep PRs **small and focused** — one coherent change per PR.
 - The PR description states **what changed, why, and how it was verified** (which acceptance criteria it meets).
@@ -53,7 +53,7 @@ Add or update tests with any behavioral change. Schema, tool, and report changes
 
 ## Issue templates
 
-Once the repo is public, bug and documentation reports use the templates in [`.github/ISSUE_TEMPLATE/`](./.github/ISSUE_TEMPLATE/):
+Bug and documentation reports use the templates in [`.github/ISSUE_TEMPLATE/`](./.github/ISSUE_TEMPLATE/):
 
 - **Bug report** (`bug_report.yml`) — a tool script, core script, schema, or document behaves incorrectly.
 - **Documentation fix** (`documentation_fix.yml`) — a correction, clarification, or improvement to documentation.

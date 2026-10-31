@@ -18,7 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   9 → 10, groups 30 → 34, Conditional Access policies 27 → 26, service principals 451 → 459, sign-ins 32 → 277. The
   canonical aliases stay on R017.
 
+- **Feature-request issue template (B044).** `.github/ISSUE_TEMPLATE/feature_request.yml` applies the `enhancement`
+  and `triage` labels and asks for the attack stage (ATT&CK tactic), technique ID, use case, proposed approach (writes
+  flagged against the guardrails), and expected control, with confirmations that testing stays on tenants the
+  requester owns or is authorized to assess. Before this, blank issues were disabled and only bug and documentation
+  templates existed, so feature ideas had no issue path. CONTRIBUTING.md lists the template.
+
 ### Changed
+
+- **Bug report template:** the Version field no longer says there are no tagged versions; it asks for the release tag
+  or commit SHA.
 
 - **CONTRIBUTING.md: post-launch status.** The Status section no longer says the repo is private through Oct 24; it
   states the repo is public since Oct 26 (v1.0), that external contributions are open, and points idea discussions

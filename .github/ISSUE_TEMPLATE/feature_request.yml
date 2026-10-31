@@ -1,0 +1,60 @@
+name: Feature request
+description: Propose a new attack stage, ATT&CK technique, tool surface, or report capability.
+title: "[Feature] "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea. Each Rejewski release adds the next stage of an attack on a Microsoft 365 tenant, so requests that name a stage or technique help shape the roadmap. For open-ended discussion before you have a concrete request, start a thread in [Discussions](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/discussions).
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Attack stage
+      description: The ATT&CK tactic the request belongs to. v1.0 covers Initial Access, Discovery, read-only Collection, and token reuse.
+      options:
+        - Initial Access
+        - Discovery
+        - Collection
+        - Credential Access
+        - Persistence
+        - Privilege Escalation
+        - Defense Evasion
+        - Lateral Movement
+        - Exfiltration
+        - Impact
+        - Not stage-specific (reporting, tooling, docs)
+    validations:
+      required: true
+  - type: input
+    id: technique
+    attributes:
+      label: ATT&CK technique
+      description: The technique ID, if you know it.
+      placeholder: T1098.001
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: What would this show a defender, and which Microsoft 365 surface (Entra ID, Exchange Online, SharePoint, Defender, Intune, Purview) does it touch?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed approach
+      description: Graph endpoints, permissions, or behavior you have in mind. Note any write operation, because writes change which guardrails apply (see docs/guardrails.md).
+  - type: textarea
+    id: detection
+    attributes:
+      label: Expected detection or control
+      description: The Microsoft 365 control or detection that should catch or block this, if known.
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmations
+      options:
+        - label: I only test against tenants I own or am authorized in writing to assess.
+          required: true
+        - label: I redacted tenant-specific identifiers from this request.
+          required: true

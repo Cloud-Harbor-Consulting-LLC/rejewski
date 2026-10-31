@@ -23,8 +23,8 @@ body:
     id: version
     attributes:
       label: Version
-      description: Commit SHA you're running (Rejewski is pre-release; there are no tagged versions yet).
-      placeholder: main @ <commit-sha>
+      description: The release tag or commit SHA you're running.
+      placeholder: v1.0, or main @ <commit-sha>
     validations:
       required: true
   - type: textarea

@@ -64,15 +64,15 @@ ATTACK STRATEGY NOTE FOR REJEWSKI OPERATORS:
          at application permission level (this is a Sprint 2+ Rejewski
          technique; not emulated here).
 
-    In the cloudharbordemo sandbox, meganb@cloudharbor-demo.com is assigned
+    In the lab tenant, meganb@<lab-domain> is assigned
     Security Reader to simulate a scenario where a security-role account has
     been compromised. Operators running against a different sandbox tenant
     must ensure the designated test account holds at least Security Reader.
 
 Required environment variables:
-    AZURE_TENANT_ID            Target tenant ID (cloudharbordemo: 76b87c33-...)
+    AZURE_TENANT_ID            Target tenant ID (your lab or consented tenant GUID)
     FOCI_CLIENT_ID             Borrowed first-party client (default: 14d82eec-...)
-    COMPROMISED_USER_UPN       Seed user UPN (meganb@cloudharbor-demo.com)
+    COMPROMISED_USER_UPN       Seed user UPN (e.g. meganb@<lab-domain>)
     COMPROMISED_USER_PASSWORD  Seed user password (cache-miss fallback only)
 """
 

@@ -64,7 +64,7 @@ Full text, with file references for each enforcement mechanism, is in [docs/guar
 | G-4 | One borrowed first-party client, Microsoft Graph Command Line Tools (14d82eec) | Procedure (recorded on every entry, checked in review) |
 | G-5 | Every call writes a replay-log entry | Code (`scripts/replay_log.py`) |
 | G-6 | Published evidence carries per-call counts, not directory payloads | Code and PR review |
-| G-7 | The sandbox holds only seeded test accounts | Procedure (`scripts/seed-cloudharbordemo.ps1`) |
+| G-7 | The sandbox holds only seeded test accounts | Procedure (`scripts/seed-lab-tenant.ps1`) |
 | G-8 | Sessions end with the run: consolidation deletes the run's token cache | Code (`scripts/consolidate_run.py`, ADR 0005 §5.4) |
 | G-9 | Enumeration is capped per call (default 1,000 rows) | Code (each tool) |
 
@@ -73,7 +73,7 @@ The project also runs under 8 program principles, G1 to G8 (Read-only, No creden
 ## Rules of Engagement
 
 - Every run starts with a consent record that names the tenant, the techniques in scope, the expected duration, the operator, and the run ID. It is the first entry of the run's replay log, and every later entry is bound to it by `run_id`.
-- The code enforces it. Before any token request, `scripts/roe_gate.py` checks that the run's replay-log directory holds a consent record for its run ID that names the tenant the run is about to use. The `cloudharbordemo` sandbox needs the run-level record. Any other tenant needs an active v2 durable record whose authorization window includes today, and a counter-signed record for a third-party assessment.
+- The code enforces it. Before any token request, `scripts/roe_gate.py` checks that the run's replay-log directory holds a consent record for its run ID that names the tenant the run is about to use. The lab tenant needs the run-level record. Any other tenant needs an active v2 durable record whose authorization window includes today, and a counter-signed record for a third-party assessment.
 - `scripts/write_consent_record.py` builds a schema-valid record. Schema v1 is the replay-log-embedded shape; schema v2 adds the fields for a durable long-term archive record.
 - The consent prompt is specified in [docs/roe-consent-flow.md](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/blob/main/docs/roe-consent-flow.md). The authorization flow for a third-party assessment is in [docs/external-auth.md](https://github.com/Cloud-Harbor-Consulting-LLC/rejewski/blob/main/docs/external-auth.md). The governing decision is ADR 0001.
 

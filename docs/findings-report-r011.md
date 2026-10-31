@@ -2,8 +2,8 @@
 
 - Run ID: R011
 - Run date: Sat Jul 18, 2026
-- Tenant: cloudharbordemo (76b87c33-6178-4ff9-94a7-164792c8e4c6)
-- Operator account: meganb@cloudharbor-demo.com
+- Tenant: the lab tenant
+- Operator account: meganb@<lab-domain>
 - Techniques in scope: all 9 implemented (full Sprint 3 W10 sweep)
 - Replay log: samples/replay-log/R011.json
 - Status: **Complete**

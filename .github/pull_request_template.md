@@ -19,7 +19,7 @@
 
 - [ ] Full test suite green (`python -m pytest -q`).
 - [ ] `git diff --check` clean (no trailing whitespace / conflict markers).
-- [ ] G-6: no operator paths, tokens, real UPNs, or non-sandbox tenant IDs committed (public Microsoft IDs — the sandbox tenant `76b87c33…` and Graph CLI client `14d82eec…` — are allowed).
+- [ ] G-6: no operator paths, tokens, real UPNs, or tenant IDs committed outside evidence files (samples/replay-log, samples/finding-triage, docs/reports); scripts, tests, and docs use placeholders such as `<lab-tenant-id>`. The Graph CLI client `14d82eec…` is a public Microsoft ID and is allowed.
 - [ ] `CHANGELOG.md` updated under `## [Unreleased]`.
 - [ ] Docs / docstrings updated if behavior, required scopes, or prerequisites changed.
 - [ ] Squash-merge; no GitHub Issues opened for task tracking; no `Closes #N` auto-close keyword.

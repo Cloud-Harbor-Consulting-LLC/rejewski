@@ -23,14 +23,14 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import identity  # noqa: E402
 import tool_list_inbox_rules as tool  # noqa: E402
+from lab_values import LAB_TENANT_ID
 from replay_log import (  # noqa: E402
-    SANDBOX_TENANT_ID,
     SCHEMA_PATH,
     _load_schema,
 )
 from jsonschema import Draft202012Validator, FormatChecker  # noqa: E402
 
-ACTOR_UPN = "meganb@cloudharbor-demo.com"
+ACTOR_UPN = "meganb@lab.example"
 _VALIDATOR = Draft202012Validator(_load_schema(), format_checker=FormatChecker())
 
 
@@ -65,7 +65,7 @@ def _recips(*addresses: str) -> list[dict]:
 
 @pytest.fixture
 def env(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("AZURE_TENANT_ID", SANDBOX_TENANT_ID)
+    monkeypatch.setenv("AZURE_TENANT_ID", LAB_TENANT_ID)
     monkeypatch.setenv("FOCI_CLIENT_ID", identity.DEFAULT_CLIENT_ID)
     monkeypatch.setenv("COMPROMISED_USER_UPN", ACTOR_UPN)
     monkeypatch.delenv("COMPROMISED_USER_PASSWORD", raising=False)
@@ -239,8 +239,8 @@ class TestScrubbing:
 
         assert rc == 0
         raw = capsys.readouterr().out
-        assert SANDBOX_TENANT_ID not in raw  # tenant GUID redacted from evidence
-        assert json.loads(raw)["tenant_id"] != SANDBOX_TENANT_ID
+        assert LAB_TENANT_ID not in raw  # tenant GUID redacted from evidence
+        assert json.loads(raw)["tenant_id"] != LAB_TENANT_ID
 
 
 class TestReplayLogSchemaValid:

@@ -34,7 +34,7 @@ notice to stderr and still writes a graph_call entry with row_count (rule_count)
 REQUIRED PRIVILEGE — SCOPE (delegated), and the cross-user constraint:
     GET /{me|users/{id}}/mailFolders/inbox/messageRules is gated on a delegated Mail.Read
     (or Mail.ReadBasic / Mail.ReadWrite) scope, admin-consented on the borrowed client in
-    cloudharbordemo. (An earlier revision documented MailboxSettings.Read; the R013 real-
+    the lab tenant. (An earlier revision documented MailboxSettings.Read; the R013 real-
     tenant run showed the mailFolders/messageRules path requires Mail.Read.)
     - Self (--user-id me): reads the signed-in operator's OWN inbox rules. No directory role.
     - Cross-user (--user-id <other>): NOT supported. Delegated Mail.* only ever reaches the
@@ -50,9 +50,9 @@ REQUIRED PRIVILEGE — SCOPE (delegated), and the cross-user constraint:
 See docs/techniques/T1114.002.md Surface A for the full module.
 
 Required environment variables:
-    AZURE_TENANT_ID            Target tenant ID (cloudharbordemo: 76b87c33-...)
+    AZURE_TENANT_ID            Target tenant ID (your lab or consented tenant GUID)
     FOCI_CLIENT_ID             Borrowed first-party client (default: 14d82eec-...)
-    COMPROMISED_USER_UPN       Seed user UPN (meganb@cloudharbor-demo.com)
+    COMPROMISED_USER_UPN       Seed user UPN (e.g. meganb@<lab-domain>)
     COMPROMISED_USER_PASSWORD  Seed user password (cache-miss fallback only)
 """
 

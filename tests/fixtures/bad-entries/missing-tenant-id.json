@@ -8,7 +8,7 @@
     "name": "Account Discovery: Cloud Account"
   },
   "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
-  "actor_upn": "meganb@cloudharbor-demo.com",
+  "actor_upn": "meganb@lab.example",
   "started_at_utc": "2026-05-15T14:30:15Z",
   "completed_at_utc": "2026-05-15T14:30:16Z",
   "request": {

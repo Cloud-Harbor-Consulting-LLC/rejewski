@@ -6,8 +6,8 @@ Rejewski: Rules of Engagement gate (G-1 consent-bound tenant lock, ADR 0008).
 A run may target any Microsoft 365 tenant, but only the tenant named in that run's
 consent record. `authorize_run()` is called by `scripts/identity.acquire_token`
 before any token request leaves the machine, and again by `replay_log.write_entry`
-for any entry whose tenant is not the sandbox, so evidence cannot be recorded for an
-unconsented tenant either.
+for any entry whose tenant is not the operator's lab tenant, so evidence cannot be
+recorded for an unconsented tenant either.
 
 Rules (each check can only deny):
 
@@ -15,7 +15,8 @@ Rules (each check can only deny):
   * The replay-log directory must hold exactly one `consent.granted` record for the
     run, or several that all name the same tenant.
   * The record's tenant must equal the tenant the run is about to use.
-  * Sandbox tenant (cloudharbordemo): the v1 replay-log-embedded record is enough.
+  * Lab tenant (the tenant named in REJEWSKI_LAB_TENANT_ID, if set): the v1
+    replay-log-embedded record is enough.
   * Any other tenant: the record must be a v2 durable record
     (schemas/roe-consent/v2.json) with `engagement.status == "active"` and today's
     UTC date inside `authorization.effective_date .. expiry_date`. For
@@ -29,12 +30,15 @@ Local only: reads JSON files in the replay-log directory. No network calls.
 from __future__ import annotations
 
 import json
+import os
 import re
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
-SANDBOX_TENANT_ID = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
+# The operator's own lab tenant, if any. Unset means no tenant gets the lighter
+# v1-record rule: every run needs a v2 durable record.
+LAB_TENANT_ENV = "REJEWSKI_LAB_TENANT_ID"
 CONSENT_EVENT = "consent.granted"
 SELF_TEST_SIGNATURE = "self_test_attestation"
 _GUID_RE = re.compile(
@@ -50,16 +54,24 @@ def is_tenant_guid(tenant_id: Any) -> bool:
     return isinstance(tenant_id, str) and bool(_GUID_RE.match(tenant_id))
 
 
-def is_sandbox(tenant_id: str) -> bool:
-    return isinstance(tenant_id, str) and tenant_id.lower() == SANDBOX_TENANT_ID
+def lab_tenant_id() -> Optional[str]:
+    """The lab tenant GUID from REJEWSKI_LAB_TENANT_ID (lowercase), or None if unset or not a GUID."""
+    value = os.environ.get(LAB_TENANT_ENV, "").strip()
+    return value.lower() if is_tenant_guid(value) else None
 
 
-def require_sandbox(tenant_id: str, script: str) -> None:
-    """For sandbox-only demo and smoke scripts that bypass identity.acquire_token."""
-    if not is_sandbox(tenant_id):
+def is_lab_tenant(tenant_id: str) -> bool:
+    lab = lab_tenant_id()
+    return lab is not None and isinstance(tenant_id, str) and tenant_id.lower() == lab
+
+
+def require_lab_tenant(tenant_id: str, script: str) -> None:
+    """For lab-only demo and smoke scripts that bypass identity.acquire_token."""
+    if not is_lab_tenant(tenant_id):
         raise ConsentError(
-            f"G-1: {script} is a sandbox-only script and refuses tenant {tenant_id!r}; "
-            "use the technique tools with a consent record to assess another tenant"
+            f"G-1: {script} is a lab-only script and refuses tenant {tenant_id!r}; set "
+            f"{LAB_TENANT_ENV} to your lab tenant, or use the technique tools with a "
+            "consent record to assess another tenant"
         )
 
 
@@ -105,7 +117,7 @@ def _check_durable(rec: dict[str, Any], tenant_id: str, today: date) -> None:
     if not (isinstance(engagement, dict) and isinstance(authorization, dict)
             and isinstance(counterparty, dict)):
         raise ConsentError(
-            f"G-1: tenant {tenant_id} is not the sandbox, so the run needs a v2 durable "
+            f"G-1: tenant {tenant_id} is not the lab tenant, so the run needs a v2 durable "
             "consent record (engagement, counterparty, authorization; "
             "schemas/roe-consent/v2.json). Build one with scripts/write_consent_record.py."
         )
@@ -159,6 +171,6 @@ def authorize_run(
             f"G-1: run {run_id!r} is consented for tenant {rec.get('tenant_id')!r}, "
             f"not {tenant_id!r}"
         )
-    if not is_sandbox(tenant_id):
+    if not is_lab_tenant(tenant_id):
         _check_durable(rec, tenant_id, today or datetime.now(timezone.utc).date())
     return rec

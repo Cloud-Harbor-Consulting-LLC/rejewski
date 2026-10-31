@@ -22,9 +22,9 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import identity  # noqa: E402
 import tool_list_security_alerts as tool  # noqa: E402
-from replay_log import SANDBOX_TENANT_ID  # noqa: E402
+from lab_values import LAB_TENANT_ID  # noqa: E402
 
-ACTOR_UPN = "meganb@cloudharbor-demo.com"
+ACTOR_UPN = "meganb@lab.example"
 
 
 class FakeResp:
@@ -57,7 +57,7 @@ def _alert(idx: int, **overrides) -> dict:
 
 @pytest.fixture
 def env(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("AZURE_TENANT_ID", SANDBOX_TENANT_ID)
+    monkeypatch.setenv("AZURE_TENANT_ID", LAB_TENANT_ID)
     monkeypatch.setenv("FOCI_CLIENT_ID", identity.DEFAULT_CLIENT_ID)
     monkeypatch.setenv("COMPROMISED_USER_UPN", ACTOR_UPN)
     monkeypatch.delenv("COMPROMISED_USER_PASSWORD", raising=False)
@@ -96,7 +96,7 @@ class TestSuccessfulList:
                     severity="high",
                     status="new",
                     category="Execution",
-                    assignedTo="soc@cloudharbor-demo.com",
+                    assignedTo="soc@lab.example",
                 ),
             ]
         }

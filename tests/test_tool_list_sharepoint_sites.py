@@ -27,9 +27,9 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import identity  # noqa: E402
 import tool_list_sharepoint_sites as tool  # noqa: E402
-from replay_log import SANDBOX_TENANT_ID  # noqa: E402
+from lab_values import LAB_TENANT_ID  # noqa: E402
 
-ACTOR_UPN = "meganb@cloudharbor-demo.com"
+ACTOR_UPN = "meganb@lab.example"
 
 
 class FakeResp:
@@ -47,7 +47,7 @@ def _site(idx: int, **ov) -> dict:
     base = {
         "id": f"site-{idx}",
         "displayName": f"Site {idx}",
-        "webUrl": f"https://cloudharbordemo.sharepoint.com/sites/site{idx}",
+        "webUrl": f"https://labtenant.sharepoint.com/sites/site{idx}",
         "description": "",
         "createdDateTime": "2026-01-01T00:00:00Z",
         "lastModifiedDateTime": "2026-08-01T00:00:00Z",
@@ -58,7 +58,7 @@ def _site(idx: int, **ov) -> dict:
 
 @pytest.fixture
 def env(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("AZURE_TENANT_ID", SANDBOX_TENANT_ID)
+    monkeypatch.setenv("AZURE_TENANT_ID", LAB_TENANT_ID)
     monkeypatch.setenv("FOCI_CLIENT_ID", identity.DEFAULT_CLIENT_ID)
     monkeypatch.setenv("COMPROMISED_USER_UPN", ACTOR_UPN)
     monkeypatch.delenv("COMPROMISED_USER_PASSWORD", raising=False)
@@ -193,14 +193,14 @@ class TestUnauthorizedRecovery:
 class TestRedaction:
     def test_weburl_tenant_guid_scrubbed(self, monkeypatch, env, tmp_path, capsys):
         # A webUrl that embeds the sandbox tenant GUID must be scrubbed in output.
-        leaky = _site(1, webUrl=f"https://cloudharbordemo.sharepoint.com/sites/{SANDBOX_TENANT_ID}/x")
+        leaky = _site(1, webUrl=f"https://labtenant.sharepoint.com/sites/{LAB_TENANT_ID}/x")
         rc, _, _, out, err = _run(
             monkeypatch, env, tmp_path, [FakeResp(200, {"value": [leaky]})], capsys=capsys
         )
         assert rc == 0
         raw = json.dumps(out)
-        assert SANDBOX_TENANT_ID not in raw  # tenant GUID scrubbed everywhere in evidence
-        assert SANDBOX_TENANT_ID not in out["sites"][0]["webUrl"]
+        assert LAB_TENANT_ID not in raw  # tenant GUID scrubbed everywhere in evidence
+        assert LAB_TENANT_ID not in out["sites"][0]["webUrl"]
 
 
 class TestReplayLogShape:

@@ -14,6 +14,7 @@ Covers:
 from __future__ import annotations
 
 import json
+from lab_values import LAB_OPERATOR_EMAIL, LAB_TENANT_ID
 import sys
 from pathlib import Path
 
@@ -87,20 +88,22 @@ def _selftest_kwargs():
         engagement_type="self_test",
         run_id="R999",
         techniques=["T1087.004", "T1526"],
-        operator_object_id="48df3ad2-9110-4c27-9630-f82b1b8eb177",
+        operator_object_id="0b5e7a70-0000-4000-8000-000000000002",
         engagement_name="unit-test self-test",
-        mvp_pillar="Pillar 1 - Zero Trust adversary emulation",
+        mvp_pillar="Unassigned",
         status="draft",
-        scope_surface=["tenant:cloudharbordemo", "graph:read-only-GET"],
+        scope_surface=["tenant:lab", "graph:read-only-GET"],
         scope_summary="unit-test scope",
-        signed_by_provider="Derek Morgan (Cloud Harbor Consulting)",
+        signed_by_provider="Lab Operator (Example Org)",
         signature_method="self_test_attestation",
         signed_date="2026-09-15",
         effective_date="2026-09-15",
         expiry_date="2027-09-15",
         evidence_ref="docs/roe-consent-flow.md",
-        storage_location="SharePoint > ROE Consent Archive workbook",
+        storage_location="Operator ROE consent archive",
         record_id="roe-selftest-r999-001",
+        tenant_id=LAB_TENANT_ID,
+        counterparty_contact_email=LAB_OPERATOR_EMAIL,
     )
 
 
@@ -109,7 +112,7 @@ def test_builder_selftest_validates_and_marks_self_test():
     _V2.validate(rec)  # raises on failure
     assert rec["counterparty"]["is_self_test"] is True
     assert rec["counterparty"]["org"]  # auto-populated, never blank (AC4)
-    assert rec["tenant_id"] == wcr.SANDBOX_TENANT_ID
+    assert rec["tenant_id"] == LAB_TENANT_ID
 
 
 def test_builder_v1_core_roundtrips_to_valid_v1():
@@ -126,17 +129,17 @@ def test_builder_thirdparty_validates():
         techniques=["T1087.004"],
         operator_object_id="99999999-8888-7777-6666-555555555555",
         engagement_name="unit-test third-party",
-        mvp_pillar="Pillar 1 - Zero Trust adversary emulation",
+        mvp_pillar="Unassigned",
         status="draft",
         scope_surface=["tenant:example", "graph:read-only-GET"],
         scope_summary="unit-test third-party scope",
-        signed_by_provider="Derek Morgan (Cloud Harbor Consulting)",
+        signed_by_provider="Lab Operator (Example Org)",
         signature_method="e_signature",
         signed_date="2026-10-01",
         effective_date="2026-10-05",
         expiry_date="2026-10-12",
         evidence_ref="SharePoint > Engagements > Example > letter.pdf",
-        storage_location="SharePoint > ROE Consent Archive workbook",
+        storage_location="Operator ROE consent archive",
         record_id="roe-example-2026q4-001",
         tenant_id="11111111-2222-3333-4444-555555555555",
         counterparty_org="Example Ltd",
@@ -160,7 +163,7 @@ def test_builder_thirdparty_missing_counterparty_raises():
             status="draft",
             scope_surface=["tenant:example"],
             scope_summary="scope",
-            signed_by_provider="Derek Morgan (Cloud Harbor Consulting)",
+            signed_by_provider="Lab Operator (Example Org)",
             signature_method="e_signature",
             signed_date="2026-10-01",
             effective_date="2026-10-05",
@@ -170,3 +173,11 @@ def test_builder_thirdparty_missing_counterparty_raises():
             record_id="roe-example-2026q4-002",
             # tenant_id / counterparty_* deliberately omitted
         )
+
+
+def test_builder_selftest_requires_tenant_and_contact_email():
+    kwargs = _selftest_kwargs()
+    kwargs.pop("tenant_id")
+    kwargs.pop("counterparty_contact_email")
+    with pytest.raises(ValueError, match="tenant_id, counterparty_contact_email"):
+        wcr.build_consent_record(**kwargs)

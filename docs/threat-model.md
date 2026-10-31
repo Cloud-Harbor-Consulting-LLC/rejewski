@@ -104,7 +104,7 @@
 - v0.5 (2026-06-03) — Sprint 1 W4 ATT&CK coverage doc. Two techniques catalogued for Sprint 2: T1087.003 Account Discovery: Email Account (docs/techniques/T1087.003.md created) and T1518.001 Software Discovery: Security Software Discovery (docs/techniques/T1518.001.md created). §5 active technique table and Sprint 2+ catalogued subsection updated. docs/attck-coverage.md introduced as the standalone coverage KPI reference. Total mapped techniques: 7 (5 implemented, 2 catalogued).
 - v0.4 (2026-05-26) — Sprint 2 W5 pull-forward. T1526 Cloud Service Discovery activated for the /identity/conditionalAccess/policies surface (docs/techniques/T1526.md created). §5 active technique table updated to include T1526; Sprint 2+ catalogued subsection updated to reflect T1526 implementation status and CA policies surface. §8 adds T1526 cross-reference.
 - v0.3 (2026-05-22) — Sprint 1 W3 catalogue expansion. §5 adds a Sprint 2+ catalogued techniques subsection covering T1526 Cloud Service Discovery (candidate Graph surfaces /subscribedSkus, /servicePrincipals, /applications, /organization documented for Sprint 2+ modelling) and T1538 Cloud Service Dashboard (catalogued as out of programmatic Rejewski scope; preserved for consumer awareness). §7 adds T1538 to the out-of-scope list.
-- v0.2 (2026-05-14) — Tenant ID correction in §1 (cf3f9a61 → 76b87c33). Adversary-model note added to §3 covering the no-tenant-app-reg posture and first-party client borrowing. §5 extended with T1069.003 deferred surface (transitiveMemberOf, directoryRoles). ADR 0003 cross-reference added.
+- v0.2 (2026-05-14) — Tenant ID correction in §1 (<organization-tenant-id> → <lab-tenant-id>). Adversary-model note added to §3 covering the no-tenant-app-reg posture and first-party client borrowing. §5 extended with T1069.003 deferred surface (transitiveMemberOf, directoryRoles). ADR 0003 cross-reference added.
 - v0.1 (2026-05-14) — Initial outline shipped Thu morning as part of the Sat-item pull-forward bundle.
 
 ---
@@ -113,17 +113,17 @@
 
 Project Harbor Sonar (codename Rejewski) is an adversary-emulation toolkit. It exercises a defined subset of MITRE ATT&CK techniques against a Microsoft 365 sandbox tenant to produce evidence that downstream detection-engineering work can validate against.
 
-**Target environment.** The sole target of every Rejewski run is the cloudharbordemo sandbox tenant.
+**Target environment.** The sole target of every Rejewski run is the lab tenant.
 
 | Property | Value |
 |----------|-------|
-| Tenant display name | cloudharbordemo |
-| Tenant primary domain | cloudharbordemo.onmicrosoft.com |
-| Tenant ID | 76b87c33-6178-4ff9-94a7-164792c8e4c6 |
+| Tenant display name | <lab-tenant-name> |
+| Tenant primary domain | <lab-tenant>.onmicrosoft.com |
+| Tenant ID | <lab-tenant-id> |
 | Licensing | Microsoft 365 E5 trial (rotating) |
 | User population | Seeded test users only (per G-7) |
 
-The Rejewski operator workstation runs the SDK and PowerShell sessions outside the target tenant. The Planner host tenant where Project Harbor Sonar tasks are tracked (cf3f9a61) is a separate, unrelated tenant — Rejewski never authenticates to it from inside a technique run.
+The Rejewski operator workstation runs the SDK and PowerShell sessions outside the target tenant. The Planner host tenant where Project Harbor Sonar tasks are tracked (<organization-tenant-id>) is a separate, unrelated tenant — Rejewski never authenticates to it from inside a technique run.
 
 ## 2. Stakeholders
 
@@ -292,9 +292,9 @@ elsewhere.
 | - SharePoint Evidence sync   |                       |
 +------------------------------+                       v
                                             +---------------------+
-                                            | cloudharbordemo     |
-                                            | sandbox tenant      |
-                                            | (76b87c33)          |
+                                            | Lab tenant          |
+                                            | (<lab-tenant-id>)   |
+                                            |                     |
                                             +---------------------+
 ```
 
@@ -315,7 +315,7 @@ The following are explicitly out of scope for Sprint 1 and are tracked for later
 - Token persistence beyond the session-keep-warm window (G-8).
 - Conditional-access bypasses (location spoofing, device compliance manipulation).
 - Real-user data of any kind (G-7).
-- Production tenants other than cloudharbordemo (G-1).
+- Production tenants other than the lab tenant (G-1).
 - Cloud-dashboard **GUI-navigation** reconnaissance — the interactive browser-driven posture of T1538 (Azure portal, M365 admin center, Defender/Entra portals). Rejewski drives no browser sessions, so this posture stays out of scope; consumers must source dashboard-session signal from other tooling. Note the boundary refinement (v0.7): the **programmatic** service-dashboard surface of T1538 (Graph `/admin/serviceAnnouncement` and `/reports`) **is** in scope and is catalogued in §5 — only the GUI-navigation posture is excluded here.
 
 ## 8. References

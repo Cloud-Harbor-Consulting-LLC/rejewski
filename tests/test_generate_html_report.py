@@ -32,23 +32,23 @@ def _write(path: Path, obj) -> None:
 @pytest.fixture
 def fixture_set(tmp_path):
     """A minimal replay-log + finding-triage + finding-to-control fixture for run R900."""
-    tenant = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
+    tenant = "c0ffee00-0000-4000-8000-000000000001"
     replay = tmp_path / "R900.json"
     _write(replay, [
         {
             "event": "consent.granted", "run_id": "R900", "tenant_id": tenant,
-            "operator_object_id": "48df3ad2-9110-4c27-9630-f82b1b8eb177",
+            "operator_object_id": "0b5e7a70-0000-4000-8000-000000000002",
             "techniques": ["T1087.004"], "confirmed_at": "2026-09-01T00:00:00Z",
         },
         {
             "kind": "token_event", "run_id": "R900", "tenant_id": tenant,
-            "actor_upn": "tester@cloudharbor-demo.com", "started_at_utc": "2026-09-01T00:00:01Z",
+            "actor_upn": "tester@lab.example", "started_at_utc": "2026-09-01T00:00:01Z",
             "outcome": "success", "schema_version": "0.5",
             "technique": {"id": "T1550.001", "name": "Application Access Token"},
         },
         {
             "kind": "graph_call", "run_id": "R900", "tenant_id": tenant,
-            "actor_upn": "tester@cloudharbor-demo.com", "started_at_utc": "2026-09-01T00:00:02Z",
+            "actor_upn": "tester@lab.example", "started_at_utc": "2026-09-01T00:00:02Z",
             "tool": "tool_list_users", "outcome": "success", "schema_version": "0.5",
             "request": {"method": "GET", "url": "https://graph.microsoft.com/v1.0/users?$top=999"},
             "response": {"status_code": 200, "row_count": 5},
@@ -110,9 +110,9 @@ def test_g6_no_operator_object_id_or_full_tenant(fixture_set, tmp_path):
               "--mapping-dir", str(mapping_dir), "--output", str(out)])
     html = out.read_text(encoding="utf-8")
     # G-6: operator object id never rendered; tenant shown truncated (first segment only)
-    assert "48df3ad2-9110-4c27-9630-f82b1b8eb177" not in html
-    assert "76b87c33-6178-4ff9-94a7-164792c8e4c6" not in html
-    assert "76b87c33" in html
+    assert "0b5e7a70-0000-4000-8000-000000000002" not in html
+    assert "c0ffee00-0000-4000-8000-000000000001" not in html
+    assert "c0ffee00" in html
 
 
 def test_real_r012_sample(tmp_path):
@@ -174,7 +174,7 @@ def test_roi_bridge_parses_the_committed_model():
 def test_roi_finding_not_in_bridge_renders_explicit_line(tmp_path):
     """A finding whose technique is absent from the §6 bridge gets the explicit not-modeled
     line (AC4) — never a fabricated ROI statement, never a blank (AC1)."""
-    tenant = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
+    tenant = "c0ffee00-0000-4000-8000-000000000001"
     replay = tmp_path / "R901.json"
     _write(replay, [
         {
@@ -230,7 +230,7 @@ def test_v2_consent_record_is_rendered_as_consent(tmp_path):
     replay = tmp_path / "R901.json"
     replay.write_text(json.dumps([
         {"event": "consent.granted", "run_id": "R901", "schema_version": "2.0",
-         "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+         "tenant_id": "c0ffee00-0000-4000-8000-000000000001",
          "engagement": {"name": "x", "type": "self_test", "mvp_pillar": "x", "status": "active"}},
     ]), encoding="utf-8")
     meta = gen.load_replay_log(replay)

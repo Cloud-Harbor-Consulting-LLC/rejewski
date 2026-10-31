@@ -10,8 +10,8 @@
 
 ## Purpose
 
-This playbook defines the canonical TTP-chain recipes run against the cloudharbordemo
-sandbox tenant (76b87c33-6178-4ff9-94a7-164792c8e4c6) when demonstrating Rejewski's
+This playbook defines the canonical TTP-chain recipes run against a lab tenant
+(<lab-tenant-id>) when demonstrating Rejewski's
 threat-actor emulation capability. Each recipe is a short, ordered sequence of Rejewski
 tools that an emulated adversary would run to accomplish one discovery objective, mapped
 to MITRE ATT&CK and paired with the defender-side signals the chain generates.
@@ -82,7 +82,7 @@ assignments), D (service principals).
 
 **Guardrails.**
 - **G-1:** All calls are GET only. No rule creation, modification, or deletion.
-- **G-3:** Sandbox tenant 76b87c33 only. No production tenant calls.
+- **G-3:** Sandbox tenant <lab-tenant-id> only. No production tenant calls.
 - **G-5:** ROE consent run required before executing any recipe. The consent record must
   be present in phs-roe-consent-archive-v1.0.xlsx before tool invocations begin.
 - **G-6:** No output files committed to the repo without Derek's review and scrub.
@@ -129,7 +129,7 @@ authorization without touching a user account.
 
 **Guardrails.**
 - **G-1:** All calls are GET only. No rule creation, modification, or deletion.
-- **G-3:** Sandbox tenant 76b87c33 only. No production tenant calls.
+- **G-3:** Sandbox tenant <lab-tenant-id> only. No production tenant calls.
 - **G-5:** ROE consent run required before executing any recipe. The consent record must
   be present in phs-roe-consent-archive-v1.0.xlsx before tool invocations begin.
 - **G-6:** No output files committed to the repo without Derek's review and scrub.
@@ -181,7 +181,7 @@ T1518.001 (Software Discovery: Security Software Discovery — DfI sensors).
 
 **Guardrails.**
 - **G-1:** All calls are GET only. No rule creation, modification, or deletion.
-- **G-3:** Sandbox tenant 76b87c33 only. No production tenant calls.
+- **G-3:** Sandbox tenant <lab-tenant-id> only. No production tenant calls.
 - **G-5:** ROE consent run required before executing any recipe. The consent record must
   be present in phs-roe-consent-archive-v1.0.xlsx before tool invocations begin.
 - **G-6:** No output files committed to the repo without Derek's review and scrub.
@@ -227,7 +227,7 @@ rules).
 
 **Guardrails.**
 - **G-1:** All calls are GET only. No rule creation, modification, or deletion.
-- **G-3:** Sandbox tenant 76b87c33 only. No production tenant calls.
+- **G-3:** Sandbox tenant <lab-tenant-id> only. No production tenant calls.
 - **G-5:** ROE consent run required before executing any recipe. The consent record must
   be present in phs-roe-consent-archive-v1.0.xlsx before tool invocations begin.
 - **G-6:** No output files committed to the repo without Derek's review and scrub.
@@ -276,7 +276,7 @@ T1654 (Log Enumeration) Surface A (sign-in logs).
 
 **Guardrails.**
 - **G-1:** All calls are GET only. No rule creation, modification, or deletion.
-- **G-3:** Sandbox tenant 76b87c33 only. No production tenant calls.
+- **G-3:** Sandbox tenant <lab-tenant-id> only. No production tenant calls.
 - **G-5:** ROE consent run required before executing any recipe. The consent record must
   be present in phs-roe-consent-archive-v1.0.xlsx before tool invocations begin.
 - **G-6:** No output files committed to the repo without Derek's review and scrub.

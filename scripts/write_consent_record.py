@@ -5,7 +5,7 @@ Rejewski — write_consent_record (ROE consent record v2, S5 W18)
 
 Reusable successor to the one-off scripts/write_consent_r0NN.py helpers. Emits a durable
 long-term-archive consent record conforming to schemas/roe-consent/v2.json, for either a
-self-test run (cloudharbordemo) or a third-party assessment.
+self-test run (a tenant the operator owns) or a third-party assessment.
 
 Backward compatibility (additive, non-breaking):
   - v2 is a strict superset of the v1 replay-log-embedded shape (schemas/roe-consent/v1.json).
@@ -17,6 +17,12 @@ Read-only / offline: builds and writes local JSON. No Microsoft Graph calls. G-1
 by this script — a v2 record for a third-party engagement is an authorization artifact only;
 the record it writes is what G-1 checks before a run may target a tenant (scripts/roe_gate.py, ADR 0008).
 
+Operator values come from arguments or, when an argument is omitted, from environment
+variables (the same .env the tools read): AZURE_TENANT_ID (--tenant-id),
+REJEWSKI_OPERATOR_OBJECT_ID (--operator-object-id), REJEWSKI_OPERATOR_NAME
+(--signed-by-provider), and REJEWSKI_OPERATOR_EMAIL (--counterparty-contact-email for a
+self-test).
+
 CLI:
     python scripts/write_consent_record.py --engagement-type self_test \
         --run-id R011 --techniques T1087.004 T1526 --output out/roe-selftest.json
@@ -26,13 +32,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+from dotenv import load_dotenv
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SANDBOX_TENANT_ID = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
 
 # The 9 fields of the v1 replay-log-embedded consent shape (schemas/roe-consent/v1.json).
 V1_CORE_FIELDS = (
@@ -92,7 +100,7 @@ def build_consent_record(
     """Build a v2 consent record.
 
     For engagement_type == 'self_test' the counterparty block is auto-populated with an explicit
-    self-test marker (never blank/null, per AC4) and the tenant defaults to the G-1 sandbox tenant.
+    self-test marker (never blank/null, per AC4); tenant_id and counterparty_contact_email are required.
     For 'third_party_assessment' the counterparty fields and tenant_id are required.
     """
     is_self_test = engagement_type == "self_test"
@@ -100,14 +108,21 @@ def build_consent_record(
     confirmed_at = confirmed_at or _now_iso()
 
     if is_self_test:
-        tenant_id = tenant_id or SANDBOX_TENANT_ID
+        missing = [
+            n for n, v in {
+                "tenant_id": tenant_id,
+                "counterparty_contact_email": counterparty_contact_email,
+            }.items() if not v
+        ]
+        if missing:
+            raise ValueError("self_test requires: " + ", ".join(missing))
         counterparty = {
             "is_self_test": True,
-            "org": counterparty_org or "Cloud Harbor Consulting (self-test)",
-            "contact_name": counterparty_contact_name or "Derek Morgan",
-            "contact_email": counterparty_contact_email or "derek.morgan@cloudharborconsulting.cloud",
+            "org": counterparty_org or f"{signed_by_provider} (self-test)",
+            "contact_name": counterparty_contact_name or signed_by_provider,
+            "contact_email": counterparty_contact_email,
         }
-        signed_by_counterparty = signed_by_counterparty or f"{signed_by_provider} — self-authorized"
+        signed_by_counterparty = signed_by_counterparty or f"{signed_by_provider}, self-authorized"
     else:
         missing = [
             n for n, v in {
@@ -169,6 +184,7 @@ def build_consent_record(
 
 
 def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
+    load_dotenv()
     p = argparse.ArgumentParser(
         prog="write_consent_record.py",
         description="Emit a v2 ROE consent record (durable long-term archive).",
@@ -176,31 +192,41 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     p.add_argument("--engagement-type", required=True, choices=["self_test", "third_party_assessment"])
     p.add_argument("--run-id", required=True)
     p.add_argument("--techniques", nargs="+", required=True, help="ATT&CK technique IDs, e.g. T1087.004 T1526.")
-    p.add_argument("--operator-object-id", default="48df3ad2-9110-4c27-9630-f82b1b8eb177",
-                   help="Entra object id of the operator (default: sandbox operator).")
+    p.add_argument("--operator-object-id", default=os.environ.get("REJEWSKI_OPERATOR_OBJECT_ID"),
+                   help="Entra object id of the operator (default: $REJEWSKI_OPERATOR_OBJECT_ID).")
     p.add_argument("--engagement-name", required=True)
-    p.add_argument("--mvp-pillar", default="Pillar 1 - Zero Trust adversary emulation")
+    p.add_argument("--mvp-pillar", default="Unassigned")
     p.add_argument("--status", default="draft", choices=["draft", "active", "completed", "expired", "revoked"])
     p.add_argument("--scope-surface", nargs="+", required=True)
     p.add_argument("--scope-summary", required=True)
-    p.add_argument("--signed-by-provider", default="Derek Morgan (Cloud Harbor Consulting)")
+    p.add_argument("--signed-by-provider", default=os.environ.get("REJEWSKI_OPERATOR_NAME"),
+                   help="Operator name and organization (default: $REJEWSKI_OPERATOR_NAME).")
     p.add_argument("--signature-method", default="self_test_attestation")
     p.add_argument("--signed-date", required=True, help="YYYY-MM-DD")
     p.add_argument("--effective-date", required=True, help="YYYY-MM-DD")
     p.add_argument("--expiry-date", required=True, help="YYYY-MM-DD")
     p.add_argument("--evidence-ref", default="docs/roe-consent-flow.md")
-    p.add_argument("--storage-location", default="SharePoint > ROE Consent Archive workbook")
+    p.add_argument("--storage-location", default="Operator ROE consent archive")
     p.add_argument("--record-id", required=True, help="Durable record id, e.g. roe-selftest-r011-001.")
     # third-party
-    p.add_argument("--tenant-id")
+    p.add_argument("--tenant-id", default=os.environ.get("AZURE_TENANT_ID"),
+                   help="Target tenant GUID (default: $AZURE_TENANT_ID).")
     p.add_argument("--counterparty-org")
     p.add_argument("--counterparty-contact-name")
-    p.add_argument("--counterparty-contact-email")
+    p.add_argument("--counterparty-contact-email",
+                   help="Contact email (self-test default: $REJEWSKI_OPERATOR_EMAIL).")
     p.add_argument("--signed-by-counterparty")
     p.add_argument("--output", required=True, help="Path to write the v2 record JSON.")
     p.add_argument("--emit-v1-core", action="store_true",
                    help="Also write the v1 replay-log-embedded core next to --output (.v1-core.json).")
-    return p.parse_args(argv)
+    args = p.parse_args(argv)
+    if args.engagement_type == "self_test" and not args.counterparty_contact_email:
+        args.counterparty_contact_email = os.environ.get("REJEWSKI_OPERATOR_EMAIL")
+    for name, env in (("operator_object_id", "REJEWSKI_OPERATOR_OBJECT_ID"),
+                      ("signed_by_provider", "REJEWSKI_OPERATOR_NAME")):
+        if not getattr(args, name):
+            p.error(f"--{name.replace('_', '-')} is required (or set {env})")
+    return args
 
 
 def main(argv: Optional[list[str]] = None) -> int:

@@ -45,8 +45,8 @@ a numbered tool but underpins every Graph call.
 | 9 | `scripts/tool_purview_labels.py` | T1580 | Cloud Infrastructure Discovery | Discovery | `GET /security/dataSecurityAndGovernance/sensitivityLabels` | Implemented |
 | 10 | `scripts/tool_signin_logs.py` | T1654 | Log Enumeration | Discovery | `GET /auditLogs/signIns` | Implemented |
 
-All Graph calls are read-only `GET` requests against the cloudharbordemo sandbox
-tenant (76b87c33), run under a borrowed first-party Microsoft Graph Command Line
+All Graph calls are read-only `GET` requests against the lab tenant
+tenant (<lab-tenant-id>), run under a borrowed first-party Microsoft Graph Command Line
 Tools client (14d82eec) with no tenant-side app registration.
 
 ---

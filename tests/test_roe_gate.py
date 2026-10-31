@@ -19,13 +19,15 @@ import identity
 import roe_gate
 from replay_log import ReplayLogEntry, write_entry
 
-SANDBOX = roe_gate.SANDBOX_TENANT_ID
+from lab_values import LAB_TENANT_ID
+
+LAB = LAB_TENANT_ID
 OTHER = "11111111-2222-4333-8444-555555555555"
 RUN = "R-GATE"
 TODAY = date(2026, 10, 15)
 
 
-def _v1(run_id=RUN, tenant_id=SANDBOX):
+def _v1(run_id=RUN, tenant_id=LAB):
     return {"event": "consent.granted", "run_id": run_id, "tenant_id": tenant_id}
 
 
@@ -51,14 +53,14 @@ def _put(d: Path, rec: dict, name: str = "consent.json") -> None:
     (d / name).write_text(json.dumps(rec), encoding="utf-8")
 
 
-def _authorize(d: Path, tenant=SANDBOX, run_id=RUN):
+def _authorize(d: Path, tenant=LAB, run_id=RUN):
     return roe_gate.authorize_run(run_id=run_id, tenant_id=tenant, log_dir=d, today=TODAY)
 
 
 # --- the gate ---------------------------------------------------------------------
 
 
-def test_sandbox_with_v1_record_is_authorized(tmp_path):
+def test_lab_tenant_with_v1_record_is_authorized(tmp_path):
     _put(tmp_path, _v1())
     assert _authorize(tmp_path)["run_id"] == RUN
 
@@ -92,13 +94,13 @@ def test_record_for_another_run_does_not_count(tmp_path):
 
 
 def test_tenant_mismatch_is_refused(tmp_path):
-    _put(tmp_path, _v1(tenant_id=SANDBOX))
+    _put(tmp_path, _v1(tenant_id=LAB))
     with pytest.raises(roe_gate.ConsentError, match="is consented for tenant"):
         _authorize(tmp_path, tenant=OTHER)
 
 
 def test_conflicting_records_for_one_run_are_refused(tmp_path):
-    _put(tmp_path, _v1(tenant_id=SANDBOX), "a.json")
+    _put(tmp_path, _v1(tenant_id=LAB), "a.json")
     _put(tmp_path, _v2(tenant_id=OTHER), "b.json")
     with pytest.raises(roe_gate.ConsentError, match="more than one tenant"):
         _authorize(tmp_path, tenant=OTHER)
@@ -155,10 +157,35 @@ def test_replay_entries_are_not_mistaken_for_consent(tmp_path):
         _authorize(tmp_path)
 
 
-def test_require_sandbox_refuses_other_tenants():
-    roe_gate.require_sandbox(SANDBOX, "demo")
-    with pytest.raises(roe_gate.ConsentError, match="sandbox-only"):
-        roe_gate.require_sandbox(OTHER, "demo")
+def test_require_lab_tenant_refuses_other_tenants():
+    roe_gate.require_lab_tenant(LAB, "demo")
+    with pytest.raises(roe_gate.ConsentError, match="lab-only"):
+        roe_gate.require_lab_tenant(OTHER, "demo")
+
+
+def test_no_lab_tenant_configured_means_every_tenant_needs_v2(tmp_path, monkeypatch):
+    """With REJEWSKI_LAB_TENANT_ID unset, no tenant gets the lighter v1 rule."""
+    monkeypatch.delenv(roe_gate.LAB_TENANT_ENV, raising=False)
+    _put(tmp_path, _v1(tenant_id=LAB))
+    with pytest.raises(roe_gate.ConsentError, match="v2 durable"):
+        _authorize(tmp_path, tenant=LAB)
+
+
+def test_lab_tenant_env_must_be_a_guid(monkeypatch):
+    monkeypatch.setenv(roe_gate.LAB_TENANT_ENV, "not-a-guid")
+    assert roe_gate.lab_tenant_id() is None
+    assert not roe_gate.is_lab_tenant("not-a-guid")
+
+
+def test_lab_tenant_match_is_case_insensitive(monkeypatch):
+    monkeypatch.setenv(roe_gate.LAB_TENANT_ENV, LAB.upper())
+    assert roe_gate.is_lab_tenant(LAB)
+
+
+def test_require_lab_tenant_refuses_when_unset(monkeypatch):
+    monkeypatch.delenv(roe_gate.LAB_TENANT_ENV, raising=False)
+    with pytest.raises(roe_gate.ConsentError, match="REJEWSKI_LAB_TENANT_ID"):
+        roe_gate.require_lab_tenant(LAB, "demo")
 
 
 # --- enforcement point 1: identity.acquire_token (before any network call) --------
@@ -175,7 +202,7 @@ def test_acquire_token_refuses_without_consent_before_msal(tmp_path, monkeypatch
 
 
 def test_acquire_token_refuses_tenant_switch_mid_run(tmp_path, monkeypatch):
-    """A run consented for the sandbox cannot be pointed at another tenant."""
+    """A run consented for the lab tenant cannot be pointed at another tenant."""
     monkeypatch.setenv(identity.ENV_CACHE_PATH, str(tmp_path / "cache.bin"))
     _put(tmp_path, _v1())
     with mock.patch.object(identity.msal, "PublicClientApplication") as pca:

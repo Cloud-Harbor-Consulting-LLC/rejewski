@@ -41,7 +41,7 @@
     "tenant_id": {
       "type": "string",
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-      "description": "Target tenant GUID (v1 core). The run may only target this tenant (G-1 consent-bound tenant lock, ADR 0008). For a tenant other than the cloudharbordemo sandbox, engagement.status must be active and the current date must fall inside the authorization window; for engagement.type=third_party_assessment the record must also be counter-signed (counterparty.is_self_test false, signature_method not self_test_attestation)."
+      "description": "Target tenant GUID (v1 core). The run may only target this tenant (G-1 consent-bound tenant lock, ADR 0008). For a tenant other than the lab tenant, engagement.status must be active and the current date must fall inside the authorization window; for engagement.type=third_party_assessment the record must also be counter-signed (counterparty.is_self_test false, signature_method not self_test_attestation)."
     },
     "operator_object_id": {
       "type": "string",
@@ -90,7 +90,7 @@
         "type": {
           "type": "string",
           "enum": ["self_test", "third_party_assessment"],
-          "description": "Workbook column: Engagement Type. self_test = cloudharbordemo/CHC-internal; third_party_assessment = an external counterparty tenant."
+          "description": "Workbook column: Engagement Type. self_test = a tenant the operator owns (for example a lab tenant); third_party_assessment = an external counterparty tenant."
         },
         "mvp_pillar": {
           "type": "string",
@@ -111,7 +111,7 @@
       "properties": {
         "is_self_test": {
           "type": "boolean",
-          "description": "Explicit self-test marker (AC4). TRUE for cloudharbordemo/CHC-internal runs; FALSE for a third-party engagement. Never omitted, never null."
+          "description": "Explicit self-test marker (AC4). TRUE for runs against a tenant the operator owns; FALSE for a third-party engagement. Never omitted, never null."
         },
         "org": {
           "type": "string",

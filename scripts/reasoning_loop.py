@@ -35,6 +35,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -42,7 +43,6 @@ from typing import Any
 
 from replay_log import (
     DEFAULT_LOG_DIR,
-    SANDBOX_TENANT_ID,
     ReplayLogEntry,
     utc_now_iso,
     write_entry,
@@ -50,7 +50,6 @@ from replay_log import (
 from rejewski_runtime import RoutingConfig, load_config
 
 DEFAULT_CLIENT_ID = "14d82eec-204b-4c2f-b7e8-296a70dab67e"
-DEFAULT_ACTOR_UPN = "meganb@cloudharbor-demo.com"
 
 
 @dataclass
@@ -88,7 +87,7 @@ def _token_request() -> dict[str, Any]:
     return {
         "method": "POST",
         "url": (
-            f"https://login.microsoftonline.com/{SANDBOX_TENANT_ID}"
+            "https://login.microsoftonline.com/organizations"
             "/oauth2/v2.0/token"
         ),
         "headers": {"Content-Type": "application/x-www-form-urlencoded"},
@@ -216,7 +215,8 @@ def run_plan(
     run_id: str,
     emit: bool = False,
     log_dir: Path | None = None,
-    actor_upn: str = DEFAULT_ACTOR_UPN,
+    actor_upn: str | None = None,
+    tenant_id: str | None = None,
     borrowed_client_id: str = DEFAULT_CLIENT_ID,
 ) -> list[StepResult]:
     """Route each step, optionally writing a model_id-stamped replay entry.
@@ -225,6 +225,13 @@ def run_plan(
     ``emit`` is False the routing decisions are computed and returned but no
     files are written — handy for tests and dry runs.
     """
+    actor_upn = actor_upn or os.environ.get("COMPROMISED_USER_UPN")
+    tenant_id = tenant_id or os.environ.get("AZURE_TENANT_ID")
+    if emit and not (actor_upn and tenant_id):
+        raise ValueError(
+            "emitting replay-log entries needs an actor UPN and a tenant ID "
+            "(--actor-upn or COMPROMISED_USER_UPN, and AZURE_TENANT_ID)"
+        )
     results: list[StepResult] = []
     for step in plan:
         hard = routing.is_hard(step=step.name, technique_id=step.technique_id)
@@ -240,7 +247,7 @@ def run_plan(
                 tool=step.tool,
                 technique_id=step.technique_id,
                 technique_name=step.technique_name,
-                tenant_id=SANDBOX_TENANT_ID,
+                tenant_id=tenant_id,
                 borrowed_client_id=borrowed_client_id,
                 actor_upn=actor_upn,
                 started_at_utc=now,
@@ -305,8 +312,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--actor-upn",
-        default=DEFAULT_ACTOR_UPN,
-        help="Operator UPN recorded on each entry.",
+        default=None,
+        help="Operator UPN recorded on each entry (default: $COMPROMISED_USER_UPN).",
     )
     return parser.parse_args(argv)
 

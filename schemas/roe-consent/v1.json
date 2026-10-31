@@ -30,7 +30,7 @@
     "tenant_id": {
       "type": "string",
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-      "description": "Target tenant GUID. The run may only target this tenant (G-1 consent-bound tenant lock, ADR 0008). A v1 record authorizes the cloudharbordemo sandbox (76b87c33-6178-4ff9-94a7-164792c8e4c6) only; any other tenant needs a v2 record."
+      "description": "Target tenant GUID. The run may only target this tenant (G-1 consent-bound tenant lock, ADR 0008). A v1 record is enough only for the lab tenant named in REJEWSKI_LAB_TENANT_ID; any other tenant needs a v2 record."
     },
     "operator_object_id": {
       "type": "string",

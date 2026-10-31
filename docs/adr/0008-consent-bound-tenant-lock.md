@@ -10,7 +10,7 @@
 
 ## 1. Context
 
-Rejewski exists to run against a Microsoft 365 tenant whose owner has given Rules of Engagement consent. Until this ADR, guardrail G-1 locked every run to the `cloudharbordemo` sandbox (`76b87c33-6178-4ff9-94a7-164792c8e4c6`) through a constant in `scripts/replay_log.py`. `docs/external-auth.md` defined the authorization chain for a third-party tenant and stated that a superseding ADR would be needed before any such run could execute.
+Rejewski exists to run against a Microsoft 365 tenant whose owner has given Rules of Engagement consent. Until this ADR, guardrail G-1 locked every run to the lab tenant (`<lab-tenant-id>`) through a constant in `scripts/replay_log.py`. `docs/external-auth.md` defined the authorization chain for a third-party tenant and stated that a superseding ADR would be needed before any such run could execute.
 
 Two gaps followed from the sandbox-only lock. First, the toolkit could not do the job it is published to do. Second, consent was a record the operator wrote, and no code checked for it. The v1.0 release notes draft (2026-10-15) surfaced the first gap, and Derek directed that G-1 be revised the same day.
 
@@ -20,15 +20,15 @@ G-1 becomes a **consent-bound tenant lock**. A run may target any tenant, but on
 
 1. **A run ID is required.** The consent record is found by run ID in the replay-log directory the tools write to.
 2. **One tenant per run.** The run's consent records must all name the same tenant, and it must equal the tenant the run is about to use.
-3. **Sandbox tenant.** The v1 replay-log-embedded consent record is enough.
+3. **Lab tenant.** The v1 replay-log-embedded consent record is enough for the operator's lab tenant, named in the `REJEWSKI_LAB_TENANT_ID` environment variable. With the variable unset, no tenant gets this exception. (Amended 2026-10-31; see the Change Log.)
 4. **Any other tenant.** The record must be a v2 durable record (`schemas/roe-consent/v2.json`) with `engagement.status` `active` and the current UTC date inside `authorization.effective_date` to `expiry_date`, inclusive. For `engagement.type` `third_party_assessment`, the record must also show `counterparty.is_self_test` false and a signature method other than `self_test_attestation`, per `docs/external-auth.md` §2. An operator assessing a tenant they own uses `engagement.type` `self_test` with that tenant's ID.
 
 Enforcement points:
 
 - `scripts/roe_gate.py` holds the rules (`authorize_run`). It reads local JSON only.
 - `scripts/identity.acquire_token` calls `authorize_run` first, before it builds an MSAL client, so a refused run makes no token request and no Graph call.
-- `scripts/replay_log.write_entry` calls `authorize_run` for any entry whose tenant is not the sandbox, and refuses any entry whose tenant is not a GUID. It is the backstop for any path that reaches the writer without going through `identity`.
-- `scripts/step4-token-smoke.py` and `scripts/demo_b007_device_compliance.py` call MSAL directly, so they are restricted to the sandbox (`roe_gate.require_sandbox`).
+- `scripts/replay_log.write_entry` calls `authorize_run` for any entry whose tenant is not the lab tenant, and refuses any entry whose tenant is not a GUID. It is the backstop for any path that reaches the writer without going through `identity`.
+- `scripts/step4-token-smoke.py` and `scripts/demo_b007_device_compliance.py` call MSAL directly, so they are restricted to the lab tenant (`roe_gate.require_lab_tenant`).
 
 ## 3. Rationale
 
@@ -55,7 +55,7 @@ Enforcement points:
 ### 5.3 Neutral
 
 - Committed sandbox evidence (R002 to R016) is unaffected; the writer still accepts sandbox entries.
-- `SANDBOX_TENANT_ID` now lives in `scripts/roe_gate.py`; `scripts/replay_log.py` imports it.
+- The lab tenant is read from `REJEWSKI_LAB_TENANT_ID` by `roe_gate.lab_tenant_id()`; no tenant ID is built into the code (amended 2026-10-31).
 
 ## 6. Alternatives Considered
 
@@ -74,3 +74,4 @@ Enforcement points:
 | Date | Version | Change | Author |
 |------|---------|--------|--------|
 | 2026-10-15 | v1.0 | Initial decision. G-1 changes from a sandbox-only lock to a consent-bound tenant lock enforced in `scripts/roe_gate.py`, `identity.acquire_token`, and `replay_log.write_entry`. | Derek Morgan |
+| 2026-10-31 | v1.1 | The lab tenant comes from configuration. The sandbox tenant ID constant is removed from `scripts/roe_gate.py`; `REJEWSKI_LAB_TENANT_ID` names the operator's lab tenant, which keeps the v1-record rule (item 3). Unset, every tenant needs a v2 record. `require_sandbox` becomes `require_lab_tenant`. No change to the rules for any other tenant. | Derek Morgan |

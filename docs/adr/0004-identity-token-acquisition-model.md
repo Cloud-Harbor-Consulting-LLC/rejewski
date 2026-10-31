@@ -10,7 +10,7 @@
 
 ## 1. Context
 
-Project Harbor Sonar emulates a threat actor against the cloudharbordemo sandbox tenant (76b87c33-6178-4ff9-94a7-164792cre-registered, pre-consented application in the target tenant. Creating one would hand the simulation a trusted credential path no adversary would have and would skip the actual tradecraft Rejewski exists to exercise.
+Project Harbor Sonar emulates a threat actor against the lab tenant (<lab-tenant-id>-6178-4ff9-94a7-164792cre-registered, pre-consented application in the target tenant. Creating one would hand the simulation a trusted credential path no adversary would have and would skip the actual tradecraft Rejewski exists to exercise.
 
 Sprint 1 Week 1 B001 (MCS-MOS3 Azure sandbox tenant standup, shipped Wed May 13, 2026) and the three Sprint 1 technique modules (T1078.004 Valid Accounts Cloud, T1087.004 Account Discovery Cloud, T1069.003 Permission Groups Discovery Cloud) all require a token acquisition path. The Master Plan v1.5 Sprint 1 acceptance criteria require a working end-to-end run against a seeded compromised user without creating any artifact in the target tenant attributable to the operator.
 
@@ -65,12 +65,12 @@ Rejewski acquires delegated Microsoft Graph tokens by borrowing a first-party Mi
 
 - ROPC is being deprecated by Microsoft for new applications. The borrowed first-party client retains ROPC capability today, but this is a depreciating surface; a Sprint 3+ ADR will need to formalize the migration to device code as default.
 - ROPC against a borrowed first-party client makes traffic look like legitimate admin tooling. Defenders cannot block the borrowed client app ID without breaking real admin workflows. The compensating signal is volumetric (MicrosoftGraphActivityLogs reads per ZT-S03) and risk-based (Identity Protection), not app-block-based.
-- No documented MCAS alert fires specifically on ROPC against a FOCI client (zt-scenarios Gap 2). Rejewski runs against the cloudharbordemo sandbox may not surface an MCAS-side detection chain; downstream demo materials (B007 device compliance demo) must rely on Entra-side signals.
+- No documented MCAS alert fires specifically on ROPC against a FOCI client (zt-scenarios Gap 2). Rejewski runs against the lab tenant may not surface an MCAS-side detection chain; downstream demo materials (B007 device compliance demo) must rely on Entra-side signals.
 - The default borrowed client (Graph Command Line Tools) is NOT a confirmed FOCI member. Sprint 2+ techniques requiring verified FOCI behavior (refresh-token theft, cross-client reuse) MUST use Azure CLI `04b07795` instead. This is a known correction surfaced Fri May 15, 2026. **Superseded in part by ADR-0006 (2026-07-28):** the "MUST use Azure CLI" instruction no longer applies — Azure CLI is not on the ADR-0006 allowlist. The not-a-confirmed-FOCI-member fact stands; a FOCI-dependent technique now requires a new ADR extending the allowlist.
 
 ### 5.3 Neutral
 
-- ROPC requires the seed user's password in cleartext at runtime on cache miss. ADR-0001 §7 Credential Handling and `.gitignore` discipline govern storage; the password lives in the local `.env` only and is rotated on a per-engagement basis. Decision: acceptable for the controlled sandbox; revisit if Rejewski ever runs outside the cloudharbordemo tenant. On cache hit the password is not materialized.
+- ROPC requires the seed user's password in cleartext at runtime on cache miss. ADR-0001 §7 Credential Handling and `.gitignore` discipline govern storage; the password lives in the local `.env` only and is rotated on a per-engagement basis. Decision: acceptable for the controlled sandbox; revisit if Rejewski ever runs outside the lab tenant. On cache hit the password is not materialized.
 
 ## 6. Alternatives Considered
 

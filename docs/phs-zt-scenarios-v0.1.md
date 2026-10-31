@@ -8,7 +8,7 @@
 
 ## Purpose
 
-This document defines three baseline Zero Trust scenarios that the Rejewski adversary emulator will replay against the cloudharbordemo sandbox tenant during MVP scope. Each scenario pairs an adversary action with the Microsoft control surface that should detect or block it, the exact telemetry signals a defender will see, and the pass/fail criteria for a replay run.
+This document defines three baseline Zero Trust scenarios that the Rejewski adversary emulator will replay against the lab tenant during MVP scope. Each scenario pairs an adversary action with the Microsoft control surface that should detect or block it, the exact telemetry signals a defender will see, and the pass/fail criteria for a replay run.
 
 The scenarios are the foundation for all Pillar 1 work in Sprint 2 and beyond. Subsequent technique modules, replay-log entries, and ROI claims map back to one of the three scenario IDs defined here (ZT-S01, ZT-S02, ZT-S03).
 
@@ -25,7 +25,7 @@ Each scenario below names the NIST tenets it stresses and the Microsoft pillars 
 
 All three scenarios assume the following adversary profile, established in Sprint 1:
 
-- **Adversary identity.** Rejewski operates as an external threat actor with knowledge of a compromised set of credentials for Megan Bowen (<meganb@cloudharbor-demo.com>) in the sandbox tenant cloudharbordemo (76b87c33-6178-4ff9-94a7-164792c8e4c6).
+- **Adversary identity.** Rejewski operates as an external threat actor with knowledge of a compromised set of credentials for Megan Bowen (meganb@<lab-domain>) in the lab tenant.
 - **Borrowed client.** Microsoft Graph Command Line Tools first-party FOCI client (app ID 14d82eec-204b-4c2f-b7e8-296a70dab67e). No app registration is created in the target tenant. See guardrails.md G-1.
 - **Token acquisition.** MSAL Resource Owner Password Credential (ROPC) delegated flow against the v2.0 token endpoint. ROPC carries no device claim and produces no Primary Refresh Token.
 - **Telemetry assumption.** Diagnostic settings are enabled to forward SigninLogs, AuditLogs, and MicrosoftGraphActivityLogs to a Log Analytics workspace. Where a signal depends on a non-default diagnostic setting, this is called out in the scenario.

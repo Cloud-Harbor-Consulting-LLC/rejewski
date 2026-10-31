@@ -17,8 +17,8 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import identity  # noqa: E402
 
-TENANT_ID = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
-ACTOR_UPN = "meganb@cloudharbor-demo.com"
+TENANT_ID = "c0ffee00-0000-4000-8000-000000000001"
+ACTOR_UPN = "meganb@lab.example"
 CLIENT_ID = identity.DEFAULT_CLIENT_ID
 
 
@@ -85,7 +85,7 @@ class TestCachePathResolution:
         assert identity._resolve_cache_path(ACTOR_UPN) == override
 
     def test_actor_slug_sanitises(self) -> None:
-        slug = identity._safe_actor_slug("Megan.B+test@cloudharbor-demo.com")
+        slug = identity._safe_actor_slug("Megan.B+test@lab.example")
         assert "+" not in slug
         assert "@" not in slug
         assert slug == slug.lower()

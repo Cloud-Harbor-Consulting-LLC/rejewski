@@ -5,10 +5,10 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator, FormatChecker
 
+from lab_values import LAB_TENANT_ID
 from replay_log import (
     REDACTED,
     ReplayLogEntry,
-    SANDBOX_TENANT_ID,
     SCHEMA_VERSION,
     _VALIDATOR,
     make_error,
@@ -35,9 +35,9 @@ def _valid_entry(**overrides):
         tool="tool_list_users",
         technique_id="T1087.004",
         technique_name="Account Discovery: Cloud Account",
-        tenant_id=SANDBOX_TENANT_ID,
+        tenant_id=LAB_TENANT_ID,
         borrowed_client_id="14d82eec-204b-4c2f-b7e8-296a70dab67e",
-        actor_upn="meganb@cloudharbor-demo.com",
+        actor_upn="meganb@lab.example",
         started_at_utc="2026-05-15T14:30:15.000000Z",
         completed_at_utc="2026-05-15T14:30:16.000000Z",
         request={"method": "GET", "url": "https://graph.microsoft.com/v1.0/users"},
@@ -215,9 +215,9 @@ class TestScrubbing:
         entry = _valid_entry(
             outcome="error",
             error=make_error(
-                type_=f"https://login.microsoftonline.com/{SANDBOX_TENANT_ID}/oauth2/error",
+                type_=f"https://login.microsoftonline.com/{LAB_TENANT_ID}/oauth2/error",
                 message=(
-                    f"User principal could not be authorized in tenant {SANDBOX_TENANT_ID}."
+                    f"User principal could not be authorized in tenant {LAB_TENANT_ID}."
                 ),
                 status_code=403,
             ),
@@ -225,26 +225,26 @@ class TestScrubbing:
         path = write_entry(entry, log_dir=tmp_path)
         written = json.loads(path.read_text())
 
-        assert SANDBOX_TENANT_ID not in written["error"]["type"]
-        assert SANDBOX_TENANT_ID not in written["error"]["message"]
+        assert LAB_TENANT_ID not in written["error"]["type"]
+        assert LAB_TENANT_ID not in written["error"]["message"]
         assert REDACTED in written["error"]["type"]
         assert REDACTED in written["error"]["message"]
         assert written["error"]["status_code"] == 403
 
-        assert written["tenant_id"] == SANDBOX_TENANT_ID
+        assert written["tenant_id"] == LAB_TENANT_ID
         assert written["borrowed_client_id"] == "14d82eec-204b-4c2f-b7e8-296a70dab67e"
-        assert SANDBOX_TENANT_ID not in path.read_text().replace(
-            f'"tenant_id": "{SANDBOX_TENANT_ID}"', ""
+        assert LAB_TENANT_ID not in path.read_text().replace(
+            f'"tenant_id": "{LAB_TENANT_ID}"', ""
         )
 
 class TestRedactTenantId:
     """The shared helper that tools route their evidence tenant_id through so the
-    sandbox GUID is not emitted to stdout. The replay-log ENTRY still carries the
+    lab tenant GUID is not emitted to stdout. The replay-log ENTRY still carries the
     real tenant_id (TestScrubbing above covers that G-1 requirement)."""
 
-    def test_sandbox_tenant_is_redacted(self):
-        assert redact_tenant_id(SANDBOX_TENANT_ID) == REDACTED
-        assert redact_tenant_id(SANDBOX_TENANT_ID) != SANDBOX_TENANT_ID
+    def test_lab_tenant_is_redacted(self):
+        assert redact_tenant_id(LAB_TENANT_ID) == REDACTED
+        assert redact_tenant_id(LAB_TENANT_ID) != LAB_TENANT_ID
 
     def test_other_tenant_passes_through(self):
         other = "11111111-2222-3333-4444-555555555555"

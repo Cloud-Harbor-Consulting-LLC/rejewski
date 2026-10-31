@@ -2,8 +2,8 @@
   "schema_version": "2",
   "event": "consent.granted",
   "run_id": "R011",
-  "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
-  "operator_object_id": "48df3ad2-9110-4c27-9630-f82b1b8eb177",
+  "tenant_id": "c0ffee00-0000-4000-8000-000000000001",
+  "operator_object_id": "0b5e7a70-0000-4000-8000-000000000002",
   "techniques": [
     "T1078.004",
     "T1087.004",
@@ -20,28 +20,28 @@
   "confirmed_at": "2026-07-18T16:30:35Z",
   "confirmation_latency_seconds": 3,
   "engagement": {
-    "name": "Rejewski self-test sweep (cloudharbordemo)",
+    "name": "Rejewski self-test sweep (lab tenant)",
     "type": "self_test",
-    "mvp_pillar": "Pillar 1 - Zero Trust adversary emulation",
+    "mvp_pillar": "Unassigned",
     "status": "completed"
   },
   "counterparty": {
     "is_self_test": true,
-    "org": "Cloud Harbor Consulting (self-test)",
-    "contact_name": "Derek Morgan",
-    "contact_email": "derek.morgan@cloudharborconsulting.cloud"
+    "org": "Example Org (self-test)",
+    "contact_name": "Lab Operator",
+    "contact_email": "operator@lab.example"
   },
   "scope": {
     "surface": [
-      "tenant:cloudharbordemo",
+      "tenant:lab",
       "graph:read-only-GET",
       "techniques:all-implemented"
     ],
-    "summary": "Full read-only sweep of all implemented Rejewski techniques against the CHC-owned cloudharbordemo sandbox. No counterparty; self-authorized under the standing ROE."
+    "summary": "Full read-only sweep of all implemented Rejewski techniques against an operator-owned lab tenant. No counterparty; self-authorized under the standing ROE."
   },
   "authorization": {
-    "signed_by_provider": "Derek Morgan (Cloud Harbor Consulting)",
-    "signed_by_counterparty": "Derek Morgan (Cloud Harbor Consulting) — self-authorized",
+    "signed_by_provider": "Lab Operator (Example Org)",
+    "signed_by_counterparty": "Lab Operator (Example Org), self-authorized",
     "signature_method": "self_test_attestation",
     "signed_date": "2026-07-18",
     "effective_date": "2026-07-18",
@@ -50,7 +50,7 @@
   },
   "archive": {
     "record_id": "roe-selftest-r011-001",
-    "storage_location": "SharePoint > ROE Consent Archive workbook (row: Rejewski self-test sweep)",
+    "storage_location": "Operator ROE consent archive",
     "created_utc": "2026-09-15T00:00:00Z"
   }
 }

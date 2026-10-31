@@ -28,7 +28,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import identity  # noqa: E402
-from replay_log import SANDBOX_TENANT_ID  # noqa: E402
+from lab_values import LAB_TENANT_ID  # noqa: E402
 
 # The seven tools that gained --emit/--no-emit in the W16 N3 backport.
 BACKPORTED_TOOLS = [
@@ -55,9 +55,9 @@ class FakeResp:
 
 @pytest.fixture
 def env(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("AZURE_TENANT_ID", SANDBOX_TENANT_ID)
+    monkeypatch.setenv("AZURE_TENANT_ID", LAB_TENANT_ID)
     monkeypatch.setenv("FOCI_CLIENT_ID", identity.DEFAULT_CLIENT_ID)
-    monkeypatch.setenv("COMPROMISED_USER_UPN", "meganb@cloudharbor-demo.com")
+    monkeypatch.setenv("COMPROMISED_USER_UPN", "meganb@lab.example")
     monkeypatch.delenv("COMPROMISED_USER_PASSWORD", raising=False)
 
 

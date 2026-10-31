@@ -18,13 +18,13 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import replay_log_viewer as viewer  # noqa: E402
 
-TENANT = "76b87c33-6178-4ff9-94a7-164792c8e4c6"
+TENANT = "c0ffee00-0000-4000-8000-000000000001"
 
 CONSENT = {
     "event": "consent.granted",
     "run_id": "R011",
     "tenant_id": TENANT,
-    "operator_object_id": "48df3ad2-9110-4c27-9630-f82b1b8eb177",
+    "operator_object_id": "0b5e7a70-0000-4000-8000-000000000002",
     "techniques": ["T1087.004", "T1550.001"],
     "confirmed_at": "2026-07-18T16:30:35Z",
 }
@@ -34,7 +34,7 @@ GRAPH_SUCCESS = {
     "tool": "tool_list_users",
     "technique": {"id": "T1087.004", "name": "Account Discovery: Cloud Account"},
     "tenant_id": TENANT,
-    "actor_upn": "meganb@cloudharbor-demo.com",
+    "actor_upn": "meganb@lab.example",
     "started_at_utc": "2026-07-18T16:31:35Z",
     "request": {
         "method": "GET",
@@ -50,7 +50,7 @@ GRAPH_ERROR = {
     "tool": "tool_list_role_assignments",
     "technique": {"id": "T1087.004", "name": "Account Discovery: Cloud Account"},
     "tenant_id": TENANT,
-    "actor_upn": "meganb@cloudharbor-demo.com",
+    "actor_upn": "meganb@lab.example",
     "started_at_utc": "2026-07-18T16:32:48Z",
     "request": {
         "method": "GET",
@@ -66,7 +66,7 @@ TOKEN_EVENT = {
     "tool": "scripts.identity",
     "technique": {"id": "T1550.001", "name": "Application Access Token"},
     "tenant_id": TENANT,
-    "actor_upn": "meganb@cloudharbor-demo.com",
+    "actor_upn": "meganb@lab.example",
     "started_at_utc": "2026-07-18T16:31:36Z",
     "response": {"status_code": 200},
     "outcome": "success",
@@ -80,8 +80,8 @@ class TestRenderHtmlMetadata:
         # Run metadata in the header.
         assert "Rejewski Run Report" in html
         assert "R011" in html
-        assert "76b87c33" in html  # short tenant
-        assert "meganb@cloudharbor-demo.com" in html  # operator UPN preferred
+        assert "c0ffee00" in html  # short tenant
+        assert "meganb@lab.example" in html  # operator UPN preferred
         assert "2026-07-18" in html  # date
         # Both graph endpoints appear (query string stripped).
         assert "/users" in html

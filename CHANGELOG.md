@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **ADR 0009 (Proposed): Stage 2 Rules of Engagement, Persistence by a standard account.** v1.1's stage is Persistence
+  emulated with the same stolen non-administrator account (Derek, 2026-10-31). Candidate techniques T1098.001, T1671,
+  T1136.003, and T1098.005, fixed at v1.1 scoping. Writes only for consented techniques with an explicit write
+  acknowledgment (C015 and a consent-schema version are prerequisites), a read-only feasibility mode by default,
+  sandbox-first until three runs show verified rollback, and a new guardrail G-10 (every write rolled back and
+  verified). On acceptance it rewrites G-2 and G-3 and extends G-1, G-5, G-6, and G-8. No code change yet.
+
 - **R019: Launch W1 Day 7 end-to-end run (Sat Oct 31).** All 15 tool surfaces against `cloudharbordemo` under the G-1
   consent gate (v2 self-test record) and the G-8 teardown. `samples/replay-log/R019.json`: 31 entries (consent first;
   1 ROPC sign-in + 14 silent reuses; 14 graph calls success + the documented inbox 404). Same 10 findings as R017 and

@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **R019: Launch W1 Day 7 end-to-end run (Sat Oct 31).** All 15 tool surfaces against `cloudharbordemo` under the G-1
+  consent gate (v2 self-test record) and the G-8 teardown. `samples/replay-log/R019.json`: 31 entries (consent first;
+  1 ROPC sign-in + 14 silent reuses; 14 graph calls success + the documented inbox 404). Same 10 findings as R017 and
+  R018 (5 high, 5 medium); 10 triage records and `docs/reports/replay-report-R019.html`. Tenant drift since R018: users
+  9 → 10, groups 30 → 34, Conditional Access policies 27 → 26, service principals 451 → 459, sign-ins 32 → 277. The
+  canonical aliases stay on R017.
+
 ### Changed
 
 - **CONTRIBUTING.md: post-launch status.** The Status section no longer says the repo is private through Oct 24; it

@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1526-r019-ca-policy-discovery-001",
+  "technique_id": "T1526",
+  "technique_name": "Cloud Service Discovery",
+  "run_id": "R019",
+  "severity": "high",
+  "confidence": "high",
+  "control_mapping_id": "ft1526-rbac-reports-reader-001",
+  "evidence": [
+    "samples/replay-log/R019.json"
+  ],
+  "triage_status": "open",
+  "notes": "Cloud service discovery: tool_list_ca_policies enumerated 26 Conditional Access policies (27 in R018) (R019), success. High per rubric v1.0 (defensive-evasion escalator: D=2 CA-policy posture map, decision-table row 3). Recurring. Cross-references the CA policy read roles (Security Reader, Global Reader, Conditional Access Administrator).",
+  "triage_metadata": {
+    "created_utc": "2026-10-31T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

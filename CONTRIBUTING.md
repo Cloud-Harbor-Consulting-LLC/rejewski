@@ -53,10 +53,11 @@ Add or update tests with any behavioral change. Schema, tool, and report changes
 
 ## Issue templates
 
-Bug and documentation reports use the templates in [`.github/ISSUE_TEMPLATE/`](./.github/ISSUE_TEMPLATE/):
+Bug reports, documentation fixes, and feature requests use the templates in [`.github/ISSUE_TEMPLATE/`](./.github/ISSUE_TEMPLATE/):
 
 - **Bug report** (`bug_report.yml`) — a tool script, core script, schema, or document behaves incorrectly.
 - **Documentation fix** (`documentation_fix.yml`) — a correction, clarification, or improvement to documentation.
+- **Feature request** (`feature_request.yml`) — a new attack stage, ATT&CK technique, tool surface, or report capability. It asks for the stage, the use case, and confirmation that testing stays on tenants the requester owns or is authorized to assess.
 - The template chooser is configured in `config.yml`.
 
 These templates are for **external reports on the public repo**; they do not change the internal "no GitHub Issues for task tracking" convention above.

@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: MIT
 import json
 
-from replay_log import SANDBOX_TENANT_ID, _VALIDATOR
+from lab_values import LAB_ACTOR_UPN, LAB_TENANT_ID
+from replay_log import _VALIDATOR
 from rejewski_runtime import RoutingConfig, load_config
 import reasoning_loop
 
@@ -81,6 +82,8 @@ class TestReasoningLoop:
             run_id="RLOOP-TEST",
             emit=True,
             log_dir=tmp_path,
+            actor_upn=LAB_ACTOR_UPN,
+            tenant_id=LAB_TENANT_ID,
         )
         written = [r.written_path for r in results if r.written_path]
         assert len(written) == len(reasoning_loop.PLAN)
@@ -91,7 +94,20 @@ class TestReasoningLoop:
             _VALIDATOR.validate(payload)  # schema v0.5
             assert payload["model_id"] == result.model_id
             assert payload["run_id"] == "RLOOP-TEST"
-            assert payload["tenant_id"] == SANDBOX_TENANT_ID
+            assert payload["tenant_id"] == LAB_TENANT_ID
             seen_models.add(payload["model_id"])
 
         assert seen_models == {"claude-sonnet-4-6", "claude-opus-4-6"}
+
+
+def test_emit_without_tenant_or_actor_is_refused(tmp_path, monkeypatch):
+    """No built-in tenant or account: emitting needs both from the operator."""
+    import pytest
+
+    monkeypatch.delenv("AZURE_TENANT_ID", raising=False)
+    monkeypatch.delenv("COMPROMISED_USER_UPN", raising=False)
+    routing = load_config().rejewski.routing
+    with pytest.raises(ValueError, match="tenant ID"):
+        reasoning_loop.run_plan(
+            reasoning_loop.PLAN, routing, run_id="RLOOP-TEST", emit=True, log_dir=tmp_path
+        )

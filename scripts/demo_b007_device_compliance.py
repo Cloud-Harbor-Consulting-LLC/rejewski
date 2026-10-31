@@ -29,12 +29,10 @@ from datetime import datetime, timezone
 import msal
 
 from replay_log import redact_tenant_id
-from roe_gate import require_sandbox
+from roe_gate import require_lab_tenant
 
 
 BORROWED_CLIENT_ID = "14d82eec-204b-4c2f-b7e8-296a70dab67e"  # Microsoft Graph Command Line Tools
-DEFAULT_TENANT_ID = "76b87c33-6178-4ff9-94a7-164792c8e4c6"   # cloudharbordemo
-DEFAULT_ACTOR_UPN = "meganb@cloudharbor-demo.com"
 DEFAULT_SCOPES = ["https://graph.microsoft.com/.default"]
 EXPECTED_AADSTS = 53000
 
@@ -64,8 +62,9 @@ def classify(error_codes: list[int]) -> str:
 
 def run(actor_upn: str, password: str, tenant_id: str, scopes: list[str]) -> dict:
     # G-1 (ADR 0008): this demo calls MSAL directly and bypasses the consent gate
-    # in identity.acquire_token, so it stays sandbox-only.
-    require_sandbox(tenant_id, "demo_b007_device_compliance.py")
+    # in identity.acquire_token, so it runs only against the lab tenant
+    # (REJEWSKI_LAB_TENANT_ID).
+    require_lab_tenant(tenant_id, "demo_b007_device_compliance.py")
     authority = f"https://login.microsoftonline.com/{tenant_id}"
     app = msal.PublicClientApplication(
         client_id=BORROWED_CLIENT_ID,
@@ -124,8 +123,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Rejewski B007 device-compliance demo (MSAL ROPC, expects AADSTS53000)."
     )
-    parser.add_argument("--actor", default=os.environ.get("REJEWSKI_ACTOR_UPN", DEFAULT_ACTOR_UPN))
-    parser.add_argument("--tenant", default=os.environ.get("AZURE_TENANT_ID", DEFAULT_TENANT_ID))
+    parser.add_argument("--actor", default=os.environ.get("REJEWSKI_ACTOR_UPN") or os.environ.get("COMPROMISED_USER_UPN"),
+                        help="Seed user UPN (default: $REJEWSKI_ACTOR_UPN or $COMPROMISED_USER_UPN).")
+    parser.add_argument("--tenant", default=os.environ.get("AZURE_TENANT_ID"),
+                        help="Lab tenant GUID (default: $AZURE_TENANT_ID).")
     parser.add_argument(
         "--scope",
         action="append",
@@ -138,6 +139,8 @@ def main(argv: list[str] | None = None) -> int:
         help="Write evidence JSON to this path instead of stdout.",
     )
     args = parser.parse_args(argv)
+    if not (args.actor and args.tenant):
+        parser.error("--actor and --tenant are required (or set COMPROMISED_USER_UPN and AZURE_TENANT_ID)")
 
     password = os.environ.get("REJEWSKI_ACTOR_PASSWORD")
     if not password:

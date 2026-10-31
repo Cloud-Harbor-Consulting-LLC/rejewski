@@ -35,7 +35,7 @@ prints a notice to stderr and still writes a graph_call entry with row_count
 REQUIRED PRIVILEGE:
     GET /auditLogs/signIns requires the AuditLog.Read.All delegated scope,
     admin-consented on the borrowed Microsoft Graph Command Line Tools client in
-    cloudharbordemo. Unlike T1580 (which is openly readable to any member with
+    the lab tenant. Unlike T1580 (which is openly readable to any member with
     the scope consented), sign-in log enumeration carries a SECOND privilege
     prerequisite: the signed-in operator user must hold one of the following
     Entra directory roles, or the API returns 403 Forbidden regardless of scope
@@ -48,9 +48,9 @@ REQUIRED PRIVILEGE:
 See docs/techniques/T1654.md for the full module.
 
 Required environment variables:
-    AZURE_TENANT_ID            Target tenant ID (cloudharbordemo: 76b87c33-...)
+    AZURE_TENANT_ID            Target tenant ID (your lab or consented tenant GUID)
     FOCI_CLIENT_ID             Borrowed first-party client (default: 14d82eec-...)
-    COMPROMISED_USER_UPN       Seed user UPN (meganb@cloudharbor-demo.com)
+    COMPROMISED_USER_UPN       Seed user UPN (e.g. meganb@<lab-domain>)
     COMPROMISED_USER_PASSWORD  Seed user password (cache-miss fallback only)
 """
 

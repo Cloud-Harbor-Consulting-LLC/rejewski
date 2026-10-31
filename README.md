@@ -6,7 +6,7 @@ Read-only Microsoft 365 adversary-emulation toolkit. A friendly threat actor tha
 
 ## What it does
 
-Rejewski is a set of read-only Microsoft Graph tools. They sign in as a test account in a tenant the operator owns or is authorized to assess, and record what that account can read. Every run needs a Rules of Engagement consent record for that tenant before the first token request (G-1). The evidence in this repo comes from the `cloudharbordemo` sandbox. Each run:
+Rejewski is a set of read-only Microsoft Graph tools. They sign in as a test account in a tenant the operator owns or is authorized to assess, and record what that account can read. Every run needs a Rules of Engagement consent record for that tenant before the first token request (G-1). The evidence in this repo comes from the lab tenant. Each run:
 
 1. Starts with a Rules of Engagement consent record, written as the first entry of the run's replay log.
 2. Executes read-only Microsoft Graph and Defender / Purview queries against the target tenant.
@@ -21,7 +21,7 @@ An agent layer built on the Claude Agent SDK ships alongside the tools. `scripts
 **Prerequisites**
 
 - Python 3.11+ and `git`.
-- A Microsoft 365 tenant you own or have written authorization to assess, with a test account for Rejewski to sign in as. The evidence in this repo uses the `cloudharbordemo` sandbox. Guardrail G-1 binds every run to the tenant named in its consent record (see [Rules of Engagement](#rules-of-engagement)).
+- A Microsoft 365 tenant you own or have written authorization to assess, with a test account for Rejewski to sign in as. The evidence in this repo comes from the maintainers' lab tenant; `scripts/seed-lab-tenant.ps1` seeds test accounts in yours. Guardrail G-1 binds every run to the tenant named in its consent record (see [Rules of Engagement](#rules-of-engagement)).
 
 **Install**
 
@@ -35,12 +35,16 @@ pip install -r requirements.txt
 
 **Configure**
 
-Create a `.env` file in the repo root (it is gitignored — never commit it) with the target tenant and the test account's credentials:
+Copy `.env.example` to `.env` in the repo root (`.env` is gitignored; never commit it) and fill in your own values. Nothing in the scripts names a tenant or account; every value comes from `.env` or a command-line argument:
 
 ```
 AZURE_TENANT_ID=<target-tenant-guid>
+REJEWSKI_LAB_TENANT_ID=<your-lab-tenant-guid>   # optional; see Rules of Engagement
 COMPROMISED_USER_UPN=<test-account>@<tenant-domain>
 COMPROMISED_USER_PASSWORD=<password>
+REJEWSKI_OPERATOR_OBJECT_ID=<your-entra-object-id>
+REJEWSKI_OPERATOR_NAME=<Your Name (Your Organization)>
+REJEWSKI_OPERATOR_EMAIL=<you@your-domain>
 # FOCI_CLIENT_ID is optional; defaults to Microsoft Graph Command Line Tools (14d82eec).
 ```
 
@@ -112,7 +116,7 @@ The committed result is **[docs/reports/replay-report-R017.html](docs/reports/re
 
 ## Rules of Engagement
 
-Every run starts with a consent record, and the code enforces it (G-1, [ADR 0008](docs/adr/0008-consent-bound-tenant-lock.md)). A tool refuses to request a token unless the run's replay-log directory holds a consent record for its run ID that names the tenant it is about to use. The `cloudharbordemo` sandbox needs the run-level record. Any other tenant needs an active v2 durable record whose authorization window includes today, counter-signed by the tenant's owner for a third-party assessment. `scripts/write_consent_record.py` builds a schema-valid record. [docs/roe-consent-flow.md](docs/roe-consent-flow.md) specifies an interactive consent prompt (the operator confirms by echoing a generated run ID back verbatim); in v1.0 that prompt is not yet wired in, so the operator writes the record before running the tools. The gate checks the record's fields, not the signature on the letter behind it. The consent record is the first entry of the run's replay log and binds every downstream entry by `run_id`. Sprint 1's exit floor is five consented runs logged end-to-end.
+Every run starts with a consent record, and the code enforces it (G-1, [ADR 0008](docs/adr/0008-consent-bound-tenant-lock.md)). A tool refuses to request a token unless the run's replay-log directory holds a consent record for its run ID that names the tenant it is about to use. Your own lab tenant, named in the `REJEWSKI_LAB_TENANT_ID` environment variable, needs only the run-level record; leave the variable unset to hold every tenant to the full record. Any other tenant needs an active v2 durable record whose authorization window includes today, counter-signed by the tenant's owner for a third-party assessment. `scripts/write_consent_record.py` builds a schema-valid record. [docs/roe-consent-flow.md](docs/roe-consent-flow.md) specifies an interactive consent prompt (the operator confirms by echoing a generated run ID back verbatim); in v1.0 that prompt is not yet wired in, so the operator writes the record before running the tools. The gate checks the record's fields, not the signature on the letter behind it. The consent record is the first entry of the run's replay log and binds every downstream entry by `run_id`. Sprint 1's exit floor is five consented runs logged end-to-end.
 
 The self-test consent mechanic is specified in [docs/roe-consent-flow.md](docs/roe-consent-flow.md); the authorization flow for a third-party tenant assessment (and the durable long-term consent-record archive) is in [docs/external-auth.md](docs/external-auth.md); the governing decision is [ADR 0001 — Rules of Engagement](docs/adr/0001-rules-of-engagement.md).
 

@@ -36,7 +36,7 @@ with row_count (object_count) 0.
 REQUIRED PRIVILEGE:
     GET /security/dataSecurityAndGovernance/sensitivityLabels requires the
     SensitivityLabel.Read delegated scope, admin-consented on the borrowed
-    Microsoft Graph Command Line Tools client in cloudharbordemo. Unlike CA-policy
+    Microsoft Graph Command Line Tools client in the lab tenant. Unlike CA-policy
     (T1526), DfI-sensor (T1518.001), and managed-device (T1082) enumeration, no
     Entra directory role is required on the signed-in user — any authenticated
     member with the scope consented can read the tenant's label inventory. This
@@ -46,9 +46,9 @@ REQUIRED PRIVILEGE:
 See docs/techniques/T1580.md for the full module.
 
 Required environment variables:
-    AZURE_TENANT_ID            Target tenant ID (cloudharbordemo: 76b87c33-...)
+    AZURE_TENANT_ID            Target tenant ID (your lab or consented tenant GUID)
     FOCI_CLIENT_ID             Borrowed first-party client (default: 14d82eec-...)
-    COMPROMISED_USER_UPN       Seed user UPN (meganb@cloudharbor-demo.com)
+    COMPROMISED_USER_UPN       Seed user UPN (e.g. meganb@<lab-domain>)
     COMPROMISED_USER_PASSWORD  Seed user password (cache-miss fallback only)
 """
 

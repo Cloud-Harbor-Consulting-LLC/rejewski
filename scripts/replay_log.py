@@ -51,7 +51,6 @@ SCHEMA_VERSION = "0.5"
 SCHEMA_PATH = REPO_ROOT / "schemas" / "replay-log" / "v0.5.json"
 DEFAULT_LOG_DIR = REPO_ROOT / "samples" / "replay-log"
 
-from roe_gate import SANDBOX_TENANT_ID  # noqa: E402  (single source for the sandbox GUID)
 REDACTED = "00000000-0000-0000-0000-000000000000"
 
 ALLOWED_KINDS = ("graph_call", "token_event")
@@ -83,7 +82,6 @@ SECRET_KEY_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
-_TENANT_GUID_RE = re.compile(re.escape(SANDBOX_TENANT_ID), re.IGNORECASE)
 
 
 def _load_schema() -> dict[str, Any]:
@@ -108,13 +106,13 @@ def make_error(
 
 
 def redact_tenant_id(tenant_id: str) -> str:
-    """Return the sandbox tenant GUID replaced with REDACTED for inclusion in a
-    tool's evidence output (stdout / --output). The replay-log entry itself keeps
-    the real tenant_id — G-1 requires write_entry to validate it — so this only
-    affects the human-facing evidence blob. Any non-sandbox value passes through
+    """Return the lab tenant GUID (REJEWSKI_LAB_TENANT_ID) replaced with REDACTED for
+    inclusion in a tool's evidence output (stdout / --output). The replay-log entry
+    itself keeps the real tenant_id — G-1 requires write_entry to validate it — so
+    this only affects the human-facing evidence blob. Any other value passes through
     unchanged. Shared by every tool so the redaction is consistent across the
     toolset."""
-    return REDACTED if tenant_id == SANDBOX_TENANT_ID else tenant_id
+    return REDACTED if roe_gate.is_lab_tenant(tenant_id) else tenant_id
 
 
 @dataclass
@@ -152,9 +150,20 @@ def _scrub(value: Any) -> Any:
     return value
 
 
+def scrub_lab_tenant_guid(text: Any) -> str:
+    """Replace the lab tenant GUID wherever it appears inside free text (a URL, an
+    error message). redact_tenant_id() is an exact-match field redactor; this is
+    the substring form."""
+    text = str(text or "")
+    lab = roe_gate.lab_tenant_id()
+    if lab is None:
+        return text
+    return re.sub(re.escape(lab), REDACTED, text, flags=re.IGNORECASE)
+
+
 def _redact_tenant_guid(value: Any) -> Any:
     if isinstance(value, str):
-        return _TENANT_GUID_RE.sub(REDACTED, value)
+        return scrub_lab_tenant_guid(value)
     if isinstance(value, dict):
         return {k: _redact_tenant_guid(v) for k, v in value.items()}
     if isinstance(value, list):
@@ -249,15 +258,15 @@ def write_entry(entry: ReplayLogEntry, *, log_dir: Path | None = None) -> Path:
         raise ValueError(
             "borrowed_client_id is required (no-tenant-app-reg posture, G-3)"
         )
-    # G-1 consent-bound tenant lock (ADR 0008). The sandbox tenant may always be
-    # recorded (offline paths, tests); any other tenant only for a run whose consent
+    # G-1 consent-bound tenant lock (ADR 0008). The lab tenant (REJEWSKI_LAB_TENANT_ID)
+    # may always be recorded (offline paths, tests); any other tenant only for a run whose consent
     # record in this log directory authorizes it. identity.acquire_token checks the
     # same consent before any token request, so this is the backstop.
     if not roe_gate.is_tenant_guid(entry.tenant_id):
         raise ValueError(
             f"tenant lock (G-1): tenant_id must be a tenant GUID, got {entry.tenant_id!r}"
         )
-    if not roe_gate.is_sandbox(entry.tenant_id):
+    if not roe_gate.is_lab_tenant(entry.tenant_id):
         try:
             roe_gate.authorize_run(
                 run_id=entry.run_id,

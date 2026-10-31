@@ -14,11 +14,11 @@
 ## 1. Purpose and scope
 
 `docs/roe-consent-flow.md` specifies the per-run consent mechanic for the **self-test**
-scenario only — Rejewski running against the CHC-owned `cloudharbordemo` sandbox
-(`76b87c33-6178-4ff9-94a7-164792c8e4c6`). Its §7 "Out of scope (v0.1)" does not address a
+scenario only — Rejewski running against the CHC-owned lab tenant
+(`<lab-tenant-id>`). Its §7 "Out of scope (v0.1)" does not address a
 third-party engagement at all. This document adds that missing scenario: the **authorization
 flow for a third-party tenant assessment** — a run against a tenant that is neither
-`cloudharbordemo` nor an operator-owned tenant, performed for and authorized by an external
+the lab tenant nor an operator-owned tenant, performed for and authorized by an external
 counterparty.
 
 It reuses the roe-consent-flow.md §2 consent-prompt mechanic as its runtime base, but the
@@ -82,7 +82,7 @@ scenario, self-test or third-party.
 
 | Dimension | Self-test (roe-consent-flow.md) | Third-party (this doc) |
 |---|---|---|
-| Target tenant | `cloudharbordemo`, or a tenant the operator owns | The counterparty's named tenant (G-1 consent-bound lock, ADR 0008) |
+| Target tenant | the lab tenant, or a tenant the operator owns | The counterparty's named tenant (G-1 consent-bound lock, ADR 0008) |
 | Who authorizes | CHC, self-authorized under the standing ROE | Counterparty's signatory **and** CHC, counter-signed |
 | Evidence of authorization | The standing ROE / `docs/roe-consent-flow.md` | A signed engagement letter, retained and referenced by `evidence_ref` |
 | Signature method | `self_test_attestation` | Counter-signed method (wet/e-signature/email), never `self_test_attestation` |

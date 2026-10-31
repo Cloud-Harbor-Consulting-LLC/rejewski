@@ -15,8 +15,8 @@ This validates ZT-S01 end-to-end: the borrowed first-party client cannot proxy a
 
 ## Prerequisites
 
-1. Sandbox tenant cloudharbordemo (tenant id 76b87c33-6178-4ff9-94a7-164792c8e4c6).
-2. Seed user <meganb@cloudharbor-demo.com> with a known password.
+1. Sandbox tenant the lab tenant (tenant id <lab-tenant-id>).
+2. Seed user meganb@<lab-domain> with a known password.
 3. Conditional Access policy in the target tenant, scoped to the seed user (or a group containing them):
    - Users: include the seed user.
    - Cloud apps: include Microsoft Graph (or All cloud apps).
@@ -61,7 +61,7 @@ Row fields:
 
 - ResultType = 53000
 - AppId = 14d82eec-204b-4c2f-b7e8-296a70dab67e (Microsoft Graph Command Line Tools)
-- UserPrincipalName = <meganb@cloudharbor-demo.com>
+- UserPrincipalName = meganb@<lab-domain>
 - ConditionalAccessStatus = failure
 - DeviceDetail.isCompliant = false
 - DeviceDetail.isManaged = false
@@ -77,7 +77,7 @@ SigninLogs
 | where TimeGenerated > ago(1h)
 | where ResultType == 53000
 | where AppId == "14d82eec-204b-4c2f-b7e8-296a70dab67e"
-| where UserPrincipalName == "meganb@cloudharbor-demo.com"
+| where UserPrincipalName == "meganb@<lab-domain>"
 | project TimeGenerated, UserPrincipalName, AppDisplayName, IPAddress,
           ResultType, ResultDescription,
           DeviceDetail, ConditionalAccessStatus, AppliedConditionalAccessPolicies,
@@ -100,7 +100,7 @@ The demo also produces the SigninLogs signal that downstream detection content (
 ## Cross-references
 
 - docs/phs-zt-scenarios-v0.1.md — ZT-S01 baseline scenario (Pillar 1 anchor).
-- docs/adr/0001-rules-of-engagement.md — tenant scope (cloudharbordemo only), consent floor, technique allowlist.
+- docs/adr/0001-rules-of-engagement.md — tenant scope (the lab tenant only), consent floor, technique allowlist.
 - docs/adr/0004-identity-token-acquisition-model.md — borrowed-client policy and identifier registry.
 - docs/threat-model.md — Sprint 1 finding on Graph CLI ROPC delegated-token path.
 - docs/guardrails.md — G-1 (tenant lock), G-3 (read-default posture), G-2 (no tenant app registration).

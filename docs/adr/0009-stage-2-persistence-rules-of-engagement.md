@@ -33,7 +33,7 @@ Two v1.1 backlog items bear directly on a write-capable stage. C015: the G-1 gat
 3. **Writes are scoped by consent.** A Stage 2 tool may issue a non-GET request only when its technique is listed in the run's consent record and the record carries an explicit write acknowledgment. C015 (technique-scope enforcement in `scripts/roe_gate.py`) and a consent-record schema version carrying the write acknowledgment are prerequisites; no Stage 2 tool merges before both.
 4. **Every write is rolled back and the rollback is verified (new guardrail G-10).** Each write has a recorded inverse that runs in the same run. The run confirms each rollback with a read and fails loudly, naming the artifact, if anything it created remains.
 5. **Feasibility mode by default.** Each Stage 2 tool can report whether a technique would succeed (the relevant tenant setting and the account's ownership or permission) using reads only. That is the default unless the consent record acknowledges writes.
-6. **Sandbox first.** Stage 2 writes run only against `cloudharbordemo` until three consecutive sandbox runs show every write rolled back and verified. After that, writes are allowed on any tenant whose consent record meets ADR-0008 and item 3.
+6. **Sandbox first.** Stage 2 writes run only against the lab tenant until three consecutive sandbox runs show every write rolled back and verified. After that, writes are allowed on any tenant whose consent record meets ADR-0008 and item 3.
 7. **Sign-in.** C014 (replace ROPC) is a prerequisite for writes on any tenant other than the sandbox, because a tenant that requires MFA refuses ROPC.
 
 ### Guardrail changes on acceptance

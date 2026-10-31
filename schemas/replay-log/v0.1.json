@@ -65,7 +65,7 @@
     "actor_upn": {
       "type": "string",
       "format": "email",
-      "description": "Compromised user UPN used as the delegated identity (e.g., meganb@cloudharbor-demo.com)."
+      "description": "Compromised user UPN used as the delegated identity (e.g., meganb@<lab-domain>)."
     },
     "started_at_utc": {
       "type": "string",

@@ -9,7 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **No built-in tenant or account values outside evidence.** Scripts, tests, schemas, samples, and documentation no
+  longer name the maintainers' lab tenant, its domain, its accounts, the operator's object ID, or the maintainers'
+  organization tenant. They use placeholders (`<lab-tenant-id>`, `meganb@<lab-domain>`), and every script reads tenant,
+  account, and operator values from arguments or environment variables. Committed evidence (samples/replay-log,
+  samples/finding-triage, docs/reports, samples/canonical-run.json) is unchanged.
+- **The lab tenant comes from configuration (ADR 0008 v1.1).** `scripts/roe_gate.py` no longer holds a tenant ID.
+  `REJEWSKI_LAB_TENANT_ID` names the operator's lab tenant, which keeps the run-level (v1) consent-record rule; unset,
+  every tenant needs a v2 record. `require_sandbox` and `is_sandbox` become `require_lab_tenant` and `is_lab_tenant`;
+  `replay_log.scrub_lab_tenant_guid` replaces the built-in GUID scrubber.
+- `scripts/write_consent_record.py` takes the tenant, operator object ID, operator name, and contact email from
+  arguments or `.env` (`AZURE_TENANT_ID`, `REJEWSKI_OPERATOR_OBJECT_ID`, `REJEWSKI_OPERATOR_NAME`,
+  `REJEWSKI_OPERATOR_EMAIL`) and refuses to run without them. Its self-authorized signature no longer uses an em dash,
+  which rendered as mojibake in R018's consent record.
+- `scripts/reasoning_loop.py` and `scripts/demo_b007_device_compliance.py` take the tenant and account from arguments or
+  `.env`; the reasoning loop's offline token envelope uses the `organizations` authority.
+- The tenant seed script is renamed `scripts/seed-lab-tenant.ps1`: domains are required parameters, an optional
+  JSON roster replaces the built-in one, and each account's password is prompted for separately instead of one shared
+  password.
+
 ### Added
+
+- `.env.example` lists every variable the scripts read, with placeholders.
+- `tests/lab_values.py` holds the placeholder lab values the suite uses; `tests/conftest.py` sets
+  `REJEWSKI_LAB_TENANT_ID` for every test. Six new tests cover the unset, malformed, and case-insensitive lab tenant,
+  the consent writer's required fields, and the reasoning loop's refusal to emit without a tenant (241 passing).
 
 - **ADR 0009 (Proposed): Stage 2 Rules of Engagement, Persistence by a standard account.** v1.1's stage is Persistence
   emulated with the same stolen non-administrator account (Derek, 2026-10-31). Candidate techniques T1098.001, T1671,
@@ -18,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   sandbox-first until three runs show verified rollback, and a new guardrail G-10 (every write rolled back and
   verified). On acceptance it rewrites G-2 and G-3 and extends G-1, G-5, G-6, and G-8. No code change yet.
 
-- **R019: Launch W1 Day 7 end-to-end run (Sat Oct 31).** All 15 tool surfaces against `cloudharbordemo` under the G-1
+- **R019: Launch W1 Day 7 end-to-end run (Sat Oct 31).** All 15 tool surfaces against the lab tenant under the G-1
   consent gate (v2 self-test record) and the G-8 teardown. `samples/replay-log/R019.json`: 31 entries (consent first;
   1 ROPC sign-in + 14 silent reuses; 14 graph calls success + the documented inbox 404). Same 10 findings as R017 and
   R018 (5 high, 5 medium); 10 triage records and `docs/reports/replay-report-R019.html`. Tenant drift since R018: users
@@ -30,6 +56,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   flagged against the guardrails), and expected control, with confirmations that testing stays on tenants the
   requester owns or is authorized to assess. Before this, blank issues were disabled and only bug and documentation
   templates existed, so feature ideas had no issue path. CONTRIBUTING.md lists the template.
+
+### Removed
+
+- `scripts/write_consent_r011.py`, a one-off helper with the lab tenant and operator IDs built in; superseded by
+  `scripts/write_consent_record.py`.
 
 ### Changed
 
@@ -47,7 +78,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
 ### Added
 
 - **R018: Sprint 6 Checkpoint end-to-end run (Sat Oct 24 slot, run Mon Oct 26).** All 15 tool surfaces against
-  `cloudharbordemo` under the G-1 consent gate (v2 self-test record from `scripts/write_consent_record.py`) and the
+  the lab tenant under the G-1 consent gate (v2 self-test record from `scripts/write_consent_record.py`) and the
   G-8 teardown. `samples/replay-log/R018.json`: 31 entries (consent first; 1 ROPC sign-in + 14 silent reuses; 14
   graph calls success + the documented inbox 404). Same 10 findings as R017 (5 high, 5 medium); 10 triage records
   and `docs/reports/replay-report-R018.html`. Tenant drift since R017: service principals 448 → 451, sensitivity
@@ -64,7 +95,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
 
 - **R017: weekly end-to-end run, first under the G-1 consent gate and the G-8 teardown; canonical run
   moved to R017 (S6 W23 Sat slot, run Mon 2026-10-19 with the internal dry run).** One consented session
-  against `cloudharbordemo`, all 15 tool surfaces. The consent record is a v2 self-test record built with
+  against the lab tenant, all 15 tool surfaces. The consent record is a v2 self-test record built with
   `scripts/write_consent_record.py`, the path the README documents, and the gate checked it before the
   first token request. `samples/replay-log/R017.json`: 31 entries (consent first; 15 token_event: 1 ROPC
   sign-in, T1078.004, then 14 silent reuses, T1550.001; 15 graph_call: 14 success plus the documented
@@ -78,7 +109,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
   example updated to R017 and 10 findings.
 
 - **G-1 consent-bound tenant lock: Rejewski can run against any tenant with Rules of Engagement
-  consent (ADR 0008, S6 W23).** Until now G-1 locked every run to the `cloudharbordemo` sandbox through a
+  consent (ADR 0008, S6 W23).** Until now G-1 locked every run to the lab tenant through a
   constant, and consent was a record no code checked. New `scripts/roe_gate.py` (`authorize_run`) binds
   each run to the one tenant its consent record names. The rules: a run ID is required; the run's
   replay-log directory must hold a `consent.granted` record for that run ID naming that tenant (and no
@@ -128,7 +159,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
 
 - **R016 — weekly end-to-end run, first with all 15 tools; canonical run moved to R016 (S6 W22 Sat,
   makeup).** The Sat 2026-10-10 slot of the weekly cadence, run Mon 2026-10-12 as a makeup. One
-  consented, operator-authorized session against `cloudharbordemo` (G-1) exercising all 15 tool
+  consented, operator-authorized session against the lab tenant (G-1) exercising all 15 tool
   surfaces, including Tool 15 (`tool_list_pim_eligible_roles`) for the first time in a committed run:
   `samples/replay-log/R016.json` (31 entries: consent-first, 15 token_event + 15 graph_call; 14
   success + 1 documented inbox block), nine `*-r016-*` finding-triage records, and
@@ -153,7 +184,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
   sufficient here) were verified against current Graph v1.0 docs before implementation. Single
   `$expand=roleDefinition` (within the v1.0 one-property limit), G-9 row cap, 429/5xx + 401 recovery,
   G-6 redaction, v0.5 replay-log entry, fleet-standard CLI. Flags eligibility for Global Administrator
-  and splits permanent from time-bound eligibility. Verified against cloudharbordemo (2 principals
+  and splits permanent from time-bound eligibility. Verified against the lab tenant (2 principals
   eligible for Global Administrator, time-bound, 0 permanent). New tests
   (`tests/test_tool_list_pim_eligible_roles.py`): single-call expand, GA flag by name and by
   well-known roleTemplateId, aggregates, empty-result, and the HTTP 403 permission-gap path. Docs
@@ -165,7 +196,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
   numbered run in the R-series (after R014, #117) **and** the first run under the new weekly Saturday
   cadence adopted at the Sprint 5 Checkpoint (2026-09-26) to close the ROE Runs KPI gap — landing Mon
   2026-10-05 this once as a makeup for the slipped Sat 2026-10-03 slot. One consented, operator-authorized
-  session against `cloudharbordemo` (G-1) exercising all 14 tool surfaces: `samples/replay-log/R015.json`
+  session against the lab tenant (G-1) exercising all 14 tool surfaces: `samples/replay-log/R015.json`
   (29 entries — consent-first, 14 token_event + 14 graph_call; 13 success + 1 documented inbox block),
   nine `*-r015-*` finding-triage records, and `docs/reports/replay-report-R015.html` (each finding with a
   severity badge + ROI line). **Honest count: 9 findings, not padded** — same technique set as R014, with
@@ -183,7 +214,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
   tenant throughout. Suite 192 → 192.
 
 - **R014 — fresh comprehensive end-to-end evidence run (S5 W20, Sprint 5 Checkpoint prep).** A single
-  consented, operator-authorized session against the `cloudharbordemo` sandbox (G-1) exercising all
+  consented, operator-authorized session against the lab tenant (G-1) exercising all
   14 implemented tool surfaces in one pass: `samples/replay-log/R014.json` (29 entries — 1 consent
   record + 14 token_event + 14 graph_call; 13 successes + 1 documented block), nine `*-r014-*`
   finding-triage records, and `docs/reports/replay-report-R014.html` (each finding rendered with a
@@ -245,7 +276,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
   enumerated scope surface, time-boxed window), scope-boundary enforcement (tenant lock, techniques
   ⊆ scope surface, authorization window — all deny-only), how it differs from the self-test flow,
   and a field-by-field mapping onto the SharePoint ROE Consent Archive workbook. It is explicit that
-  **G-1 still locks all live execution to `cloudharbordemo`** — the doc is process/authorization
+  **G-1 still locks all live execution to the lab tenant** — the doc is process/authorization
   only, not a guardrail change, and a real third-party run needs a superseding ADR. New
   `schemas/roe-consent/v1.json` freezes the committed 9-field replay-log-embedded consent shape
   (R010/R011 stay valid); `schemas/roe-consent/v2.json` is a strict superset adding the durable
@@ -602,7 +633,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
 ### Added
 
 - **W17 R013 end-to-end evidence run (2026-09-03) — the canonical full-fleet sweep.**
-  `samples/replay-log/R013.json` (Playbook full sweep, cloudharbordemo): 28 entries —
+  `samples/replay-log/R013.json` (Playbook full sweep, the lab tenant): 28 entries —
   14 `graph_call` (13 success + the documented `inbox_rules` cross-user block) + 14
   `token_event` (T1550.001 silent reuse); `cache_path` redacted per B023/G-6; sandbox tenant
   only. `docs/reports/replay-report-R013.html` — the run rendered by `generate_html_report.py`
@@ -664,7 +695,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
   and `docs/techniques/T1087.004.md`.
 
 - `samples/replay-log/R012.json` — Sprint 4 checkpoint demo consented run sample: threat
-  actor playbook v1 Recipe R-01 (Privileged Account Discovery), run R012, cloudharbordemo
+  actor playbook v1 Recipe R-01 (Privileged Account Discovery), run R012, the lab tenant
   sandbox (2026-08-29). JSON array: 3 token_event entries (T1550.001, silent cache reuse)
   + 3 graph_call entries (T1087.004 Account Discovery: Cloud Account — `tool_list_users`
   9 users, `tool_list_role_assignments` 14 assignments/2 pages, `tool_list_service_principals`
@@ -760,7 +791,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
 - `docs/threat-actor-playbook-v1.md` — operator manual defining five canonical
   TTP-chain recipes (R-01 Privileged Account Discovery, R-02 OAuth Permission
   Sprawl, R-03 Security Posture Gap Assessment, R-04 Email Forwarding Risk
-  Discovery, R-05 Device and Sign-In Correlation) run against cloudharbordemo.
+  Discovery, R-05 Device and Sign-In Correlation) run against the lab tenant.
   Each recipe carries a threat-actor goal, prerequisites, exact tool sequence with
   CLI flags, expected output indicators, ATT&CK techniques exercised, detection
   signals, and a per-recipe guardrail block (G-1/G-3/G-5/G-6). Docs-only; no
@@ -895,7 +926,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
 - `samples/finding-triage/t1580-r011-purview-labels.json` — finding-triage record for T1580 R011
 - `samples/finding-triage/t1654-r011-signin-logs.json` — finding-triage record for T1654 R011
 - `samples/replay-log/R010.json` — Sprint 2 checkpoint demo formal consent run
-  (cloudharbordemo sandbox, 2026-07-02). JSON array of 11 entries: five T1550.001
+  (lab tenant, 2026-07-02). JSON array of 11 entries: five T1550.001
   token_event entries from scripts.identity (cache_path redacted per B023/G-6) +
   five graph_call entries: T1087.004 (tool_list_users; GET /users; 8 users, 1 page,
   outcome=success) + T1526 (tool_list_ca_policies;
@@ -906,16 +937,16 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
   outcome=success) + T1654 (tool_signin_logs; GET /auditLogs/signIns; 10 sign-ins,
   1 page, outcome=success). Consent record (consent.granted) present as first entry;
   all five graph_call entries bound to run R010. Formal ROE consent run count: 5 → 6.
-- `samples/replay-log/R009.json` — consented run sample R009 (cloudharbordemo sandbox, 2026-06-23). JSON array of 4 entries: two T1550.001 token_event entries from `scripts.identity` (silent reuse; `cache_path` redacted by `scripts/consolidate_run.py` per B023/G-6) + a T1580 graph_call entry (`tool_purview_labels`; GET /security/dataSecurityAndGovernance/sensitivityLabels; **4 sensitivity labels enumerated, 1 page, outcome=success**) + a T1654 graph_call entry (`tool_signin_logs`; GET /auditLogs/signIns; 53 sign-ins, 1 page, outcome=success). Tool 9 initially returned HTTP 403 InsufficientGraphPermissions because `SensitivityLabel.Read` was not admin-consented on the borrowed Microsoft Graph Command Line Tools client (14d82eec) in cloudharbordemo; granting that scope on the FOCI client + clearing the MSAL encrypted cache (so silent reuse no longer returned the pre-grant access token) was the one-time sandbox-admin action that unblocked the success run. The T1654 success run confirms meganb@cloudharbor-demo.com holds the Reports Reader (or higher) role the endpoint gates on.
+- `samples/replay-log/R009.json` — consented run sample R009 (lab tenant, 2026-06-23). JSON array of 4 entries: two T1550.001 token_event entries from `scripts.identity` (silent reuse; `cache_path` redacted by `scripts/consolidate_run.py` per B023/G-6) + a T1580 graph_call entry (`tool_purview_labels`; GET /security/dataSecurityAndGovernance/sensitivityLabels; **4 sensitivity labels enumerated, 1 page, outcome=success**) + a T1654 graph_call entry (`tool_signin_logs`; GET /auditLogs/signIns; 53 sign-ins, 1 page, outcome=success). Tool 9 initially returned HTTP 403 InsufficientGraphPermissions because `SensitivityLabel.Read` was not admin-consented on the borrowed Microsoft Graph Command Line Tools client (14d82eec) in the lab tenant; granting that scope on the FOCI client + clearing the MSAL encrypted cache (so silent reuse no longer returned the pre-grant access token) was the one-time sandbox-admin action that unblocked the success run. The T1654 success run confirms meganb@<lab-domain> holds the Reports Reader (or higher) role the endpoint gates on.
 - `scripts/tool_purview_labels.py` (Tool 9) — Purview sensitivity label inventory. Enumerates all sensitivity labels configured in the tenant via Graph GET /security/dataSecurityAndGovernance/sensitivityLabels (T1580 Cloud Infrastructure Discovery). Required delegated scope: SensitivityLabel.Read (no Entra directory role required — any authenticated member with the scope consented). Surfaces per label: id, name, description, priority, isEnabled, isEndpointProtectionEnabled, actionSource, applicableTo, sublabels; computes enabled/disabled counts, applicableTo breakdown (email/file/teamwork coverage), and actionSource distribution into the evidence JSON. $top=100 with defensive @odata.nextLink pagination, G-9 row cap, 429/5xx Retry-After (max 3), 401 mid-pagination recovery. Empty tenant (no labels configured) prints "No sensitivity labels found" to stderr, writes row_count 0 graph_call entry, exits 0. --emit/--no-emit (default emit). See docs/techniques/T1580.md.
-- `scripts/tool_signin_logs.py` (Tool 10) — Entra ID sign-in log reader. Enumerates sign-in events via Graph GET /auditLogs/signIns (T1654 Log Enumeration). Required delegated scope: AuditLog.Read.All. Privilege prerequisite: the operator user must hold Reports Reader, Security Reader, or higher in cloudharbordemo — the API returns 403 without a qualifying role regardless of scope consent (see docs/techniques/T1654.md §Required privilege for operator setup). Mandatory date filter (default: last 7 days via --days argument) to prevent timeout on large tenants. Optional --event-type filter (interactiveUser / nonInteractiveUser / servicePrincipal / managedIdentity / all). $select projection to key identity, risk, app, and status fields. $top=100 with @odata.nextLink pagination, G-9 row cap (default 1000), 429/5xx Retry-After (max 3), 401 mid-pagination recovery. Computes aggregates: by signInEventType, by riskLevelAggregated, failed_count, unique_apps, unique_users. --emit/--no-emit (default emit). See docs/techniques/T1654.md.
+- `scripts/tool_signin_logs.py` (Tool 10) — Entra ID sign-in log reader. Enumerates sign-in events via Graph GET /auditLogs/signIns (T1654 Log Enumeration). Required delegated scope: AuditLog.Read.All. Privilege prerequisite: the operator user must hold Reports Reader, Security Reader, or higher in the lab tenant — the API returns 403 without a qualifying role regardless of scope consent (see docs/techniques/T1654.md §Required privilege for operator setup). Mandatory date filter (default: last 7 days via --days argument) to prevent timeout on large tenants. Optional --event-type filter (interactiveUser / nonInteractiveUser / servicePrincipal / managedIdentity / all). $select projection to key identity, risk, app, and status fields. $top=100 with @odata.nextLink pagination, G-9 row cap (default 1000), 429/5xx Retry-After (max 3), 401 mid-pagination recovery. Computes aggregates: by signInEventType, by riskLevelAggregated, failed_count, unique_apps, unique_users. --emit/--no-emit (default emit). See docs/techniques/T1654.md.
 - `docs/techniques/T1654.md` — T1654 Log Enumeration technique module per ADR 0003 format. New to the Rejewski technique catalogue; added directly as implemented (no prior catalogued stub). Documents the sign-in log surface, the AuditLog.Read.All + Reports/Security Reader privilege prerequisite, attack strategy for a post-foothold adversary enumerating authentication telemetry, detection signals (reflexive: a member-account reading audit logs is itself anomalous in MicrosoftGraphActivityLogs), and the 30-day retention boundary.
 - `tests/test_tool_purview_labels.py`, `tests/test_tool_signin_logs.py` — pytest suites for Tools 9 and 10, mocking the Graph HTTP layer and token helper. Tool 9: successful single-page list (assert endpoint URL, GET method, object_count in replay-log entry) and empty-labels response (object_count 0, no error). Tool 10: successful single-page list with date filter (assert endpoint, $filter contains createdDateTime, object_count), empty sign-ins response (object_count 0, no error), and multi-page @odata.nextLink pagination (assert all sign-ins across both pages returned and object_count is total). Suite grows from 49 to 54 tests.
 - Six new catalogued technique modules (documentation only — no scripts) per ADR 0003 format, status `catalogued`: `docs/techniques/T1580.md` (Cloud Infrastructure Discovery; GET /organization, /domains, /subscribedSkus), `docs/techniques/T1538.md` (Cloud Service Dashboard; programmatic Graph /admin/serviceAnnouncement + /reports surface — see re-scope note below), `docs/techniques/T1213.003.md` (Data from Information Repositories: Code Repositories; SharePoint-surfaced code content via GET /sites, /drives, /lists), `docs/techniques/T1530.md` (Data from Cloud Storage; GET /drives, OneDrive/group drive root children), `docs/techniques/T1619.md` (Cloud Storage Object Discovery; the discovery phase preceding T1530), and `docs/techniques/T1114.002.md` (Email Collection: Remote Email Collection; GET /users/{id}/mailFolders + /messages metadata projection, documenting both the delegated Mail.Read and application-scope Mail.ReadBasic.All/Mail.Read.All postures).
 - `scripts/tool_dfi_health.py` (Tool 7) — DfI sensor health check. Enumerates the Microsoft Defender for Identity sensor fleet via Graph GET /security/identities/sensors (`microsoft.graph.security` namespace; T1518.001 Software Discovery: Security Software Discovery). Required delegated scope: SecurityIdentitiesSensors.Read.All (admin-consented on the borrowed Graph Command Line Tools client 14d82eec; a post-foothold, Security-Reader-class grant). Surfaces per sensor: id, displayName, sensorType, version, deploymentStatus, healthStatus, openHealthIssuesCount, domainName, serviceStatus, createdDateTime; computes coverage-gap aggregates (healthy vs not-healthy, total open issues, per-status breakdowns) into the evidence JSON only (kept out of the replay-log response, which the v0.5 schema locks to status_code/page_count/row_count). $top=100 with defensive @odata.nextLink pagination, standard G-9 row cap, 429/5xx Retry-After loop (max 3), 401 mid-pagination cache-backed recovery. An empty fleet prints "No DfI sensors found" to stderr and still writes a graph_call entry with row_count (object_count) 0 — never an error. `--emit/--no-emit` (default emit, honoring G-5). See docs/techniques/T1518.001.md.
 - `scripts/tool_intune_devices.py` (Tool 8) — Intune device inventory. Enumerates Intune-managed devices via Graph GET /deviceManagement/managedDevices (T1082 System Information Discovery). Required delegated scope: DeviceManagementManagedDevices.Read.All (admin-consented; Intune-admin-class grant). `$select` restricts the projection to id, deviceName, managedDeviceOwnerType, operatingSystem, osVersion, complianceState, managementState, lastSyncDateTime, enrolledDateTime, azureADDeviceId, userPrincipalName, userDisplayName, manufacturer, model, isEncrypted; computes compliant/encrypted counts and compliance/owner/OS breakdowns into the evidence JSON only. $top=100 with @odata.nextLink pagination followed until exhausted (the device inventory routinely spans multiple pages), standard G-9 row cap, 429/5xx Retry-After loop (max 3), 401 mid-pagination cache-backed recovery. An empty inventory prints "No managed devices found" to stderr and still writes a graph_call entry with row_count (object_count) 0 — never an error. `--emit/--no-emit` (default emit, honoring G-5). See docs/techniques/T1082.md.
 - `tests/test_tool_dfi_health.py`, `tests/test_tool_intune_devices.py` — pytest suites for Tools 7 and 8, mocking the Graph HTTP layer (requests.get) and the token helper (identity.acquire_token) so the tools run offline. Tool 7: successful single-page list (asserts endpoint, GET method, and object_count in the replay-log entry) and empty-fleet (object_count 0, no error). Tool 8: successful single-page list, empty-inventory, and multi-page @odata.nextLink pagination (asserts all devices across both pages are returned and object_count is the total). Suite is now 49 tests (was 43).
-- `samples/replay-log/R008.json` — consented run sample R008 (cloudharbordemo sandbox, 2026-06-16). JSON array: two T1550.001 token_event entries (cache_path redacted to "<redacted>" by scripts/consolidate_run.py, B023/G-6) + a T1518.001 graph_call entry (tool_dfi_health; GET /security/identities/sensors; 2 sensors, 1 page, success) + a T1082 graph_call entry (tool_intune_devices; GET /deviceManagement/managedDevices; 1 device, 1 page, success).
+- `samples/replay-log/R008.json` — consented run sample R008 (lab tenant, 2026-06-16). JSON array: two T1550.001 token_event entries (cache_path redacted to "<redacted>" by scripts/consolidate_run.py, B023/G-6) + a T1518.001 graph_call entry (tool_dfi_health; GET /security/identities/sensors; 2 sensors, 1 page, success) + a T1082 graph_call entry (tool_intune_devices; GET /deviceManagement/managedDevices; 1 device, 1 page, success).
 - docs/techniques/T1518.001.md and docs/techniques/T1082.md moved from catalogued to **implemented**: front-matter status updated, Procedure rewritten to reference the new scripts and their Graph endpoints, Detection updated to note MicrosoftGraphActivityLogs captures the respective GET calls, guardrails scoped to G-1/G-3/G-6/G-7, and the R008 evidence sample linked. Both docs note their originally-catalogued surfaces (GET /subscribedSkus for T1518.001; GET /organization for T1082) as deferred, complementary surfaces rather than discarding that prior cataloguing.
 - docs/attck-coverage.md — T1518.001 and T1082 rows moved from catalogued to implemented with their script paths; current count updated from 7 implemented / 3 catalogued split (header now reads 7 implemented, 3 catalogued of 10 unique techniques). NOTE: the repo baseline before this change was 5 implemented / 5 catalogued (not the 6/4 some planning notes assumed), so the implemented tally moves 5→7 and catalogued 5→3.
 - **B026** — `.gitattributes` at repo root with `* text=auto eol=lf`. Establishes an explicit line-ending policy so `core.autocrlf=true` on Windows clients can no longer produce spurious CRLF/LF diffs — the root cause of the PR #53 173-line `docs/threat-model.md` churn (text-mode Python writes flipped CRLF→LF; caught in self-review and reverted at byte level). As a one-time consequence of activating the policy, `docs/threat-model.md` (the sole tracked file still stored CRLF in the index) is renormalized to LF: a pure EOL change (173 lines, byte-identical to the prior content with CRs stripped — zero content change) that aligns the file with the new policy and removes the otherwise-permanent index/worktree EOL diff `eol=lf` would surface on every checkout.
@@ -926,12 +957,12 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
 - docs/techniques/T1213.002.md — Data from Information Repositories: Sharepoint; catalogued Sprint 2; GET /sites, /drives, /lists; requires Sites.Read.All scope.
 - docs/techniques/T1482.md — Domain Trust Discovery; catalogued Sprint 2; GET /domains and /federationConfiguration; Managed vs Federated domain classification.
 - `schemas/replay-log/v0.4.json` — extends v0.3: adds optional `run_id` binding field (propagates the consent.granted run ID into all downstream graph_call and token_event entries in the same run); `schema_version` const updated to `"0.4"`. Consent records themselves follow the separate roe-consent-flow.md §3 schema and are not validated by this schema.
-- `samples/replay-log/R002.json` — Sprint 1 consented run sample: T1087.004 Account Discovery: Cloud Account (tool_list_users), run R002, cloudharbordemo sandbox (2026-05-27). JSON array: consent.granted record + graph_call entry; 8 users enumerated, 1 page, outcome success.
-- `samples/replay-log/R003.json` — Sprint 1 consented run sample: T1069.003 Permission Groups Discovery: Cloud Groups (tool_list_groups), run R003, cloudharbordemo sandbox (2026-05-27). JSON array: consent.granted record + graph_call entry; 19 groups enumerated, 1 page, outcome success.
-- `samples/replay-log/R004.json` — Sprint 1 consented run sample: T1087.004 Account Discovery: Cloud Account Surface B (tool_list_applications), run R004, cloudharbordemo sandbox (2026-05-27). JSON array: consent.granted record + graph_call entry; 6 applications enumerated, 1 page, outcome success.
-- `samples/replay-log/R005.json` — Sprint 1 consented run sample: T1526 Cloud Service Discovery (tool_list_ca_policies), run R005, cloudharbordemo sandbox (2026-05-27). JSON array: consent.granted record + graph_call entry; 20 CA policies enumerated, 1 page, outcome success.
-- `samples/replay-log/R006.json` — consented run sample: T1087.004 Account Discovery: Cloud Account Surface D (tool_list_service_principals), run R006, cloudharbordemo sandbox (2026-05-27). JSON array: consent.granted record + graph_call entry; 279 service principals enumerated, 3 pages, outcome success.
-- `samples/replay-log/R007.json` — Sprint 1 consented run sample: T1550.001 Use Alternate Authentication Material: Application Access Token + T1087.004 Account Discovery: Cloud Account, run R007, cloudharbordemo sandbox (2026-06-06). JSON array: consent.granted record + 2 token_event entries (T1550.001) + 1 graph_call entry (T1087.004); cache_path field redacted to "<redacted>" in both token_event entries before commit (G-6 compliance; root fix tracked as B023).
+- `samples/replay-log/R002.json` — Sprint 1 consented run sample: T1087.004 Account Discovery: Cloud Account (tool_list_users), run R002, lab tenant (2026-05-27). JSON array: consent.granted record + graph_call entry; 8 users enumerated, 1 page, outcome success.
+- `samples/replay-log/R003.json` — Sprint 1 consented run sample: T1069.003 Permission Groups Discovery: Cloud Groups (tool_list_groups), run R003, lab tenant (2026-05-27). JSON array: consent.granted record + graph_call entry; 19 groups enumerated, 1 page, outcome success.
+- `samples/replay-log/R004.json` — Sprint 1 consented run sample: T1087.004 Account Discovery: Cloud Account Surface B (tool_list_applications), run R004, lab tenant (2026-05-27). JSON array: consent.granted record + graph_call entry; 6 applications enumerated, 1 page, outcome success.
+- `samples/replay-log/R005.json` — Sprint 1 consented run sample: T1526 Cloud Service Discovery (tool_list_ca_policies), run R005, lab tenant (2026-05-27). JSON array: consent.granted record + graph_call entry; 20 CA policies enumerated, 1 page, outcome success.
+- `samples/replay-log/R006.json` — consented run sample: T1087.004 Account Discovery: Cloud Account Surface D (tool_list_service_principals), run R006, lab tenant (2026-05-27). JSON array: consent.granted record + graph_call entry; 279 service principals enumerated, 3 pages, outcome success.
+- `samples/replay-log/R007.json` — Sprint 1 consented run sample: T1550.001 Use Alternate Authentication Material: Application Access Token + T1087.004 Account Discovery: Cloud Account, run R007, lab tenant (2026-06-06). JSON array: consent.granted record + 2 token_event entries (T1550.001) + 1 graph_call entry (T1087.004); cache_path field redacted to "<redacted>" in both token_event entries before commit (G-6 compliance; root fix tracked as B023).
 - `schemas/finding-to-control/v0.1.json` — JSON Schema (draft 2020-12) for hand-authored finding-to-control mapping records. Required fields: mapping_id (stable kebab-case slug), finding (technique_id, technique_name, observed_in, severity, rationale), control (control_family, control_id, control_type, microsoft_pillar, nist_800_207_tenets, reference_url), mapping_metadata (created_utc, author, schema_version const "0.1", status). additionalProperties: false everywhere; control_family enum: conditional_access | rbac.
 - `samples/finding-to-control/t1078.004-conditional_access-ca-sig003-guests-requiremfa.json` — T1078.004 Valid Accounts: Cloud Accounts → CA-SIG003-Guests-RequireMFA (preventive, Identities pillar, NIST 800-207 T4 T6).
 - `samples/finding-to-control/t1087.004-conditional_access-ca-cov008-blockbylocation.json` — T1087.004 Account Discovery: Cloud Account → CA-COV008-BlockByLocation (preventive, Identities pillar, NIST 800-207 T3 T4).
@@ -1129,10 +1160,10 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
 - `docs/threat-model.md` v0.4 (2026-05-26) — T1526 activated via Sprint 2 W5 pull-forward. §5 section heading and intro updated to reflect multi-sprint active technique table; T1526 added as fourth active technique; Sprint 2+ catalogued subsection updated with implementation status and CA policies surface; T1526 prose paragraph updated to describe the active emulation and catalogue remaining surfaces for Sprint 2 main body. §8 adds T1526.md cross-reference.
 - docs/roe-consent-flow.md v0.1 baseline. Operationalizes ADR 0001 §2 with the per-run consent prompt shape (target tenant, techniques, expected duration, operator object ID, runtime-generated run ID), the verbatim run-ID echo confirmation mechanic, the `consent.granted` / `consent.declined` replay-log record schema, the run-ID binding between consent and all downstream replay-log entries, the Sprint 1 exit floor of 5 end-to-end consented runs, and refusal/abort behaviors. Headless flows, multi-operator handoffs, and mid-run revocation explicitly deferred.
 - schemas/replay-log/v0.3.json: kind-discriminated response shapes via top-level allOf if/then. graph_call requires (status_code, page_count, row_count) with optional (row_cap, row_cap_hit, retry_count). token_event requires (status_code) with optional (aadsts_code, correlation_id, persistence_kind, cache_path, flow). Both branches enforce additionalProperties: false.
-- First canonical replay-log samples emitted against cloudharbordemo sandbox tenant 76b87c33: one token_event entry from scripts/identity.acquire_token (T1550.001) and one graph_call entry from scripts/tool_list_users.py (T1087.004). Both pass jsonschema validation against v0.3.
+- First canonical replay-log samples emitted against the lab tenant: one token_event entry from scripts/identity.acquire_token (T1550.001) and one graph_call entry from scripts/tool_list_users.py (T1087.004). Both pass jsonschema validation against v0.3.
 - docs/phs-sprint-review-retrospective-baseline-v0.1.md. Locks the canonical §1 Retrospective subsection skeleton (What went well, What didn't, Lessons, Carryover), the grounding pull required before authoring (backlog workbook, Planner board, CHANGELOG, git log on main, SharePoint mirror, KPI Dashboard Weekly KPIs Build sheet), and pass and fail criteria for every Sprint Review retrospective entry across the 9-sprint program. Cadence locked to the final Saturday of each 4-week sprint cycle. (B003)
-- samples/replay-log/20260519T140000Z-a7f8b3c2-1e4d-4567-89ab-cdef01234567.json. Canonical T1078.004 Valid Accounts Cloud replay-log sample from a clean step4-token-smoke run against the cloudharbordemo sandbox tenant (76b87c33) on Tue May 19, 2026. Actor Megan Bowen (<meganb@cloudharbor-demo.com>), borrowed Microsoft Graph PowerShell client (14d82eec), GET /me returning the seed user's profile in 1 page with 0 retries. Demonstrates the v0.1 schema for an identity-validation technique (no row enumeration, no row_cap semantics).
-- samples/replay-log/20260519T140030Z-b8e9c4d3-2f5e-4678-90bc-def012345678.json. Canonical T1069.003 Permission Groups Discovery Cloud replay-log sample from a tool_list_groups run against the cloudharbordemo sandbox tenant on Tue May 19, 2026. Same actor and borrowed client; GET /me/memberOf with $select=id,displayName,groupTypes,securityEnabled,mailEnabled and $top=999 returning 3 Microsoft 365 Unified groups (All Company, Marketing, Retail) in 1 page with 0 retries, row_cap 1000, row_cap_hit false. ConsistencyLevel:eventual header recorded in the scrubbed request envelope.
+- samples/replay-log/20260519T140000Z-a7f8b3c2-1e4d-4567-89ab-cdef01234567.json. Canonical T1078.004 Valid Accounts Cloud replay-log sample from a clean step4-token-smoke run against the lab tenant on Tue May 19, 2026. Actor Megan Bowen (meganb@<lab-domain>), borrowed Microsoft Graph PowerShell client (14d82eec), GET /me returning the seed user's profile in 1 page with 0 retries. Demonstrates the v0.1 schema for an identity-validation technique (no row enumeration, no row_cap semantics).
+- samples/replay-log/20260519T140030Z-b8e9c4d3-2f5e-4678-90bc-def012345678.json. Canonical T1069.003 Permission Groups Discovery Cloud replay-log sample from a tool_list_groups run against the lab tenant on Tue May 19, 2026. Same actor and borrowed client; GET /me/memberOf with $select=id,displayName,groupTypes,securityEnabled,mailEnabled and $top=999 returning 3 Microsoft 365 Unified groups (All Company, Marketing, Retail) in 1 page with 0 retries, row_cap 1000, row_cap_hit false. ConsistencyLevel:eventual header recorded in the scrubbed request envelope.
 - docs/dependency-license-audit.md (v0.1). SPDX identifier and MIT-inbound verdict for every direct and transitive dependency (jsonschema and pytest plus 7 transitive packages). Establishes the version-pin policy (loose lower + major cap, no lockfile at v0.1), attribution guardrail for any future redistribution scenario, 6-tier classifier-ambiguity fallback, and evidence-emission shape. Forward-compatible to CycloneDX 1.6+ and SPDX 2.3.
 - scripts/audit_licenses.py. Reproducible offline license collector. Invokes pip-licenses, post-processes raw license strings to SPDX via the in-script mapping table, emits per-package JSON evidence to evidence/<date>/dependency-licenses.json, regenerates the Section 4 Markdown table, and fails loud on UNKNOWN licenses, non-permissive licenses, or transitive-set drift from the grounding baseline. Implements B008.
 - B007 Pillar 1 Zero Trust device compliance demo: scripts/demo_b007_device_compliance.py (MSAL ROPC against borrowed Graph CLI client, expects AADSTS53000) and docs/demos/b007-device-compliance.md (prereqs, run, expected SigninLogs row, KQL hunt, pass/fail criteria). Validates ZT-S01 against ATT&CK T1078.004 with MITRE M1036 as the defensive control under test.
@@ -1140,7 +1171,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
 - docs/adr/_template.md reusable ADR skeleton with optional §4 Identity-Decision Factors block (token type, client ID source, grant flow, scope shape, consent path, MFA posture, dwell-signal expectations). (B005)
 - docs/phs-security-roi-baseline-v0.1.md — Pillar 2 (Security ROI and Business Case) baseline assumption table. 27 grounded data points across breach cost, dwell time, identity-driven incident share, SOC operational load, MFA effectiveness, Zero Trust deployment delta, AI/automation savings, and Forrester TEI ROI. Confidence bands and vendor-bias flags surfaced inline. Mandiant 11-day dwell vs IBM 194-day MTTI reconciled as different populations — that delta is the Rejewski business case. 9 known gaps documented honestly. Backlog B004.
 - Zero Trust baseline scenarios at docs/phs-zt-scenarios-v0.1.md — Pillar 1 anchor defining ZT-S01 Device Compliance, ZT-S02 Identity Verification, and ZT-S03 Network Segmentation; each scenario carries NIST 800-207 tenet mapping, Microsoft pillar mapping, ATT&CK technique, defensive control surface, expected alert pattern with cite-able signals, KQL hunt query, and pass/fail criteria for replay. (B002)
-- Canonical T1087.004 replay-log entry at samples/replay-log/20260515T221433Z-d2359cc0-f634-4be1-84af-1533d47216dc.json. Captures a clean Tool 1 success run against the cloudharbordemo sandbox tenant (76b87c33) on Fri May 15, 2026. Actor Megan Bowen (<meganb@cloudharbor-demo.com>), borrowed Microsoft Graph PowerShell client (14d82eec), 6 users enumerated in 1 page with 0 retries, row_cap 1000, row_cap_hit false. Demonstrates the v0.1 schema end-to-end: nested technique block, scrubbed request headers (Authorization stripped by allow-list, User-Agent + Content-Type retained), response audit metadata only (no row contents), outcome=success.
+- Canonical T1087.004 replay-log entry at samples/replay-log/20260515T221433Z-d2359cc0-f634-4be1-84af-1533d47216dc.json. Captures a clean Tool 1 success run against the lab tenant on Fri May 15, 2026. Actor Megan Bowen (meganb@<lab-domain>), borrowed Microsoft Graph PowerShell client (14d82eec), 6 users enumerated in 1 page with 0 retries, row_cap 1000, row_cap_hit false. Demonstrates the v0.1 schema end-to-end: nested technique block, scrubbed request headers (Authorization stripped by allow-list, User-Agent + Content-Type retained), response audit metadata only (no row contents), outcome=success.
 - Three good-entries fixtures under tests/fixtures/entries/ (minimal-success, success-with-response, error-outcome) covering the positive validation surface for the replay-log schema.
 - TestSchemaFidelity.test_good_fixtures_validate to exercise the new fixtures against the v0.1 schema.
 - Tenant-GUID redaction in RFC 9457 error block string fields (type, detail, instance) in scripts/replay_log.py. Closes pre-mortem failure mode #1 from the replay-log writer design report.
@@ -1156,7 +1187,7 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
 - Replay log schema v0.1 (schemas/replay-log/v0.1.json). JSON Schema 2020-12 definition for the execution metadata envelope written per tool invocation. Foundation for the Sprint 5 replay harness (B013). Captures schema_version, entry_id, tool, technique (ATT&CK ID + name), tenant_id, borrowed_client_id, actor_upn, started_at_utc / completed_at_utc, request envelope, response envelope (status_code, page_count, row_count, row_cap, row_cap_hit, retry_count), outcome classifier, and optional error block.
 - Replay log writer middleware at scripts/replay_log.py — Draft 2020-12 schema validation (cached validator, FormatChecker), two-layer secret scrubbing (allow-list request headers, deny-list response keys, tenant-GUID URL redaction), atomic file writes (tempfile → fsync → os.replace → directory fsync), refuse-overwrite append-only enforcement, RFC 9457 Problem Details helper, G-1 tenant scope lock, no-tenant-app-reg posture (borrowed_client_id required). Sourced patterns from python.org docs, RFC 9457/9562/3339, OWASP Logging Cheat Sheet, OWASP ASVS v5 §16.3, and NIST SP 800-92 Rev 1 IPD.
 - Thin wrapper at scripts/run_with_replay_log.py — runs a Rejewski tool as a subprocess, captures stdout/stderr and return code, writes a replay-log entry without modifying the wrapped tool.
-- First end-to-end replay-log samples at samples/replay-log/ — T1087.004 success-path entry and RFC 9457 error-path entry against the cloudharbordemo sandbox.
+- First end-to-end replay-log samples at samples/replay-log/ — T1087.004 success-path entry and RFC 9457 error-path entry against the lab tenant.
 
 ### Changed
 
@@ -1167,9 +1198,9 @@ First public release. Release notes: [docs/release-notes-v1.0.md](docs/release-n
 - scripts/identity.py: _emit_token_event response payload now includes the flow field on the response side as well (graph_call branch unaffected). No change to acquisition logic.
 - scripts/run_with_replay_log.py: stderr capture for failed subprocesses bumped from 500-char head to 4000-char tail so the actionable last line of Python tracebacks survives. Twice this session the head-truncated message hid the root cause.
 - scripts/tool_list_users.py wires the replay-log writer. Every invocation emits a single replay-log entry (success or error) via replay_log.write_entry. Defaults to replay-logs/ (gitignored). Pass --replay-log-dir samples/replay-log to produce a canonical entry. Error paths now capture an RFC 9457 problem-details block in the entry's error field. The legacy evidence JSON on stdout/--output adds an outcome field and a replay_log_entry path pointer.
-- docs(adr): correct ADR 0001 §1 sandbox tenant ID from cf3f9a61-644f-4d47-a11c-a6600a9bc717 (Planner host) to 76b87c33-6178-4ff9-94a7-164792c8e4c6 (cloudharbordemo)
-- docs(guardrails): correct G-1 Sandbox Tenant Lock statement, enforcement, and rationale to reference cloudharbordemo (76b87c33) instead of the Planner host tenant (cf3f9a61)
-- docs/threat-model.md: bump v0.1 → v0.2 with four bundled corrections — §1 tenant ID corrected to 76b87c33 (was cf3f9a61), §3 adversary-model section expanded with the no-tenant-app-reg posture and first-party client borrowing note, §5 extended with the T1069.003 deferred surface (/me/transitiveMemberOf and /directoryRoles as Sprint 2+ uplift), ADR 0003 added to the cross-references.
+- docs(adr): correct ADR 0001 §1 sandbox tenant ID from <organization-tenant-id> (Planner host) to the lab tenant ID
+- docs(guardrails): correct G-1 Sandbox Tenant Lock statement, enforcement, and rationale to reference the lab tenant instead of the Planner host tenant (<organization-tenant-id>)
+- docs/threat-model.md: bump v0.1 → v0.2 with four bundled corrections — §1 tenant ID corrected to <lab-tenant-id> (was <organization-tenant-id>), §3 adversary-model section expanded with the no-tenant-app-reg posture and first-party client borrowing note, §5 extended with the T1069.003 deferred surface (/me/transitiveMemberOf and /directoryRoles as Sprint 2+ uplift), ADR 0003 added to the cross-references.
 - docs/guardrails.md: replaced G-1 to G-8 stubs with full prose (Statement / Rationale / Enforcement / Scope / Exceptions per guardrail). Added the guardrail-to-technique appendix mapping each rule to the Sprint 1 technique modules.
 
 ### Fixed

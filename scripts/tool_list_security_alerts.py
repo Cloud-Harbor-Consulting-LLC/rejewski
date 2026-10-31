@@ -35,7 +35,7 @@ REQUIRED PRIVILEGE — SCOPE AND DIRECTORY ROLE:
     GET /security/alerts_v2 requires BOTH:
       (1) SecurityAlert.Read.All delegated scope — admin-consented on the
           borrowed Microsoft Graph Command Line Tools client (14d82eec) in
-          cloudharbordemo. Without it the call returns HTTP 403.
+          the lab tenant. Without it the call returns HTTP 403.
       (2) One of the following Entra directory roles on the signed-in user:
             - Security Reader (minimum)
             - Security Operator
@@ -43,15 +43,15 @@ REQUIRED PRIVILEGE — SCOPE AND DIRECTORY ROLE:
             - Global Reader
             - Global Administrator
     A member account without a qualifying role receives HTTP 403 regardless of
-    scope consent. In cloudharbordemo, meganb@cloudharbor-demo.com must hold
+    scope consent. In the lab tenant, meganb@<lab-domain> must hold
     Security Reader or higher.
 
 See docs/techniques/T1654.md Surface B for the full module.
 
 Required environment variables:
-    AZURE_TENANT_ID            Target tenant ID (cloudharbordemo: 76b87c33-...)
+    AZURE_TENANT_ID            Target tenant ID (your lab or consented tenant GUID)
     FOCI_CLIENT_ID             Borrowed first-party client (default: 14d82eec-...)
-    COMPROMISED_USER_UPN       Seed user UPN (meganb@cloudharbor-demo.com)
+    COMPROMISED_USER_UPN       Seed user UPN (e.g. meganb@<lab-domain>)
     COMPROMISED_USER_PASSWORD  Seed user password (cache-miss fallback only)
 """
 

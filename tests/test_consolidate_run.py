@@ -36,7 +36,7 @@ def _isolated_token_cache(monkeypatch, tmp_path):
     """Point identity's token cache at a temp path for every test in this module.
 
     main() now ends the run's sessions (G-8) by deleting each account's token cache.
-    The fixture run's token_events use the real sandbox UPN, so without this the
+    The fixture run's token_events use a lab UPN, so without this the
     suite would delete the operator's real cache.
     """
     import identity
@@ -136,7 +136,7 @@ def test_run_id_not_found_exits_1(monkeypatch, tmp_path, capsys):
 # --- G-8 session teardown -------------------------------------------------------
 
 
-SANDBOX_UPN = "meganb@cloudharbor-demo.com"
+LAB_UPN = "meganb@lab.example"
 
 
 def _run_with_actor(tmp_path: Path) -> Path:
@@ -146,7 +146,7 @@ def _run_with_actor(tmp_path: Path) -> Path:
     for path in run_dir.glob("*.json"):
         entry = json.loads(path.read_text(encoding="utf-8"))
         if entry.get("kind") == "token_event":
-            entry["actor_upn"] = SANDBOX_UPN
+            entry["actor_upn"] = LAB_UPN
             path.write_text(json.dumps(entry), encoding="utf-8")
     return run_dir
 
@@ -168,7 +168,7 @@ def test_teardown_deletes_run_token_cache(monkeypatch, tmp_path, capsys, _isolat
 
     assert not cache.exists() and not lock.exists()
     out = capsys.readouterr().out
-    assert f"G-8 session teardown for {SANDBOX_UPN}: token cache deleted" in out
+    assert f"G-8 session teardown for {LAB_UPN}: token cache deleted" in out
     assert str(cache) not in out, "operator-local cache path must not be printed (G-6)"
 
 

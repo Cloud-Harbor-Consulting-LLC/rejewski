@@ -32,14 +32,14 @@ to stderr and still writes a graph_call entry with row_count (object_count) 0.
 REQUIRED PRIVILEGE:
     GET /deviceManagement/managedDevices requires the
     DeviceManagementManagedDevices.Read.All delegated scope, admin-consented on
-    the borrowed Microsoft Graph Command Line Tools client in cloudharbordemo.
+    the borrowed Microsoft Graph Command Line Tools client in the lab tenant.
     Managed-device enumeration is gated behind an Intune-administrator-class
     grant; it is a post-foothold discovery step, not a first-foothold capability.
 
 Required environment variables:
-    AZURE_TENANT_ID            Target tenant ID (cloudharbordemo: 76b87c33-...)
+    AZURE_TENANT_ID            Target tenant ID (your lab or consented tenant GUID)
     FOCI_CLIENT_ID             Borrowed first-party client (default: 14d82eec-...)
-    COMPROMISED_USER_UPN       Seed user UPN (meganb@cloudharbor-demo.com)
+    COMPROMISED_USER_UPN       Seed user UPN (e.g. meganb@<lab-domain>)
     COMPROMISED_USER_PASSWORD  Seed user password (cache-miss fallback only)
 """
 

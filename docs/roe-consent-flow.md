@@ -21,14 +21,14 @@ The consent flow is the first runtime contract Rejewski enforces. It runs after 
 
 Scope:
 
-- All Sprint 1 technique runs against the cloudharbordemo sandbox tenant (76b87c33-6178-4ff9-94a7-164792c8e4c6).
+- All Sprint 1 technique runs against the lab tenant.
 - Single-operator runs only. Multi-operator handoffs are out of scope for v0.1.
 - Interactive operator at a terminal session. Headless/CI-driven runs are out of scope until ADR-amended (Sprint 3+ candidate).
 
 > ⚠️ **Operator safety — pin the tenant on every admin / Graph-PowerShell action.**
 > Every interactive Microsoft Graph PowerShell session used to set up or manage the sandbox
 > (`Connect-MgGraph`, admin-consent grants, role assignments, `Invoke-MgGraphRequest`, etc.)
-> **must pass `-TenantId 76b87c33-6178-4ff9-94a7-164792c8e4c6` explicitly** — do **not** rely on
+> **must pass `-TenantId <lab-tenant-id>` explicitly** — do **not** rely on
 > the default or cached auth context. WAM / cached sign-ins can silently authenticate to a
 > *different* tenant (e.g. a production tenant) despite the org picker, causing admin-consent
 > grants and role assignments to land in the wrong tenant. This happened during the W17 R013
@@ -41,7 +41,7 @@ After config load passes the G-1 tenant lock check and the §3 technique-allowli
 
 | Field | Source | Example value |
 |-------|--------|---------------|
-| Target tenant | rejewski.config.json (tenant_id) | cloudharbordemo (76b87c33-6178-4ff9-94a7-164792c8e4c6) |
+| Target tenant | rejewski.config.json (tenant_id) | the lab tenant |
 | Techniques | invocation arguments | T1078.004, T1087.004 |
 | Expected duration | per-technique manifest sum + 20% slack | ≤ 6 minutes |
 | Operator identity | resolved Entra ID object ID for signed-in account | b0a5e9c4-... (ADR 0001 §8) |
@@ -101,7 +101,7 @@ The runtime refuses to proceed and exits non-zero before any Graph call when any
 - The operator types anything other than the exact run ID at the prompt.
 - The operator sends SIGINT or closes the terminal before confirmation.
 - The resolved operator object ID does not match the principal that will sign in for token acquisition (ADR 0001 §8 deferred check: the runtime re-asserts this match at first Graph call and aborts on mismatch).
-- The tenant ID resolved from runtime config does not equal 76b87c33-6178-4ff9-94a7-164792c8e4c6 (G-1).
+- The tenant ID resolved from runtime config does not equal <lab-tenant-id> (G-1).
 - The technique list contains any ID not in the current threat-model §5 allowlist (ADR 0001 §3).
 
 In every refusal case, the runtime writes either a `consent.declined` record or a pre-consent abort marker to the replay log before exiting. No refusal is silent.

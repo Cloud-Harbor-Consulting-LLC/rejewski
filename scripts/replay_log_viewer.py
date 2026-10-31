@@ -54,7 +54,7 @@ def _read_source(path: str) -> str:
 
 
 def _short_tenant(tenant_id: Any) -> str:
-    """First GUID segment of a tenant ID, e.g. 76b87c33-... -> 76b87c33."""
+    """First GUID segment of a tenant ID, e.g. c0ffee00-... -> c0ffee00."""
     if not isinstance(tenant_id, str) or not tenant_id:
         return "?"
     return tenant_id.split("-", 1)[0]

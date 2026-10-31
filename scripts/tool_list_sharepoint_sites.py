@@ -33,7 +33,7 @@ the tool prints a notice to stderr and still writes a graph_call entry with row_
 
 REQUIRED PRIVILEGE — SCOPE:
     GET /sites?search=* requires the Sites.Read.All delegated scope, admin-consented on
-    the borrowed client in cloudharbordemo. NO Entra directory role is required —
+    the borrowed client in the lab tenant. NO Entra directory role is required —
     Sites.Read.All grants read access to all site collections for any licensed user. If
     the scope is not pre-consented on the FOCI client, the call returns HTTP 403; grant
     admin consent in the Entra admin center first (same one-time setup pattern as the DfI
@@ -42,9 +42,9 @@ REQUIRED PRIVILEGE — SCOPE:
 See docs/techniques/T1213.002.md Surface A for the full module.
 
 Required environment variables:
-    AZURE_TENANT_ID            Target tenant ID (cloudharbordemo: 76b87c33-...)
+    AZURE_TENANT_ID            Target tenant ID (your lab or consented tenant GUID)
     FOCI_CLIENT_ID             Borrowed first-party client (default: 14d82eec-...)
-    COMPROMISED_USER_UPN       Seed user UPN (meganb@cloudharbor-demo.com)
+    COMPROMISED_USER_UPN       Seed user UPN (e.g. meganb@<lab-domain>)
     COMPROMISED_USER_PASSWORD  Seed user password (cache-miss fallback only)
 """
 
@@ -53,7 +53,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import re
 import sys
 import time
 from pathlib import Path
@@ -64,24 +63,19 @@ from dotenv import load_dotenv
 
 import identity
 from replay_log import (
-    REDACTED,
-    SANDBOX_TENANT_ID,
     ReplayLogEntry,
     make_error,
     redact_tenant_id,
+    scrub_lab_tenant_guid,
     utc_now_iso,
     write_entry,
 )
 
-# The sandbox tenant GUID as a SUBSTRING scrubber for free-text fields (webUrl).
-# Note: replay_log.redact_tenant_id() is an exact-match field redactor (for the
-# evidence tenant_id field); it does NOT scrub a GUID embedded inside a URL, so a
-# case-insensitive substring replace is used for webUrl (G-6).
-_TENANT_GUID_RE = re.compile(re.escape(SANDBOX_TENANT_ID), re.IGNORECASE)
-
-
+# The lab tenant GUID as a SUBSTRING scrubber for free-text fields (webUrl).
+# replay_log.redact_tenant_id() is an exact-match field redactor (for the evidence
+# tenant_id field); it does NOT scrub a GUID embedded inside a URL (G-6).
 def _scrub_url(url: Any) -> str:
-    return _TENANT_GUID_RE.sub(REDACTED, str(url or ""))
+    return scrub_lab_tenant_guid(url)
 
 GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 GRAPH_SCOPE = ["https://graph.microsoft.com/.default"]

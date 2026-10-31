@@ -32,7 +32,7 @@ GAP-2 (closed) — write-verb guard (Category 1, G-1).
     shipped tool issues a write verb).
 
 WHAT IS ENFORCED (all tested here as real refusals):
-    * write_entry() raises on: non-sandbox tenant, empty tenant (G-1/G-3 lock);
+    * write_entry() raises on: non-lab tenant, empty tenant (G-1/G-3 lock);
       missing borrowed_client_id (G-3 no-app-reg); a graph_call with a non-GET
       method (G-1 read-only).
     * load_config() raises on a config referencing a prohibited technique
@@ -54,7 +54,8 @@ import pytest
 
 import identity
 import tool_list_users
-from replay_log import SANDBOX_TENANT_ID, ReplayLogEntry, write_entry
+from lab_values import LAB_TENANT_ID
+from replay_log import ReplayLogEntry, write_entry
 from rejewski_runtime import PROHIBITED_TECHNIQUES, load_config
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -75,9 +76,9 @@ def _entry(**overrides) -> ReplayLogEntry:
         tool="tool_list_users",
         technique_id="T1087.004",
         technique_name="Account Discovery: Cloud Account",
-        tenant_id=SANDBOX_TENANT_ID,
+        tenant_id=LAB_TENANT_ID,
         borrowed_client_id="14d82eec-204b-4c2f-b7e8-296a70dab67e",
-        actor_upn="meganb@cloudharbor-demo.com",
+        actor_upn="meganb@lab.example",
         started_at_utc="2026-08-06T10:00:00Z",
         completed_at_utc="2026-08-06T10:00:01Z",
         request={"method": "GET", "url": "https://graph.microsoft.com/v1.0/users"},
@@ -116,9 +117,9 @@ class TestWriteOperationRefusal:
         """Behavioural G-1 (POST/PATCH/DELETE attempt): run a representative tool
         end-to-end with every write verb wired to explode if touched. The tool
         completes via GET only, proving 0 passing calls to write Graph endpoints."""
-        monkeypatch.setenv("AZURE_TENANT_ID", SANDBOX_TENANT_ID)
+        monkeypatch.setenv("AZURE_TENANT_ID", LAB_TENANT_ID)
         monkeypatch.setenv("FOCI_CLIENT_ID", identity.DEFAULT_CLIENT_ID)
-        monkeypatch.setenv("COMPROMISED_USER_UPN", "meganb@cloudharbor-demo.com")
+        monkeypatch.setenv("COMPROMISED_USER_UPN", "meganb@lab.example")
         monkeypatch.delenv("COMPROMISED_USER_PASSWORD", raising=False)
         replay_dir = tmp_path / "replay-logs"
         replay_dir.mkdir()
@@ -223,7 +224,7 @@ class TestProhibitedTechniqueRouting:
 class TestSandboxTenantLock:
     def test_write_entry_rejects_wrong_tenant(self, tmp_path):
         """G-1 consent-bound tenant lock: a replay entry for a tenant other than the
-        cloudharbordemo sandbox is refused when the run has no consent record for it."""
+        lab tenant is refused when the run has no consent record for it."""
         entry = _entry(tenant_id="11111111-2222-3333-4444-555555555555")
         with pytest.raises(ValueError, match="tenant"):
             write_entry(entry, log_dir=tmp_path)

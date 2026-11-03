@@ -24,7 +24,7 @@ body:
     attributes:
       label: Version
       description: The release tag or commit SHA you're running.
-      placeholder: v1.0, or main @ <commit-sha>
+      placeholder: v1.0.1, or main @ <commit-sha>
     validations:
       required: true
   - type: textarea

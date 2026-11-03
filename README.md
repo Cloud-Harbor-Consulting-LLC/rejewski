@@ -2,7 +2,7 @@
 
 Read-only Microsoft 365 adversary-emulation toolkit. A friendly threat actor that emulates recon and discovery TTPs against a tenant the operator owns or has written authorization to assess, and produces findings mapped to specific M365 controls.
 
-> **Status:** v1.0, released Mon Oct 26, 2026. See the [release notes](docs/release-notes-v1.0.md) and the [CHANGELOG](CHANGELOG.md).
+> **Status:** v1.0.1, released Thu Nov 5, 2026 (v1.0 launched Mon Oct 26, 2026). See the [release notes](docs/release-notes-v1.0.1.md) and the [CHANGELOG](CHANGELOG.md).
 
 ## What it does
 

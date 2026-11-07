@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **R020: Launch W2 weekly end-to-end run (Sat Nov 7).** All 15 tool surfaces against the lab tenant under the G-1
+  consent gate (v2 self-test record) and the G-8 teardown. `samples/replay-log/R020.json`: 39 entries (consent first;
+  1 ROPC sign-in + 18 silent reuses; 19 graph calls, 14 surfaces success + the documented inbox block + 4 sign-in-log
+  timeouts). Same 10 findings as R017 to R019 (5 high, 5 medium); 10 triage records and
+  `docs/reports/replay-report-R020.html`. `tool_signin_logs` hit Graph's 30-second read timeout 4 times (3 at the
+  default 7-day window, 1 at page size 50) and then returned 33 sign-ins over a 1-day window (`--days 1`); every
+  attempt is logged (G-5), and the 1-day count is not comparable with R019's 7-day count. Tenant drift since R019:
+  service principals 459 → 465, role assignments 17 → 15 (lab account cleanup, Oct 31), Conditional Access
+  policies 26 → 27. The canonical aliases stay on R017.
+
 ## [1.0.1] - 2026-11-05
 
 Configuration release: no built-in lab tenant values outside evidence. Release notes:

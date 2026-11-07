@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1550-001-r020-token-reuse-001",
+  "technique_id": "T1550.001",
+  "technique_name": "Use Alternate Authentication Material: Application Access Token",
+  "run_id": "R020",
+  "severity": "high",
+  "confidence": "high",
+  "control_mapping_id": "ft1550-001-rbac-directory-readers-001",
+  "evidence": [
+    "samples/replay-log/R020.json"
+  ],
+  "triage_status": "open",
+  "notes": "Application access token reuse: after the run's one ROPC sign-in, the cached refresh token was silently reused for every later tool call via the MSAL encrypted cache (18 silent token events, all success; 14 in R019, the extra 4 are the sign-in-log retries). High per rubric v1.0 (D=3 token material; operates through the authentication control). Recurring. Under the G-8 end-of-run teardown the session started fresh in R020 and ended at consolidation, so the reuse window is this run only. Cross-references Directory Readers (RBAC).",
+  "triage_metadata": {
+    "created_utc": "2026-11-07T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

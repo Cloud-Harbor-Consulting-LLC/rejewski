@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1654-r020-log-enumeration-001",
+  "technique_id": "T1654",
+  "technique_name": "Log Enumeration",
+  "run_id": "R020",
+  "severity": "high",
+  "confidence": "high",
+  "control_mapping_id": "ft1654-rbac-reports-reader-001",
+  "evidence": [
+    "samples/replay-log/R020.json"
+  ],
+  "triage_status": "open",
+  "notes": "Log enumeration across two surfaces in R020. tool_signin_logs timed out 4 times (Graph read timeout of 30 seconds; 3 attempts at the default 7-day window, 1 at page size 50 that returned its first page before timing out), then returned 33 sign-in records over a 1-day window (--days 1), HTTP 200. Every attempt is in the replay log (G-5). The 33 covers 1 day, so it is not comparable with R019's 277 over 7 days. tool_list_security_alerts returned 0 alerts (empty result, not an error). High per rubric v1.0 (defensive-evasion escalator: an authorized read of the defender's sign-in/alert surface). Recurring. Cross-references Reports Reader (RBAC).",
+  "triage_metadata": {
+    "created_utc": "2026-11-07T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

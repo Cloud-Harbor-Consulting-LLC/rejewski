@@ -1,0 +1,1242 @@
+[
+  {
+    "schema_version": "2",
+    "event": "consent.granted",
+    "run_id": "R021",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "operator_object_id": "48df3ad2-9110-4c27-9630-f82b1b8eb177",
+    "techniques": [
+      "T1078.004",
+      "T1550.001",
+      "T1087.004",
+      "T1069.003",
+      "T1526",
+      "T1518.001",
+      "T1082",
+      "T1580",
+      "T1654",
+      "T1213.002",
+      "T1114.002"
+    ],
+    "expected_duration_seconds": 1800,
+    "prompt_emitted_at": "2026-11-14T14:06:31Z",
+    "confirmed_at": "2026-11-14T14:06:31Z",
+    "confirmation_latency_seconds": 3,
+    "engagement": {
+      "name": "Cloud Harbor Demo - Weekly End-to-End Run R021 (Launch W3)",
+      "type": "self_test",
+      "mvp_pillar": "Multiple pillars",
+      "status": "active"
+    },
+    "counterparty": {
+      "is_self_test": true,
+      "org": "Derek Morgan (Cloud Harbor Consulting) (self-test)",
+      "contact_name": "Derek Morgan (Cloud Harbor Consulting)",
+      "contact_email": "derek.morgan@cloudharborconsulting.cloud"
+    },
+    "scope": {
+      "surface": [
+        "Multiple surfaces"
+      ],
+      "summary": "Read-only end-to-end run across all 15 tool surfaces (Launch W3 weekly run)"
+    },
+    "authorization": {
+      "signed_by_provider": "Derek Morgan (Cloud Harbor Consulting)",
+      "signed_by_counterparty": "Derek Morgan (Cloud Harbor Consulting), self-authorized",
+      "signature_method": "self_test_attestation",
+      "signed_date": "2026-11-14",
+      "effective_date": "2026-11-14",
+      "expiry_date": "2026-11-14",
+      "evidence_ref": "docs/roe-consent-flow.md"
+    },
+    "archive": {
+      "record_id": "roe-selftest-r021-001",
+      "storage_location": "SharePoint > ROE Consent Archive workbook",
+      "created_utc": "2026-11-14T14:06:31Z"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:06:52Z",
+    "completed_at_utc": "2026-11-14T14:06:54Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "ropc",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "ropc"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "70ea70f8-e61f-464d-a6b8-311935967dd0",
+    "technique": {
+      "id": "T1078.004",
+      "name": "Valid Accounts: Cloud Accounts"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:18:33Z",
+    "completed_at_utc": "2026-11-14T14:18:35Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "ropc",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "ropc"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "68aabf83-83c0-4195-aa5f-118ac8f8af83",
+    "technique": {
+      "id": "T1078.004",
+      "name": "Valid Accounts: Cloud Accounts"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_users",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:18:46Z",
+    "completed_at_utc": "2026-11-14T14:18:48Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/users?$select=id,displayName,userPrincipalName,mail,jobTitle,department,accountEnabled&$top=999",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-users/0.2 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 10,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "47aeaaab-c7bc-42c3-8c3e-57d47309b250",
+    "technique": {
+      "id": "T1087.004",
+      "name": "Account Discovery: Cloud Account"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:18:47Z",
+    "completed_at_utc": "2026-11-14T14:18:47Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "137740b8-718e-437a-8006-dc9eb33e545a",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:18:49Z",
+    "completed_at_utc": "2026-11-14T14:18:50Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "60c18050-ef2f-4333-b287-9e462edde811",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_applications",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:18:49Z",
+    "completed_at_utc": "2026-11-14T14:18:51Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/applications?$select=id,appId,displayName,publisherDomain,signInAudience,createdDateTime&$top=999",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-applications/0.2 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 11,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "92d99c6f-553a-4060-9f2b-4c0863c9be08",
+    "technique": {
+      "id": "T1087.004",
+      "name": "Account Discovery: Cloud Account"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:18:52Z",
+    "completed_at_utc": "2026-11-14T14:18:52Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "24c29aef-cb0b-422d-9ded-1110ee97a3d4",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_service_principals",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:18:52Z",
+    "completed_at_utc": "2026-11-14T14:18:59Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/servicePrincipals?$select=id,appId,displayName,accountEnabled,servicePrincipalType,signInAudience,appOwnerOrganizationId,tags,homepage&$top=100",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-service-principals/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 5,
+      "row_count": 467,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "5732ad9b-8717-4d33-bc13-1cf58ce190aa",
+    "technique": {
+      "id": "T1087.004",
+      "name": "Account Discovery: Cloud Account"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_role_assignments",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:00Z",
+    "completed_at_utc": "2026-11-14T14:19:03Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments?$select=id,principalId,roleDefinitionId,directoryScopeId&$expand=principal&$top=100",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-role-assignments/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 2,
+      "row_count": 14,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "4301e21e-d1cc-42d5-8bd7-54a7e7bd0c92",
+    "technique": {
+      "id": "T1087.004",
+      "name": "Account Discovery: Cloud Account"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:01Z",
+    "completed_at_utc": "2026-11-14T14:19:01Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "23c45ca4-3274-496b-bb38-4e014e93601b",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:04Z",
+    "completed_at_utc": "2026-11-14T14:19:05Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "ab10208b-1f7c-4bad-bb09-d2528842b96d",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_oauth_grants",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:04Z",
+    "completed_at_utc": "2026-11-14T14:19:05Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/oauth2PermissionGrants?$select=id,clientId,resourceId,consentType,principalId,scope&$top=100",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-oauth-grants/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 25,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "c8130116-5ac9-4879-909c-6bf95fa79c33",
+    "technique": {
+      "id": "T1087.004",
+      "name": "Account Discovery: Cloud Account"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:06Z",
+    "completed_at_utc": "2026-11-14T14:19:07Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "5e0282c5-d0d2-4aee-af96-58669230b358",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_pim_eligible_roles",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:06Z",
+    "completed_at_utc": "2026-11-14T14:19:09Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/roleManagement/directory/roleEligibilityScheduleInstances?$select=id,principalId,roleDefinitionId,directoryScopeId,startDateTime,endDateTime,memberType&$expand=roleDefinition&$top=100",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-pim-eligible-roles/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 2,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "b78b4119-64f4-4e2f-afce-a909ddb7d12c",
+    "technique": {
+      "id": "T1087.004",
+      "name": "Account Discovery: Cloud Account"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_groups",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:10Z",
+    "completed_at_utc": "2026-11-14T14:19:11Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/groups?$select=id,displayName,mailNickname,groupTypes,securityEnabled,mailEnabled,visibility&$top=999",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-groups/0.2 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 34,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "375d6fa0-d763-4d18-a053-34fd1a2cbcbb",
+    "technique": {
+      "id": "T1069.003",
+      "name": "Permission Groups Discovery: Cloud Groups"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:10Z",
+    "completed_at_utc": "2026-11-14T14:19:11Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "9c5514ff-4027-48f2-a002-edf2cae92daa",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_ca_policies",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:13Z",
+    "completed_at_utc": "2026-11-14T14:19:15Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/identity/conditionalAccess/policies?$select=id,displayName,state,conditions,grantControls,sessionControls,createdDateTime,modifiedDateTime&$top=100",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-ca-policies/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 27,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "8f15d437-cb51-4d90-8c2b-f86336e6b6a2",
+    "technique": {
+      "id": "T1526",
+      "name": "Cloud Service Discovery"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:13Z",
+    "completed_at_utc": "2026-11-14T14:19:13Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "e3be8e9d-56ae-4364-a14c-56d73d9d3e99",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:16Z",
+    "completed_at_utc": "2026-11-14T14:19:16Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "4597dc06-2e4e-4446-af18-a481e01f93a3",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_dfi_health",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:16Z",
+    "completed_at_utc": "2026-11-14T14:19:18Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/security/identities/sensors?$top=100",
+      "headers": {
+        "User-Agent": "rejewski-tool-dfi-health/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 3,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "be6bd768-30ce-4f2b-9f71-c147fc1337c1",
+    "technique": {
+      "id": "T1518.001",
+      "name": "Software Discovery: Security Software Discovery"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:20Z",
+    "completed_at_utc": "2026-11-14T14:19:20Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "05f7e9fb-ee8d-4431-9055-0df3df851973",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_intune_devices",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:20Z",
+    "completed_at_utc": "2026-11-14T14:19:22Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/deviceManagement/managedDevices?$select=id,deviceName,managedDeviceOwnerType,operatingSystem,osVersion,complianceState,managementState,lastSyncDateTime,enrolledDateTime,azureADDeviceId,userPrincipalName,userDisplayName,manufacturer,model,isEncrypted&$top=100",
+      "headers": {
+        "User-Agent": "rejewski-tool-intune-devices/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 4,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "46900eb0-97fb-4bee-b91d-52885ae686f0",
+    "technique": {
+      "id": "T1082",
+      "name": "System Information Discovery"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:23Z",
+    "completed_at_utc": "2026-11-14T14:19:24Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "7623c874-dd1b-4a96-b89f-f47d96fcf8af",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_purview_labels",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:23Z",
+    "completed_at_utc": "2026-11-14T14:19:25Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/security/dataSecurityAndGovernance/sensitivityLabels?$top=100",
+      "headers": {
+        "User-Agent": "rejewski-tool-purview-labels/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 5,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "a2342527-eb94-4b35-996f-a531df883c83",
+    "technique": {
+      "id": "T1580",
+      "name": "Cloud Infrastructure Discovery"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:26Z",
+    "completed_at_utc": "2026-11-14T14:19:27Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "bb1eb102-74b1-425c-a15d-529938371292",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_signin_logs",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:26Z",
+    "completed_at_utc": "2026-11-14T14:19:57Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/auditLogs/signIns?$select=id,createdDateTime,userDisplayName,userPrincipalName,userId,appId,appDisplayName,ipAddress,clientAppUsed,isInteractive,riskLevelAggregated,riskState,status&$filter=createdDateTime ge 2026-11-07T14%3A19%3A26Z&$top=100",
+      "headers": {
+        "User-Agent": "rejewski-tool-signin-logs/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 0,
+      "page_count": 0,
+      "row_count": 0,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "error",
+    "error": {
+      "type": "urn:rejewski:error:tool-invocation-failed",
+      "message": "HTTPSConnectionPool(host='graph.microsoft.com', port=443): Read timed out. (read timeout=30)"
+    },
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "bb4236c4-1e4a-40e9-8a87-50b41f38e7ad",
+    "technique": {
+      "id": "T1654",
+      "name": "Log Enumeration"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:59Z",
+    "completed_at_utc": "2026-11-14T14:19:59Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "2c8850c3-724a-4fe6-9f68-c871cdd01043",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_security_alerts",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:19:59Z",
+    "completed_at_utc": "2026-11-14T14:20:02Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/security/alerts_v2?$select=id,title,severity,status,classification,determination,category,createdDateTime,lastUpdateDateTime,assignedTo&$filter=createdDateTime ge 2026-10-15T14%3A19%3A59Z&$top=100",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-security-alerts/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 0,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "ecbb37cd-be22-4443-849b-b16fb4279510",
+    "technique": {
+      "id": "T1654",
+      "name": "Log Enumeration"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_sharepoint_sites",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:20:03Z",
+    "completed_at_utc": "2026-11-14T14:20:05Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/sites?search=*&$select=id,displayName,webUrl,description,createdDateTime,lastModifiedDateTime&$top=200",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-sharepoint-sites/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 2,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "5442dad3-3e07-4eab-9ba4-b3bf353fcad2",
+    "technique": {
+      "id": "T1213.002",
+      "name": "Data from Information Repositories: Sharepoint"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:20:03Z",
+    "completed_at_utc": "2026-11-14T14:20:04Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "e45fa41f-6a79-4aa2-a1b8-cc21d765c784",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:20:06Z",
+    "completed_at_utc": "2026-11-14T14:20:07Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "3b3b698f-5652-45e6-98c9-1aa6b1515f6a",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_list_inbox_rules",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:20:06Z",
+    "completed_at_utc": "2026-11-14T14:20:08Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messageRules",
+      "headers": {
+        "User-Agent": "rejewski-tool-list-inbox-rules/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 0,
+      "page_count": 0,
+      "row_count": 0,
+      "row_cap": 500,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "error",
+    "error": {
+      "type": "urn:rejewski:error:tool-invocation-failed",
+      "message": "https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messageRules -> HTTP 404: {\"error\":{\"code\":\"MailboxNotEnabledForRESTAPI\",\"message\":\"The mailbox is either inactive, soft-deleted, or is hosted on-premise.\"}}"
+    },
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "44d9e60d-5796-4253-9efa-c5bd3bc548c2",
+    "technique": {
+      "id": "T1114.002",
+      "name": "Email Collection: Remote Email Collection"
+    }
+  },
+  {
+    "kind": "graph_call",
+    "tool": "tool_signin_logs",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:20:30Z",
+    "completed_at_utc": "2026-11-14T14:20:35Z",
+    "request": {
+      "method": "GET",
+      "url": "https://graph.microsoft.com/v1.0/auditLogs/signIns?$select=id,createdDateTime,userDisplayName,userPrincipalName,userId,appId,appDisplayName,ipAddress,clientAppUsed,isInteractive,riskLevelAggregated,riskState,status&$filter=createdDateTime ge 2026-11-13T14%3A20%3A30Z&$top=100",
+      "headers": {
+        "User-Agent": "rejewski-tool-signin-logs/0.1 (+https://github.com/Cloud-Harbor-Consulting-LLC/rejewski)",
+        "Content-Type": "application/json"
+      }
+    },
+    "response": {
+      "status_code": 200,
+      "page_count": 1,
+      "row_count": 12,
+      "row_cap": 1000,
+      "row_cap_hit": false,
+      "retry_count": 0
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "08fc4b62-cf69-4f5e-b6bd-d1198ab7183c",
+    "technique": {
+      "id": "T1654",
+      "name": "Log Enumeration"
+    }
+  },
+  {
+    "kind": "token_event",
+    "tool": "scripts.identity",
+    "tenant_id": "76b87c33-6178-4ff9-94a7-164792c8e4c6",
+    "borrowed_client_id": "14d82eec-204b-4c2f-b7e8-296a70dab67e",
+    "actor_upn": "meganb@cloudharbor-demo.com",
+    "started_at_utc": "2026-11-14T14:20:30Z",
+    "completed_at_utc": "2026-11-14T14:20:31Z",
+    "request": {
+      "method": "POST",
+      "url": "https://login.microsoftonline.com/76b87c33-6178-4ff9-94a7-164792c8e4c6/oauth2/v2.0/token",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "flow": "silent",
+      "scopes": [
+        "https://graph.microsoft.com/.default"
+      ]
+    },
+    "response": {
+      "status_code": 200,
+      "aadsts_code": null,
+      "correlation_id": null,
+      "persistence_kind": "encrypted",
+      "cache_path": "<redacted>",
+      "flow": "silent"
+    },
+    "outcome": "success",
+    "run_id": "R021",
+    "schema_version": "0.5",
+    "entry_id": "8706e053-8ee4-4c03-b849-9dc218cf7c95",
+    "technique": {
+      "id": "T1550.001",
+      "name": "Application Access Token (refresh-token reuse)"
+    }
+  }
+]

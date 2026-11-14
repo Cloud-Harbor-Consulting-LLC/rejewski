@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **R021: Launch W3 weekly end-to-end run (Sat Nov 14).** All 15 tool surfaces against the lab tenant under the G-1
+  consent gate (v2 self-test record) and the G-8 teardown. `samples/replay-log/R021.json`: 35 entries (consent first;
+  2 ROPC sign-ins + 16 silent reuses; 16 graph calls, 14 surfaces success + the documented inbox block + 1 sign-in-log
+  timeout). The first ROPC sign-in returned a token without the test account's directory roles, so its cache was
+  deleted and the roles restored before any tool ran; the second, fresh sign-in started the tool sequence. Same 10
+  findings as R017 to R020 (5 high, 5 medium); 10 triage records and `docs/reports/replay-report-R021.html`.
+  `tool_signin_logs` timed out once at the default 7-day window and then returned 12 sign-ins over a 1-day window
+  (`--days 1`, 33 in R020). `tool_intune_devices` read 4 devices with Security Reader and no Intune-specific role.
+  Tenant drift since R020: service principals 465 → 467, role assignments 15 → 14 (the test account's Intune read role
+  was not re-assigned), Intune managed devices 3 → 4. The canonical aliases stay on R017.
+
 - **R020: Launch W2 weekly end-to-end run (Sat Nov 7).** All 15 tool surfaces against the lab tenant under the G-1
   consent gate (v2 self-test record) and the G-8 teardown. `samples/replay-log/R020.json`: 39 entries (consent first;
   1 ROPC sign-in + 18 silent reuses; 19 graph calls, 14 surfaces success + the documented inbox block + 4 sign-in-log

@@ -1,0 +1,19 @@
+{
+  "finding_id": "ft-t1654-r022-log-enumeration-001",
+  "technique_id": "T1654",
+  "technique_name": "Log Enumeration",
+  "run_id": "R022",
+  "severity": "high",
+  "confidence": "high",
+  "control_mapping_id": "ft1654-rbac-reports-reader-001",
+  "evidence": [
+    "samples/replay-log/R022.json"
+  ],
+  "triage_status": "open",
+  "notes": "Log enumeration across two surfaces in R022. tool_signin_logs returned 41 sign-in records at the default 7-day window on the first attempt, HTTP 200 (in R020 and R021 the 7-day read timed out and the 1-day fallback returned 33 and 12). tool_list_security_alerts returned 0 alerts (empty result, not an error). High per rubric v1.0 (defensive-evasion escalator: an authorized read of the defender's sign-in/alert surface). Recurring. Cross-references Reports Reader (RBAC).",
+  "triage_metadata": {
+    "created_utc": "2026-11-21T00:00:00Z",
+    "author": "rejewski",
+    "schema_version": "0.1"
+  }
+}

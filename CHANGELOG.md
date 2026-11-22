@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **R022: Launch W4 weekly end-to-end run (Sat Nov 21).** All 15 tool surfaces against the lab tenant under the G-1
+  consent gate (v2 self-test record) and the G-8 teardown. `samples/replay-log/R022.json`: 34 entries (consent first;
+  1 ROPC sign-in + 16 silent reuses; 16 graph calls, 14 surfaces success + the documented inbox block + 1 network
+  connect timeout on `tool_list_role_assignments`, which succeeded on 1 retry). The sign-in's token was checked to carry
+  the test account's Security Reader and Directory Readers roles before any tool ran. Same 10 findings as R017 to R021
+  (5 high, 5 medium); 10 triage records and `docs/reports/replay-report-R022.html`. `tool_signin_logs` returned 41
+  sign-ins at the default 7-day window on the first attempt (it timed out at 7 days in R020 and R021). Tenant drift
+  since R021: groups 34 → 35. The canonical aliases stay on R017.
+
 - **R021: Launch W3 weekly end-to-end run (Sat Nov 14).** All 15 tool surfaces against the lab tenant under the G-1
   consent gate (v2 self-test record) and the G-8 teardown. `samples/replay-log/R021.json`: 35 entries (consent first;
   2 ROPC sign-ins + 16 silent reuses; 16 graph calls, 14 surfaces success + the documented inbox block + 1 sign-in-log
